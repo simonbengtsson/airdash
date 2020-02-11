@@ -8,8 +8,8 @@ With the help of WebRTC through PeerJS the aim is to make it one click to share 
 
 ### Deploy and build
 
-`npm run deploy-sender`
-`npm run build-receiver`
+`npm run deploy-web`
+`npm run deploy-desktop`
 
 ### Choice of mime type / extensions in manifest.json
 Seems like {"name": "file", "accept": ["*/*"]} matches all files on android. This is desired behavior since it is 
