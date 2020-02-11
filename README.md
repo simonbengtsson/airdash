@@ -1,6 +1,6 @@
 # AirDash
 
-Easiest file transfer from Android to Computer
+Easiest file transfer from Android to Computer.
 
 ## Pitch
 
@@ -38,7 +38,7 @@ Way to reproduce issue:
 
 Future research
 - Figure out fail condition - how to make txt file fail
-- Write in chrome forum for potensial future changes + whitelist
+- Write in chrome forum for potential future changes + whitelist
 
 Relevant sources:
 
