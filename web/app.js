@@ -17,8 +17,19 @@
 
   setupFileInput()
   setupDeviceId()
+  setupInstallPrompt()
   await handleStoredFile()
 })()
+
+function setupInstallPrompt() {
+  let deferredPrompt;
+  document.querySelector('#android-install').addEventListener('click', () => {
+    deferredPrompt.prompt();
+  })
+  window.addEventListener('beforeinstallprompt', (e) => {
+    deferredPrompt = e;
+  });
+}
 
 function getConnectionId() {
   return localStorage.getItem('connection-id') || ''
