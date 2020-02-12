@@ -46,9 +46,32 @@ function reconnect() {
       fs.writeFileSync(filepath, new Buffer(file))
       conn.send('done')
       console.log('Received ' + filepath)
+
+      notifyFileSaved(filename, filepath)
     })
   })
   previousPeer = peer
+}
+
+
+function notifyFileSaved(filename, filepath) {
+  const title = `New File from:  ${getConnectionId()}`
+  const image = `${__dirname}/trayIconTemplate@2x.png`
+  const notifOptions = {
+    body: `A new file has been saved, ${filename}`,
+    icon: isImage(filename) ? filepath : image,
+    silent: true,
+  }
+
+  const myNotification = new Notification(title, notifOptions)
+  myNotification.onclick = () => {
+    // we can do something when user click file,
+    // for example open the directory, or preview the file
+  }
+}
+
+function isImage(filename) {
+  return /jpg|png|jpeg|svg|gif|/.test(filename)
 }
 
 function locationFolder() {
