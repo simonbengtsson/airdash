@@ -9,7 +9,7 @@
     "peerjs": "^1.2.0"
   },
   "devDependencies": {
-    "electron": "^7.1.9",
+    "electron": "^7.2.4",
     "electron-installer-dmg": "^3.0.0",
     "electron-packager": "^14.2.0",
     "live-server": "^1.2.1",
