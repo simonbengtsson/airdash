@@ -1,4 +1,5 @@
 const useCustomPeerJsServer = true
+const versionCode = 1.0
 
 export async function tryConnection(deviceCode) {
   return new Promise((resolve, reject) => {
@@ -11,7 +12,14 @@ export async function tryConnection(deviceCode) {
     const conn = peer.connect(connectionId)
     conn.on('open', async function () {
       conn.on('data', (data) => {
+        console.log('data', data)
+        const versionCheck = checkVersionCode(data.versionCode)
+        if (versionCheck.mismatch) {
+          return reject(versionCheck)
+        }
+
         clearTimeout(timeout)
+
         peer.destroy()
         resolve({ deviceName: data.deviceName })
       })
@@ -67,6 +75,14 @@ export async function sendPayload(payload, meta, activeDevice, setStatus) {
     })
     conn.on('data', async function (data) {
       const type = data && data.type
+
+      console.log('send on data', data)
+      const versionCheck = checkVersionCode(data.versionCode)
+      if (versionCheck.mismatch) {
+        resolve('version-mismatch');
+        return setStatus(versionCheck.error)
+      }
+
       if (type === 'connected') {
       } else if (type === 'done') {
         if (batchSize * batch >= totalSize) {
@@ -93,4 +109,17 @@ export async function sendPayload(payload, meta, activeDevice, setStatus) {
       reject(err)
     })
   })
+}
+
+function checkVersionCode(desktopVersionCode) {
+  const areSameVersion = desktopVersionCode === versionCode
+  if (!areSameVersion) {
+    const isDesktopHigher = desktopVersionCode > versionCode
+    return {
+      mismatch: true,
+      error: isDesktopHigher ? 'Update web app' : 'Update Desktop app'
+    }
+  }
+
+  return true;
 }

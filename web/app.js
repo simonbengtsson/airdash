@@ -6,7 +6,7 @@ console.log('Loading app.js')
 const primaryColor = '#25AE88'
 let showAddButton = true;
 
-;(async function () {
+; (async function () {
   try {
     await navigator.serviceWorker.register('./sw.js')
     navigator.serviceWorker.addEventListener('message', swMessageReceived);
@@ -23,13 +23,14 @@ const deviceStatuses = {}
 async function connectToDevices() {
   const devices = getDevices()
   for (const [id, device] of Object.entries(devices)) {
-    deviceStatuses[id] = { color: '#f1c40f', message: 'Connecting'}
+    deviceStatuses[id] = { color: '#f1c40f', message: 'Connecting' }
     render()
     tryConnection(id).then(() => {
-      deviceStatuses[id] = { color: primaryColor, message: 'Ready'}
+      deviceStatuses[id] = { color: primaryColor, message: 'Ready' }
     }).catch(err => {
       console.error(err)
-      deviceStatuses[id] = { color: '#e74c3c', message: 'Could not connect'}
+      const message = err.error || 'Could not connect'
+      deviceStatuses[id] = { color: '#e74c3c', message: message }
     }).then(() => {
       render()
     })
@@ -94,19 +95,21 @@ function renderAddDevice() {
 function renderDeviceRow(code, device, checked) {
   const status = deviceStatuses[code] || {}
   return `
-    <div class="device" style="background: none; cursor: pointer;">
+    <div class="device" style="background: none; cursor: pointer;position:relative">
         <label class="mdl-radio mdl-js-radio mdl-js-ripple-effect" style="padding-right: 15px;">
             <input class="device-radio" type="radio" id="${code}" name="device" value="${code}" ${checked ? 'checked' : ''}>
         </label>
         <div style="display: inline-block; padding: 10px; vertical-align: middle;">
-            <div style="font-size: 18px">${device.name}</div>
+            <div style="font-size: 18px;">${device.name}</div>
             <div style="font-size: 14px; color: #555;">
                 <span class="device-status-indicator" style="border-radius: 10px; width: 10px; height: 10px; background: ${status.color || '#e74c3c'}; margin-right: 5px; display: inline-block"></span> 
                 <span class="device-status">${status.message || 'Unknown error'}</span> -
                 <span class="device-status">${code}</span>
             </div>
         </div>
-        <div class="remove-device-btn" style="cursor: pointer; background: none; border: 0; padding: 14px; outline: none; color: #aaa; float: right;" data-device-id="${code}">
+        <div class="remove-device-btn" 
+          style="cursor: pointer; background: none; border: 0; padding: 14px; outline: none; color: #aaa; float: right;" 
+          data-device-id="${code}">
             <i class="material-icons">close</i>
         </div>
     </div>
@@ -161,7 +164,7 @@ function attachDocument() {
         render()
         codeInputElement().focus()
       })
-   }
+  }
 
   document
     .querySelectorAll('.remove-device-btn')
@@ -204,7 +207,7 @@ async function tryAddingDevice(code, element) {
   try {
     const result = await tryConnection(code)
     addDevice(code, result.deviceName || code)
-    deviceStatuses[code] = {color: primaryColor, message: 'Ready'}
+    deviceStatuses[code] = { color: primaryColor, message: 'Ready' }
     setActiveDevice(code)
     showAddButton = true
     render()

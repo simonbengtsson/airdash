@@ -35,6 +35,8 @@ function dataReceived(data, conn) {
   const batch = data.batch
   data = data.data
 
+  console.log('receiving data');
+
   if (typeof data === 'string') {
     clipboard.writeText(data)
     conn.send({ type: 'done' })
@@ -101,7 +103,6 @@ function notify(title, body, icon, opts = {}, cb) {
     // for example open the directory, or preview the file
   }
 }
-
 
 function notifyCopy(data) {
   const title = `Received text`
