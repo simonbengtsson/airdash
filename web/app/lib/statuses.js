@@ -1,8 +1,5 @@
 
-
-const primaryColor = '#25AE88'
-const warnColor = '#f1c40f'
-const errorColor = '#e74c3c'
+import { primaryColor, errorColor, warnColor } from './consts.js'
 
 export const STATUS_CONNECTING = { message: 'Connecting', color: warnColor }
 export const STATUS_ERROR = { message: 'Could not connect', color: errorColor }

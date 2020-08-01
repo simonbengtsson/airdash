@@ -1,12 +1,20 @@
-import { tryConnection, sendPayload } from './connection.js'
-import { parseFormData } from './bodyParser.js'
-import { Device } from './device.js'
+import { tryConnection, sendPayload } from './lib/connection.js'
+import { parseFormData } from './lib/bodyParser.js'
+import {
+  tryAddingDevice,
+  getDevices,
+  setActiveDevice,
+  getActiveDevice,
+  deleteDevice,
+} from './lib/devices.js'
+
+import {
+  setStatus,
+  renderAddDevice,
+  renderDeviceRow,
+} from './lib/render.js'
 
 console.log('Loading app.js')
-
-const primaryColor = '#25AE88'
-const warnColor = '#f1c40f'
-const errorColor = '#e74c3c'
 
 let showAddButton = true;
 
@@ -68,7 +76,7 @@ function render() {
     <section>
         <form>${deviceRows}</form>
         <div style="clear:both;"></div>
-        <div style="margin: 10px 0;">${renderAddDevice()}</div>
+        <div style="margin: 10px 0;">${renderAddDevice(showAddButton)}</div>
     </section>
     <section style="margin-bottom: 40px">
         <p id="message" style="min-height: 20px;"></p>
@@ -83,41 +91,6 @@ function render() {
   `
   document.querySelector('#content').innerHTML = content
   attachDocument()
-}
-
-function renderAddDevice() {
-  if (showAddButton) {
-    return `<button  id="add-device-btn" style="cursor: pointer; background: none; border: none; outline: 0; color: ${primaryColor}; padding: 10px 0;">+ Add Receiving Device</button>`
-  } else {
-    const codeInputs = `<input id="code-input">`
-    return codeInputs + `<p>Enter device code</p>`
-  }
-}
-
-function renderDeviceRow(code, device, checked) {
-  const statusMessage = device.getStatusMessage()
-  const statusColor = device.getStatusColor()
-
-  console.log('render device row', statusMessage, statusColor, device);
-
-  return `
-    <div class="device" style="background: none; cursor: pointer;">
-        <label class="mdl-radio mdl-js-radio mdl-js-ripple-effect" style="padding-right: 15px;">
-            <input class="device-radio" type="radio" id="${code}" name="device" value="${code}" ${checked ? 'checked' : ''}>
-        </label>
-        <div style="display: inline-block; padding: 10px; vertical-align: middle;">
-            <div style="font-size: 18px">${device.name}</div>
-            <div style="font-size: 14px; color: #555;">
-                <span class="device-status-indicator" style="border-radius: 10px; width: 10px; height: 10px; background: ${statusColor}; margin-right: 5px; display: inline-block"></span> 
-                <span class="device-status">${statusMessage || 'Unknown error'}</span> -
-                <span class="device-status">${code}</span>
-            </div>
-        </div>
-        <div class="remove-device-btn" style="cursor: pointer; background: none; border: 0; padding: 14px; outline: none; color: #aaa; float: right;" data-device-id="${code}">
-            <i class="material-icons">close</i>
-        </div>
-    </div>
-  `
 }
 
 function attachDocument() {
@@ -156,7 +129,9 @@ function attachDocument() {
       .addEventListener('input', async (e) => {
         const element = e.currentTarget
         if (element.value.length === 11) {
-          await tryAddingDevice(element.value, element)
+          tryAddingDevice(element.value, element, showAddButton)
+            .then(() => showAddButton = true)
+            .then(() => render())
         }
       })
   }
@@ -175,13 +150,11 @@ function attachDocument() {
     .querySelectorAll('.remove-device-btn')
     .forEach((btn) => {
       btn.addEventListener('click', (e) => {
-        console.log('clicked', e.currentTarget.dataset)
-        let devices = getDevices()
-        const deviceId = e.currentTarget.dataset.deviceId
-        delete devices[deviceId]
-        localStorage.setItem('devices', JSON.stringify(devices))
-        render();
         e.stopPropagation()
+
+        const deviceId = e.currentTarget.dataset.deviceId
+        deleteDevice(deviceId)
+        render()
       })
     })
 
@@ -203,55 +176,4 @@ function attachDocument() {
     .addEventListener('beforeinstallprompt', (e) => {
       deferredPrompt = e
     });
-}
-
-async function tryAddingDevice(id, element) {
-  console.log(id)
-  element.disabled = true
-  setStatus('Connecting...')
-  try {
-    const result = await tryConnection(id)
-    let newDevice = addDevice(id, result.deviceName || id)
-    newDevice.setReady()
-    setActiveDevice(id)
-    showAddButton = true
-    render()
-  } catch (error) {
-    setStatus(error)
-    element.disabled = false
-    element.focus()
-  }
-}
-
-function getDevices() {
-  let devices =
-    Object.entries(localStorage)
-      .filter(([key, value]) => key.startsWith('DEVICE_'))
-      .map(([key, device]) => JSON.parse(device))
-
-  const mappedDevices = {}
-  Object.keys(devices).forEach(id => {
-    const device = devices[id]
-    mappedDevices[device.id] = new Device(device.id, device.name, device.addedAt, device.status)
-  })
-
-  return mappedDevices
-}
-
-function addDevice(code, name) {
-  const newDevice = new Device(code, name)
-  localStorage.setItem('DEVICE_' + code, JSON.stringify(newDevice))
-  return newDevice;
-}
-
-function setActiveDevice(code) {
-  localStorage.setItem('connection-id', code)
-}
-
-function getActiveDevice() {
-  return localStorage.getItem('connection-id') || ''
-}
-
-function setStatus(status) {
-  document.querySelector('#message').textContent = status
 }
