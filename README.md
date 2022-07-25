@@ -5,7 +5,7 @@ Transfer photos and files to any device.
 ### Downloads
 - [iOS & macOS (Apple App Store)](https://apps.apple.com/se/app/airdash-file-sharing/id1596599922)
 - [Android (Google Play)](https://play.google.com/store/apps/details?id=io.flown.airdash)
-- [Windows (Microsoft store)](https://apps.microsoft.com/store/detail/airdash/9NL9K7CSG30T)
+- [Windows (Microsoft Store)](https://apps.microsoft.com/store/detail/airdash/9NL9K7CSG30T)
 
 ### Key features
 - Support for all major platforms and app stores (iOS, macOS, windows and Android)
@@ -18,7 +18,7 @@ Transfer photos and files to any device.
 ### Key technologies
 - Flutter 3.0 (iOS, macOS, Android and windows apps)
 - WebRTC (file and data transfers)
-- Firebase Firestore (WebRTC signaling and)
+- Firebase Firestore (WebRTC signaling and config storage)
 - Firebase Functions (device pairing and config automation)
 - Firebase Hosting (website and static files hosting)
 - App Store Connect API and Microsoft Store submission API (release automation)
