@@ -105,16 +105,10 @@ class MicrosoftStoreSubmitter {
       "x-ms-blob-type": "BlockBlob",
       'Content-Type': 'application/json'
     };
+    print('Uploading msix package...');
     var res = await http.put(Uri.parse(url), headers: headers, body: msixBytes);
     if (res.statusCode >= 200 && res.statusCode < 300) {
-      print(res.body);
       print('Ok ${res.statusCode}');
-      try {
-        print(formatJson(jsonDecode(res.body)));
-        return jsonDecode(res.body);
-      } catch (error) {
-        print('could not parse json');
-      }
     } else {
       print(res.body);
       print('Status code ${res.statusCode}');
@@ -145,8 +139,6 @@ class MicrosoftPartnerCenterApi {
 
     if (res.statusCode >= 200 && res.statusCode < 300) {
       try {
-        print(formatJson(jsonDecode(resBody)));
-        print('Ok');
         return jsonDecode(resBody);
       } catch (error) {
         print(resBody);
