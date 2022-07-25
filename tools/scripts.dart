@@ -34,8 +34,9 @@ release() async {
   var startedAt = DateTime.now();
   var startedTimeStr = startedAt.toIso8601String().substring(11, 19);
   print('$startedTimeStr Starting build...');
+  var version = VersionEditor().readCurrentVersion();
 
-  var version = await VersionEditor().bumpPatchVersion();
+  version = VersionEditor().bumpPatchVersion();
 
   runLocalCommand('flutter build macos');
   runLocalCommand(
