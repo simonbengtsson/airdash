@@ -4,6 +4,7 @@ import 'dart:io';
 import 'app_store_version_submitter.dart';
 import 'command_runner.dart';
 import 'microsoft_store_submitter.dart';
+import 'play_store_submitter.dart';
 import 'tools_config.dart';
 import 'version_editor.dart';
 import 'windows_builder.dart';
@@ -25,6 +26,7 @@ main(List<String> args) async {
     await WindowsAppBuilder().build();
     await MicrosoftStoreSubmitter().submit();
   } else if (script == 'play') {
+    await PlayStoreSubmitter().play();
   } else {
     print('Invalid script: $script');
   }
