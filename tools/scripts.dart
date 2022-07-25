@@ -66,5 +66,5 @@ release() async {
   var endedAt = DateTime.now();
   var endedAtTimeStr = endedAt.toIso8601String().substring(11, 19);
   print(
-      '$endedAtTimeStr Done! Took ${endedAt.difference(startedAt).inSeconds}');
+      '$endedAtTimeStr Done! Took ${endedAt.difference(startedAt).inSeconds / 60} min');
 }
