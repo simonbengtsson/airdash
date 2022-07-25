@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Google Analytics start -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-34855982-15"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'UA-34855982-15');
+    </script>
+    <!-- Google Analytics end -->
+    <script type="text/javascript">
+    (function(f,b){if(!b.__SV){var e,g,i,h;window.mixpanel=b;b._i=[];b.init=function(e,f,c){function g(a,d){var b=d.split(".");2==b.length&&(a=a[b[0]],d=b[1]);a[d]=function(){a.push([d].concat(Array.prototype.slice.call(arguments,0)))}}var a=b;"undefined"!==typeof c?a=b[c]=[]:c="mixpanel";a.people=a.people||[];a.toString=function(a){var d="mixpanel";"mixpanel"!==c&&(d+="."+c);a||(d+=" (stub)");return d};a.people.toString=function(){return a.toString(1)+".people (stub)"};i="disable time_event track track_pageview track_links track_forms track_with_groups add_group set_group remove_group register register_once alias unregister identify name_tag set_config reset opt_in_tracking opt_out_tracking has_opted_in_tracking has_opted_out_tracking clear_opt_in_out_tracking start_batch_senders people.set people.set_once people.unset people.increment people.append people.union people.track_charge people.clear_charges people.delete_user people.remove".split(" ");
+    for(h=0;h<i.length;h++)g(a,i[h]);var j="set set_once union unset remove delete".split(" ");a.get_group=function(){function b(c){d[c]=function(){call2_args=arguments;call2=[c].concat(Array.prototype.slice.call(call2_args,0));a.push([e,call2])}}for(var d={},e=["get_group"].concat(Array.prototype.slice.call(arguments,0)),c=0;c<j.length;c++)b(j[c]);return d};b._i.push([e,f,c])};b.__SV=1.2;e=f.createElement("script");e.type="text/javascript";e.async=!0;e.src="undefined"!==typeof MIXPANEL_CUSTOM_LIB_URL?
+    MIXPANEL_CUSTOM_LIB_URL:"file:"===f.location.protocol&&"//cdn.mxpnl.com/libs/mixpanel-2-latest.min.js".match(/^\/\//)?"https://cdn.mxpnl.com/libs/mixpanel-2-latest.min.js":"//cdn.mxpnl.com/libs/mixpanel-2-latest.min.js";g=f.getElementsByTagName("script")[0];g.parentNode.insertBefore(e,g)}})(document,window.mixpanel||[]);
+
+    // Enabling the debug mode flag is useful during implementation,
+    // but it's recommended you remove it for production
+    mixpanel.init('a3172ad716cd793ece65e237b9f5002f');
+    mixpanel.track('Home Page Loaded');
+    </script>
+
+    <meta charset="UTF-8">
+    <link rel="apple-touch-icon" href="./logo.png">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="icon" type="image/png" href="logo.png"/>
+    <link rel="stylesheet" type="text/css"
+          href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css">
+    <title>AirDash</title>
+    <style>
+        html {
+            box-sizing: border-box;
+        }
+
+        *, *:before, *:after {
+            box-sizing: inherit;
+        }
+
+        * {
+            font-family: "Helvetica", sans-serif;
+        }
+
+        hr {
+            background-color: #ddd;
+            height: 1px;
+            border: 0;
+        }
+
+        .main-section {
+            padding: 30px;
+        }
+
+        .header-separator {
+            width: 50px;
+            height: 5px;
+            background: #7C87F4;
+        }
+
+        .main-button {
+            background: #eee;
+            text-decoration: none;
+            color: rgba(0, 0, 0, 0.7);
+            padding: 0 30px;
+            border-radius: 100px;
+            width: 100%;
+            display: inline-block;
+            margin-bottom: 10px;
+            white-space: nowrap;
+        }
+
+        .main-button-text {
+            padding: 15px 0;
+            display: inline-block;
+            vertical-align: middle;
+        }
+
+        .main-button-icon {
+            font-size: 24px;
+            vertical-align: middle;
+            display: inline-block;
+        }
+
+        .platform-button {
+            padding: 15px 25px;
+            text-decoration: none;
+            color: #000;
+            box-shadow: 0px 0px 15px 0px rgba(0,0,0,0.15);
+            border-radius: 100px;
+            vertical-align: middle;
+            margin: 5px;
+            font-size: 20px;
+            width: 230px;
+            background: white;
+            display: inline-block;
+        }
+
+        .platform-button ion-icon {
+            vertical-align: middle;
+            margin-right: 5px;
+        }
+
+        .promo-box {
+            width: 100%;
+            float: left;
+            padding-bottom: 0;
+        }
+
+        .collaborator {
+            text-decoration: none;
+            color: #000;
+            font-weight: bold;
+        }
+
+        .body {
+            color: #888;
+            line-height: 1.4;
+            font-size: 16px;
+        }
+
+
+        @media only screen and (min-width: 800px) {
+            .footer-lead {
+                float: left;
+            }
+
+            .footer-end {
+                float: right;
+            }
+
+            .promo-box {
+                max-width: 400px;
+            }
+
+            .main-section {
+                padding: 40px;
+            }
+
+            .main-button {
+                width: 200px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<section class="main-section" style="max-width: 700px; margin: 0 auto; text-align: center;">
+    <div style="font-size: 24px;">
+        <img style="width: 35px; vertical-align: middle" src="logo.png" alt="Logo">
+        <div style="display: inline-block; vertical-align: middle; color: #444">AirDash</div>
+    </div>
+
+    <h1>Transfer photos and files anywhere</h1>
+    <p class="body">Send picture from android to mac? Large file over 2gb from pc to pc? AirDash handles it all
+        securely and free.</p>
+
+    <img style="width: 100%; margin-bottom: 20px;" alt="Promo" src="promo.png">
+
+    <div>
+        <p style="color: #888;">Get the App</p>
+    </div>
+    <div>
+        <a class="platform-button" href="https://apps.apple.com/se/app/airdash-file-sharing/id1596599922">
+            <ion-icon style="vertical-align: bottom;" name="logo-apple"></ion-icon> Apple App Store
+        </a>
+        <a class="platform-button" href="https://play.google.com/store/apps/details?id=io.flown.airdash">
+            <ion-icon style="vertical-align: bottom; color: #3DDC84" name="logo-google-playstore"></ion-icon> Google Play
+        </a>
+        <a class="platform-button" href="https://www.microsoft.com/en-us/p/airdash/9nl9k7csg30t">
+            <ion-icon style="vertical-align: bottom; color: #00A4EF" name="logo-windows"></ion-icon> Windows Store
+        </a>
+    </div>
+
+</section>
+<hr>
+<section style="max-width: 800px; margin: 0 auto; padding-bottom: 40px;">
+    <div class="promo-box main-section">
+        <h2>Send LARGE files</h2>
+        <div class="header-separator"></div>
+        <p class="body">File over 2gb? No problem. AirDash connects directly between devices enbling unlimited free
+            transfer of large files.</p>
+    </div>
+    <div class="promo-box main-section">
+        <h2>Android to Mac to PC to iPhone</h2>
+        <div class="header-separator"></div>
+        <p class="body">Send photo from android to mac? Transfer files from mac to pc? Import pictures to mac from
+            iphone? You name it, Airdash supports it.</p>
+    </div>
+    <div class="promo-box main-section">
+        <h2>Max privacy, security and speed</h2>
+        <div class="header-separator"></div>
+        <p class="body">Once a connection is established files are transferred directly between devices using WebRTC.
+            Maximum privacy, security and speed.</p>
+    </div>
+    <div class="promo-box main-section">
+        <h2>AirDrop for Android</h2>
+        <div class="header-separator"></div>
+        <p class="body">By installing the Android app you can send files from the android share menu. If you are sharing
+            to a computer it’s only one click to transfer a file.</p>
+    </div>
+    <div style="clear: both;"></div>
+</section>
+<hr>
+<footer>
+    <div class="main-section" style="max-width: 800px; margin: 0 auto;">
+        <div>
+            <div class="footer-lead">
+                <div class="body">Made by</div>
+                <a class="collaborator" href="https://simonbengtsson.com">Simon Bengtsson</a>
+            </div>
+            <div class="footer-end" style="padding-top: 10px;">
+                <a href="https://twitter.com" target="_blank">
+                    <ion-icon style="color: black;" size="large" name="logo-twitter"></ion-icon>
+                </a>
+            </div>
+            <div style="clear: both;"></div>
+        </div>
+    </div>
+</footer>
+
+<script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
+<script nomodule src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
+<script>
+  gtag('event', 'homeLoaded');
+</script>
+<!-- https://plausible.io/blog/track-outbound-link-clicks -->
+<script>
+  document.addEventListener('click', function (event) {
+    var link = event.target;
+    while (link && (typeof link.tagName == 'undefined' || link.tagName.toLowerCase() != 'a' || !link.href)) {
+      link = link.parentNode
+    }
+
+    if (link && link.href && link.host && link.host !== location.host) {
+      gtag('event', 'click', {
+        event_category: 'outbound',
+        event_label : link.href
+      });
+      mixpanel.track('External Link Clicked', { 'link': link.href });
+
+      // Allow event to be sent before the page is unloaded
+      if (!link.target || link.target.match(/^_(self|parent|top)$/i)) {
+        setTimeout(function() { location.href = link.href; }, 150);
+        event.preventDefault();
+      }
+    }
+  })
+</script>
+
+</body>
+</html>

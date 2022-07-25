@@ -1,0 +1,92 @@
+name: airdash
+description: Share files anywhere
+publish_to: 'none'
+
+version: 2.0.129+129
+
+environment:
+  sdk: ">=2.17.1 <3.0.0"
+
+dependency_overrides:
+  #image_picker_ios:
+    #path: ./libs/plugins/packages/image_picker/image_picker_ios
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  cupertino_icons: ^1.0.2
+  flutter_webrtc: ^0.8.9
+  #flutter_webrtc:
+    #path: ../flutter-webrtc
+    #git:
+      #url: https://github.com/flutter-webrtc/flutter-webrtc
+      #ref: master
+  http: ^0.13.4
+  file_picker: ^4.3.3
+  path_provider: ^2.0.10
+  share_plus: ^4.0.4
+  shared_preferences: ^2.0.15
+  receive_sharing_intent: ^1.4.5
+  # Only git dep to avoid noisy print
+  firedart: #^0.9.0+1
+    #path: libs/firedart
+    git:
+      url: https://github.com/erikhellq/firedart
+      ref: patch-1
+  url_launcher: ^6.1.2
+  package_info_plus: ^1.4.2
+  device_info_plus: ^4.0.0
+  desktop_drop: ^0.3.3
+  quick_look: ^0.0.4
+  tray_manager: ^0.1.7
+  window_manager: ^0.2.1
+  mime: ^1.0.2
+  # Would like to use main branch due to: https://github.com/getsentry/sentry-dart/issues/898
+  # Cannot upgrade due to: https://github.com/getsentry/sentry-dart/issues/941
+  sentry_flutter: ^6.7.0
+  grpc: ^3.0.2
+  wakelock: ^0.6.1+2
+  icons_launcher: ^1.2.1
+  #quick_blue: ^0.4.1+1
+  #flutter_blue: ^0.8.0
+
+dev_dependencies:
+  integration_test:
+    sdk: flutter
+  flutter_test:
+    sdk: flutter
+  dart_jsonwebtoken: ^2.4.1
+
+  flutter_lints: ^2.0.1
+  test: ^1.21.1
+  msix: ^3.6.2
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/
+
+msix_config:
+  display_name: AirDash
+  publisher_display_name: Flownio
+  publisher: CN=74819260-D638-4972-AE3E-CA996FB6EF34
+  identity_name: 24192Flownio.AirDash
+  msix_version: 2.0.129.0
+  logo_path: logo.png
+  capabilities: internetClient
+  store: true
+
+flutter_icons:
+  image_path_android: 'images/app_icon_round.png'
+  image_path_ios: 'images/app_icon_rect.png'
+  image_path_macos: 'images/app_icon_round_with_padding.png'
+  image_path_windows: 'images/app_icon_round.png'
+  remove_alpha_ios: true
+  ios: 'AppIcon'
+  macos: true
+  android: true
+  windows: true
+  adaptive_icon_background: '#ffffff'
+  adaptive_icon_foreground: 'images/app_icon_round_with_padding_2x.png'
+  adaptive_icon_round: 'images/app_icon_round.png'
