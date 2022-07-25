@@ -7,13 +7,15 @@ import 'package:http/http.dart' as http;
 import 'tools_config.dart';
 
 class PlayStoreSubmitter {
+  var uploadBaseUrl =
+      'https://androidpublisher.googleapis.com/upload/androidpublisher/v3/applications/io.flown.airdash';
   var baseUrl =
       'https://androidpublisher.googleapis.com/androidpublisher/v3/applications/io.flown.airdash';
 
   play() async {
     var editId = await createEdit();
     print(editId);
-    var res = await send('POST', '/edits/$editId:commit');
+    var res = await send('GET', '/edits/$editId/tracks');
     print(res);
   }
 
@@ -22,19 +24,44 @@ class PlayStoreSubmitter {
     return edit['id'];
   }
 
+  Future<dynamic> commitEdit(String editId) async {
+    return send('POST', '/edits/$editId:commit');
+  }
+
+  Future uploadBundle(String editId) async {
+    var bytes = File('build/app-release.aab').readAsBytesSync();
+    print(bytes.take(10));
+    var res = await send(
+      'POST',
+      '/edits/$editId/bundles',
+      requestBody: bytes,
+      fileUpload: true,
+    );
+    print(res);
+  }
+
   Future<Map<String, dynamic>> send(String method, String path,
-      {Map<String, dynamic>? requestBody}) async {
-    print('$method $baseUrl$path');
-    var uri = Uri.parse('$baseUrl$path');
+      {dynamic requestBody,
+      Map<String, String>? headers,
+      bool fileUpload = false}) async {
+    var base = baseUrl;
+    if (fileUpload) {
+      base = uploadBaseUrl;
+    }
+    print('$method $base$path');
+    var uri = Uri.parse('$base$path');
 
     var token = await _generateToken();
 
     var req = http.Request(method, uri);
     req.headers.addAll({
-      'Content-Type': 'application/json',
+      'Content-Type': 'application/${fileUpload ? 'octet-stream' : 'json'}',
       'Authorization': 'Bearer $token',
     });
-    if (requestBody != null) req.body = jsonEncode(requestBody);
+    if (headers != null) req.headers.addAll(headers);
+
+    if (requestBody is List<int>) req.bodyBytes = requestBody;
+    if (requestBody is String) req.body = requestBody;
 
     var res = await req.send();
     var body = await res.stream.bytesToString();
