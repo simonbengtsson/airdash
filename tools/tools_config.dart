@@ -54,7 +54,12 @@ class Config {
   }
 
   static Map<String, String> _parseEnv() {
-    var content = File('${Config.localRepoPath}/.env').readAsStringSync();
+    var repoPath = Config.localRepoPath;
+    if (Platform.isWindows && repoPath.startsWith('/')) {
+      repoPath = repoPath.substring(1);
+    }
+
+    var content = File('$repoPath/.env').readAsStringSync();
     Map<String, String> values = {};
     for (var line in content.split('\n')) {
       if (line.trim().isEmpty) continue;

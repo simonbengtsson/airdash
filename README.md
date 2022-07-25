@@ -28,7 +28,7 @@ Transfer photos and files to any device.
 ### Run project
 - Create a .env file by copying the .env.sample file
 - Run dart tools/scripts.dart app_env to get a env.dart file
-- Run `flutter run`
+- Run app using editor or `flutter run`
 
 ### Contribute
 Contributions are very much welcome on everything from bug reports to feature development. If you
