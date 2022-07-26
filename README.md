@@ -16,7 +16,7 @@ Transfer photos and files to any device.
 - Automatically uses the best and fastest connection available
 
 ### Key technologies
-- Flutter 3.0 (iOS, macOS, Android and windows apps)
+- Flutter 3.0 (iOS, macOS, Android and windows app)
 - WebRTC (file and data transfers)
 - Firebase Firestore (WebRTC signaling and config storage)
 - Firebase Functions (device pairing and config automation)
