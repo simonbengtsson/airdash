@@ -40,12 +40,6 @@ post_install do |installer|
   
   installer.pods_project.targets.each do |target|
     target.build_configurations.each do |config|
-      if target.name == "flutter_webrtc"
-        # Verified to fix a compile issue building for mac. Looks like there is an issue building flutter-webrtc for
-        # apple silicon. See error messages here https://github.com/flutter-webrtc/flutter-webrtc/issues/762
-        #config.build_settings['ONLY_ACTIVE_ARCH']='YES'
-      end
-      
       # Added by Simon 2022-03-05 due to 10.9 being required by flutter?
       config.build_settings['MACOSX_DEPLOYMENT_TARGET'] = '11.0'
     end

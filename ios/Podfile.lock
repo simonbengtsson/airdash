@@ -49,9 +49,9 @@ PODS:
     - Flutter
   - receive_sharing_intent (0.0.1):
     - Flutter
-  - SDWebImage (5.13.1):
-    - SDWebImage/Core (= 5.13.1)
-  - SDWebImage/Core (5.13.1)
+  - SDWebImage (5.13.2):
+    - SDWebImage/Core (= 5.13.2)
+  - SDWebImage/Core (5.13.2)
   - Sentry (7.21.0):
     - Sentry/Core (= 7.21.0)
   - Sentry/Core (7.21.0)
@@ -137,7 +137,7 @@ SPEC CHECKSUMS:
   path_provider_ios: 14f3d2fd28c4fdb42f44e0f751d12861c43cee02
   quick_look: 59394001d6b484c13fd5f73b555398d523726c8c
   receive_sharing_intent: c0d87310754e74c0f9542947e7cbdf3a0335a3b1
-  SDWebImage: fb26a455eeda4c7a55e4dcb6172dbb258af7a4ca
+  SDWebImage: 72f86271a6f3139cc7e4a89220946489d4b9a866
   Sentry: 194d0a2d4d6ef92c9c08c98d998340b0a63efd81
   sentry_flutter: ff28e944a04dd35a90473e143bda9dc61ef1d2b5
   share_plus: 056a1e8ac890df3e33cb503afffaf1e9b4fbae68
