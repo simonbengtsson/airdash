@@ -18,6 +18,8 @@ class MicrosoftStoreSubmitter {
       await deleteSubmission(submissionId);
     }
 
+    // Got InvalidState error for addSubmission. Worth exploring further?
+    // When it happened the deleteSubmission call was not called above.
     var submission = await addSubmission();
     var submissionId = submission['id'];
 
@@ -51,6 +53,10 @@ class MicrosoftStoreSubmitter {
       var status = await getSubmissionStatus(submissionId);
       if (!['PreProcessing', 'CommitStarted'].contains(status['status'])) {
         print('Finished commit. New status is ${status['status']}');
+        if (status['status'] == 'CommitFailed') {
+          print(formatJson(status));
+          throw Exception('Submission failed');
+        }
         break;
       }
       print('Waiting, still ${status['status']}');
