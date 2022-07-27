@@ -525,7 +525,7 @@ class _MyHomePageState extends State<MyHomePage>
     isPickingFile = true;
     var result = await FilePicker.platform.pickFiles(
       dialogTitle: 'Pick File',
-      type: FileType.media,
+      type: type,
       lockParentWindow: true,
       withData: false,
       allowCompression: false,
