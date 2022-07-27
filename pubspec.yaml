@@ -23,7 +23,7 @@ dependencies:
       #url: https://github.com/flutter-webrtc/flutter-webrtc
       #ref: master
   http: ^0.13.4
-  file_picker: ^4.3.3
+  file_picker: ^5.0.0
   path_provider: ^2.0.10
   share_plus: ^4.0.4
   shared_preferences: ^2.0.15
@@ -47,7 +47,7 @@ dependencies:
   sentry_flutter: ^6.7.0
   grpc: ^3.0.2
   wakelock: ^0.6.1+2
-  icons_launcher: ^1.2.1
+  icons_launcher: ^2.0.1
   #quick_blue: ^0.4.1+1
   #flutter_blue: ^0.8.0
 
