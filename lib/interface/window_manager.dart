@@ -16,7 +16,7 @@ class WindowManager {
     await windowManager.ensureInitialized();
 
     windowManager.waitUntilReadyToShow().then((_) async {
-      await windowManager.setSize(const Size(500, 700));
+      await windowManager.setSize(const Size(420, 420));
       if (Config.enableDesktopTray) {
         await _setupTray();
         await windowManager.setTitleBarStyle(TitleBarStyle.hidden,
