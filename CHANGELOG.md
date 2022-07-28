@@ -3,12 +3,13 @@
 Release notes for major releases of AirDash will be posted here
 
 ### Unreleased
+None
 
-### 2.0.131
+### 2.0.131, 27 July 2022
 - Open files app instead of gallery for file selection
 - Support for Apple Silicon
 - Set minimum window size on windows
 - Update third party libraries
 
-### 2.0.130
+### 2.0.130, 23 July 2022
 - Mostly refactoring and fixes in preparation for open source
