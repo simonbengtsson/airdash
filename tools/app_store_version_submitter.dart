@@ -220,6 +220,31 @@ class AppStoreVersionSubmitter {
     var result = await api.send('POST', '/reviewSubmissionItems', body);
     return result;
   }
+
+  Future deleteAllBuilds() async {
+    var res =
+        await api.send('GET', '/apps/${Config.appStoreAppId}/builds?limit=200');
+    var allBuilds = List.from(res['data']);
+    var activeBuilds =
+        allBuilds.where((it) => it['attributes']['expired'] == false);
+    print('Active builds: ${activeBuilds.length}');
+    for (var build in activeBuilds) {
+      await expireBuild(build['id']);
+    }
+    print('Done!');
+  }
+
+  Future expireBuild(String buildId) {
+    return api.send('PATCH', '/builds/$buildId', {
+      'data': {
+        'id': buildId,
+        'type': 'builds',
+        'attributes': {
+          'expired': true,
+        },
+      },
+    });
+  }
 }
 
 class AppStoreConnectApi {
