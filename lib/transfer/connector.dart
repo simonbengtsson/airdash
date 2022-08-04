@@ -118,15 +118,18 @@ class Connector {
       await future;
       logger('SENDER: Connection established');
       await sender.sendFile(statusCallback);
-      var connectionTypes = await getConnectionTypes(sender.connection);
-      logger('SENDER: Finished with $connectionTypes');
     } catch (error) {
       sendError = error;
       rethrow;
     } finally {
       await Wakelock.disable();
-      await sender?.connection.close();
-      await sender?.senderState.raFile.close();
+      List<String> connectionTypes = [];
+      if (sender != null) {
+        connectionTypes = await getConnectionTypes(sender.connection);
+        logger('SENDER: Finished with $connectionTypes');
+        await sender.connection.close();
+        await sender.senderState.raFile.close();
+      }
       observer.onAnswer = null;
       observer.onReceiverIceCandidate = null;
       observer.onPingResponse = null;
@@ -141,6 +144,7 @@ class Connector {
         'Duration': DateTime.now().difference(startTime).inSeconds.abs(),
         'Success': sendError == null,
         'Transfer ID': transferId,
+        'Connection Types': connectionTypes,
         if (sendError != null) ...errorProps(sendError),
         ...remoteDeviceProperties(receiver),
         ...payloadProps,
@@ -226,10 +230,6 @@ class Connector {
         }
       });
       receivePayload = payload;
-      var connectionTypes = await getConnectionTypes(receiver.connection);
-      logger(
-          'RECEIVER: Finished with $connectionTypes ${payload.runtimeType.toString()}');
-
       callback(payload, null, '');
     } catch (error, stack) {
       receiveError = error;
@@ -239,22 +239,30 @@ class Connector {
         ErrorLogger.logStackError('unknownReceiverError', error, stack);
       }
       callback(null, error, '');
-    }
-    await Wakelock.disable();
-    await receiver?.connection.close();
-    observer.onSenderIceCandidate = null;
-    activeTransferId = null;
-    signaling.receivedMessages = {};
-    logger('RECEIVER: Receiver cleanup finished');
+    } finally {
+      List<String> connectionTypes = [];
+      if (receiver != null) {
+        connectionTypes = await getConnectionTypes(receiver.connection);
+        logger('RECEIVER: Finished with $connectionTypes');
+      }
+      await Wakelock.disable();
+      await receiver?.connection.close();
+      observer.onSenderIceCandidate = null;
+      activeTransferId = null;
+      signaling.receivedMessages = {};
+      logger('RECEIVER: Receiver cleanup finished');
 
-    AnalyticsEvent.receivingCompleted.log({
-      'Success': receiveError == null,
-      'Remote Device ID': remoteId,
-      'Transfer ID': transferId,
-      if (receiveError != null) ...errorProps(receiveError),
-      if (sender != null) ...remoteDeviceProperties(sender),
-      if (receivePayload != null) ...await payloadProperties([receivePayload]),
-    });
+      AnalyticsEvent.receivingCompleted.log({
+        'Success': receiveError == null,
+        'Remote Device ID': remoteId,
+        'Transfer ID': transferId,
+        'Connection Types': connectionTypes,
+        if (receiveError != null) ...errorProps(receiveError),
+        if (sender != null) ...remoteDeviceProperties(sender),
+        if (receivePayload != null)
+          ...await payloadProperties([receivePayload]),
+      });
+    }
   }
 
   Future<List<String>> getConnectionTypes(RTCPeerConnection connection) async {
@@ -262,7 +270,7 @@ class Connector {
     try {
       // On windows, getStats currently never gives a result
       // https://github.com/flutter-webrtc/flutter-webrtc/issues/904
-      stats = await connection.getStats().timeout(const Duration(seconds: 2));
+      stats = await connection.getStats().timeout(const Duration(seconds: 1));
     } catch (error) {
       logger("STATS: Could not get connection types used");
       return [];
