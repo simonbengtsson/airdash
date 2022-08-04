@@ -106,8 +106,10 @@ class Receiver {
 
   connect() async {
     var firstMessageCompleter = SingleCompleter();
+    // Use a higher timeout than sender so that errors are originated from
+    // sender if possible
     var firstMessage = firstMessageCompleter.future
-        .timeout(const Duration(seconds: 10), onTimeout: () {
+        .timeout(const Duration(seconds: 20), onTimeout: () {
       throw AppException("receiverWebrtcConnectionFailed",
           "Could not connect to sending device. Check your internet connection and try again.");
     });
@@ -195,7 +197,7 @@ class Receiver {
 
       cmp?.complete('done');
       cmp = SingleCompleter();
-      await cmp!.future.timeout(const Duration(seconds: 10), onTimeout: () {
+      await cmp!.future.timeout(const Duration(seconds: 20), onTimeout: () {
         waitForPayload.completeError('Receiver data channel timeout');
         connection.close();
       });
