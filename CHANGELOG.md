@@ -3,7 +3,8 @@
 Release notes for major releases of AirDash will be posted here
 
 ### Unreleased
-None
+- Update third party libraries
+- Add connection type logging
 
 ### v2.0.131 27 July 2022
 - Open files app instead of gallery for file selection

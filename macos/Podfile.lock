@@ -3,7 +3,7 @@ PODS:
     - FlutterMacOS
   - device_info_plus_macos (0.0.1):
     - FlutterMacOS
-  - flutter_webrtc (0.8.11):
+  - flutter_webrtc (0.9.0):
     - FlutterMacOS
     - WebRTC-SDK (= 97.4692.07)
   - FlutterMacOS (1.0.0)
@@ -13,13 +13,13 @@ PODS:
     - FlutterMacOS
   - screen_retriever (0.0.1):
     - FlutterMacOS
-  - Sentry (7.21.0):
-    - Sentry/Core (= 7.21.0)
-  - Sentry/Core (7.21.0)
+  - Sentry (7.22.0):
+    - Sentry/Core (= 7.22.0)
+  - Sentry/Core (7.22.0)
   - sentry_flutter (0.0.1):
     - Flutter
     - FlutterMacOS
-    - Sentry (~> 7.21.0)
+    - Sentry (~> 7.22.0)
   - share_plus_macos (0.0.1):
     - FlutterMacOS
   - shared_preferences_macos (0.0.1):
@@ -88,13 +88,13 @@ EXTERNAL SOURCES:
 SPEC CHECKSUMS:
   desktop_drop: 69eeff437544aa619c8db7f4481b3a65f7696898
   device_info_plus_macos: 1ad388a1ef433505c4038e7dd9605aadd1e2e9c7
-  flutter_webrtc: 39478671aae60497438bceafc011357911e00056
+  flutter_webrtc: 708996d57dcf06da1c6a8e820a43112618d62213
   FlutterMacOS: 57701585bf7de1b3fc2bb61f6378d73bbdea8424
   package_info_plus_macos: f010621b07802a241d96d01876d6705f15e77c1c
   path_provider_macos: 3c0c3b4b0d4a76d2bf989a913c2de869c5641a19
   screen_retriever: 59634572a57080243dd1bf715e55b6c54f241a38
-  Sentry: 194d0a2d4d6ef92c9c08c98d998340b0a63efd81
-  sentry_flutter: ff28e944a04dd35a90473e143bda9dc61ef1d2b5
+  Sentry: 30b51086ca9aac23337880152e95538f7e177f7f
+  sentry_flutter: eaca55af5c951f4be6c4b1daddce1744c37d8476
   share_plus_macos: 853ee48e7dce06b633998ca0735d482dd671ade4
   shared_preferences_macos: a64dc611287ed6cbe28fd1297898db1336975727
   tray_manager: 9064e219c56d75c476e46b9a21182087930baf90
