@@ -1,33 +1,58 @@
 import Foundation
 import CoreBluetooth
 
+class BluetoothScanner: NSObject, CBCentralManagerDelegate {
+
+    private var centralManager: CBCentralManager!
+    
+    override init() {
+        super.init()
+        centralManager = CBCentralManager(delegate: self, queue: nil)
+    }
+    
+    func centralManagerDidUpdateState(_ central: CBCentralManager) {
+        print("state: \(central.state)")
+        if central.state == .poweredOn {
+            central.scanForPeripherals(withServices: nil)
+            print("Started scan")
+        }
+    }
+    
+    func centralManager(_ central: CBCentralManager, didDiscover peripheral: CBPeripheral, advertisementData: [String : Any], rssi RSSI: NSNumber) {
+        print(advertisementData)
+    }
+}
+
 class BluetoothService: NSObject, CBPeripheralManagerDelegate {
     private var service: CBUUID!
-    private let value = "AD34E"
     private var peripheralManager : CBPeripheralManager!
+    var scanner = BluetoothScanner()
+    
+    let readData = "readdata".data(using: .utf8)
+    let nrwData = "notifywritedata".data(using: .utf8)
     
     func start() {
         peripheralManager = CBPeripheralManager(delegate: self, queue: nil)
     }
     
     func addServices() {
-        let valueData = value.data(using: .utf8)
-        let myChar1 = CBMutableCharacteristic(type: CBUUID(nsuuid: UUID()), properties: [.notify, .write, .read], value: nil, permissions: [.readable, .writeable])
-        let myChar2 = CBMutableCharacteristic(type: CBUUID(nsuuid: UUID()), properties: [.read], value: valueData, permissions: [.readable])
+        let myChar1 = CBMutableCharacteristic(type: CBUUID(nsuuid: UUID()), properties: [.write], value: nil, permissions: [.writeable])
+        let myChar2 = CBMutableCharacteristic(type: CBUUID(nsuuid: UUID()), properties: [.read], value: readData, permissions: [.readable])
         service = CBUUID(nsuuid: UUID())
         let myService = CBMutableService(type: service, primary: true)
         myService.characteristics = [myChar1, myChar2]
         peripheralManager.add(myService)
         startAdvertising()
-        print("Servce UUID: \(myService.uuid.uuidStr)")
-        print("Char1: \(myChar1.uuid.uuidStr)")
-        print("Char2: \(myChar2.uuid.uuidStr)")
+        print("Servce UUID: \(myService.uuid.description)")
+        print("Char1: \(myChar1.uuid.description)")
+        print("Char2: \(myChar2.uuid.description)")
     }
     
     func startAdvertising() {
-        print("MESSAGE LABEL: \("Advertising Data")")
+        print("MESSAGE LABEL: \(CBAdvertisementDataLocalNameKey)")
         peripheralManager.startAdvertising([
-            CBAdvertisementDataLocalNameKey: "BLEPeripheralApp",
+            "abchello": "defhello",
+            CBAdvertisementDataLocalNameKey: "BLEPeripheralAppAirdash",
             CBAdvertisementDataServiceUUIDsKey: [service]
         ])
         print("Started Advertising")
@@ -43,7 +68,7 @@ class BluetoothService: NSObject, CBPeripheralManagerDelegate {
     
     func peripheralManager(_ peripheral: CBPeripheralManager, didReceiveRead request: CBATTRequest) {
         print("MESSAGE LABEL: \("Data getting Read")")
-        print("READ VALUE: \(value)")
+        print("READ VALUE: \(request.characteristic.description)")
         // Perform your additional operations here
     }
     
