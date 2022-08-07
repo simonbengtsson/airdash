@@ -16,6 +16,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tray_manager/tray_manager.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:window_manager/window_manager.dart';
+import 'package:beacon_broadcast/beacon_broadcast.dart';
 
 import '../config.dart';
 import '../file_manager.dart';
@@ -224,7 +225,19 @@ class _MyHomePageState extends State<MyHomePage>
     } catch (error, stack) {
       ErrorLogger.logStackError('infoUpdateError', error, stack);
     }
+
+    //startBluetooth();
   }
+/*
+  BeaconBroadcast beaconBroadcast = BeaconBroadcast();
+  startBluetooth() {
+    beaconBroadcast
+        .setUUID('39ED98FF-2900-441A-802F-9C398FC199D2')
+        .setMajorId(1)
+        .setMinorId(100)
+        .start();
+  }
+*/
 
   updateConnectionConfig() async {
     var doc = await Firestore.instance
