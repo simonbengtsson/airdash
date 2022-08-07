@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:airdash/helpers.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
@@ -21,12 +23,12 @@ void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
   testWidgets('test local ice gathering', (tester) async {
-    var completer = SingleCompleter();
+    var completer = Completer();
     completer.future.timeout(const Duration(seconds: 2));
 
     var local = await createPeerConnection(activeConfig, loopbackConstraints);
     local.onIceCandidate = (event) {
-      var type = event.candidate?.split(' ').tryGet(7);
+      var type = event.candidate?.split(' ')[7];
       print("New ice with type: $type");
       completer.complete(true);
       local.close();
@@ -49,7 +51,7 @@ void main() {
     await tester.testConnection();
   });
 
-  testWidgets('test connection', (tester) async {
+  testWidgets('test manually negotiated connection', (tester) async {
     var tester = ManuallyNegotiatedChannel();
     await tester.testConnection();
   });
@@ -68,7 +70,7 @@ class AutoNegotiatedTester {
 
     List<RTCIceCandidate> localIceCandidates = [];
     local!.onIceCandidate = (candidate) {
-      var type = candidate.candidate?.split(' ').tryGet(7);
+      var type = candidate.candidate?.split(' ')[7];
       print("Local ice: $type");
       localIceCandidates.add(candidate);
     };
@@ -77,7 +79,7 @@ class AutoNegotiatedTester {
 
     List<RTCIceCandidate> remoteIceCandidates = [];
     remote!.onIceCandidate = (candidate) {
-      var type = candidate.candidate?.split(' ').tryGet(7);
+      var type = candidate.candidate?.split(' ')[7];
       print("Remote ice: $type");
       remoteIceCandidates.add(candidate);
     };
@@ -115,7 +117,7 @@ class AutoNegotiatedTester {
     localIceCandidates.forEach((it) => remote!.addCandidate(it));
     print('Added ice candidates');
 
-    var completer = SingleCompleter();
+    var completer = Completer();
     localChannel.onMessage = (message) {
       print('Local channel message: ${message.text}');
       assert(true, 'Got remote reply message');
@@ -168,7 +170,7 @@ class ManuallyNegotiatedChannel {
     };
     List<RTCIceCandidate> localIceCandidates = [];
     local!.onIceCandidate = (candidate) {
-      var type = candidate.candidate?.split(' ').tryGet(7);
+      var type = candidate.candidate?.split(' ')[7];
       print("Local ice: $type");
       localIceCandidates.add(candidate);
     };
@@ -191,7 +193,7 @@ class ManuallyNegotiatedChannel {
     };
     List<RTCIceCandidate> remoteIceCandidates = [];
     remote!.onIceCandidate = (candidate) {
-      var type = candidate.candidate?.split(' ').tryGet(7);
+      var type = candidate.candidate?.split(' ')[7];
       print("Remote ice: $type");
       remoteIceCandidates.add(candidate);
     };
@@ -236,7 +238,7 @@ class ManuallyNegotiatedChannel {
     localIceCandidates.forEach((it) => remote!.addCandidate(it));
     print('Added ice candidates');
 
-    var completer = SingleCompleter();
+    var completer = Completer();
     localChannel.onMessage = (message) {
       print('Got reply: ${message.text}');
       completer.complete('done');
