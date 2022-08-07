@@ -36,13 +36,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "2.8.2"
-  beacon_broadcast:
-    dependency: "direct main"
-    description:
-      name: beacon_broadcast
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "0.3.1"
   boolean_selector:
     dependency: transitive
     description:
@@ -246,13 +239,6 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
-  flutter_blue_plus:
-    dependency: "direct main"
-    description:
-      name: flutter_blue_plus
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "1.3.0"
   flutter_driver:
     dependency: transitive
     description: flutter
@@ -635,13 +621,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.4.5"
-  rxdart:
-    dependency: transitive
-    description:
-      name: rxdart
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "0.27.5"
   screen_retriever:
     dependency: transitive
     description:
@@ -796,6 +775,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "0.1.2"
+  simple_peer:
+    dependency: "direct main"
+    description:
+      path: "libs/simple_peer"
+      relative: true
+    source: path
+    version: "0.0.9"
   sky_engine:
     dependency: transitive
     description: flutter
@@ -1082,5 +1068,5 @@ packages:
     source: hosted
     version: "3.1.1"
 sdks:
-  dart: ">=2.17.1 <3.0.0"
+  dart: ">=2.17.6 <3.0.0"
   flutter: ">=3.0.0"
