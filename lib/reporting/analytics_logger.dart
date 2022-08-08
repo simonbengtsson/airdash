@@ -288,7 +288,11 @@ class AnalyticsManager {
       var value = props[key] ?? '(null)';
       if (value is DateTime) {
         props[key] = value.toIso8601String();
-      } else if (value is! String && value is! num && value is! bool) {
+      } else if (value is! String &&
+          value is! num &&
+          value is! bool &&
+          value is! Map &&
+          value is! List) {
         ErrorLogger.logSimpleError('invalidEventPropertyType', {
           'type': value.runtimeType.toString(),
           'key': key,
