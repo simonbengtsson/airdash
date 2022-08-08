@@ -178,6 +178,10 @@ MaterialColor createMaterialColor(Color color) {
 class SingleCompleter<T> {
   var completer = Completer<T>();
 
+  bool get isCompleted {
+    return completer.isCompleted;
+  }
+
   Future<T> get future {
     return completer.future;
   }

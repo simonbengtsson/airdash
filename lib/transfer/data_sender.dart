@@ -13,6 +13,16 @@ import '../reporting/logger.dart';
 class DataSender {
   Peer peer;
 
+  // Since buffered amount is only implemented on Android right now in
+  // flutter_webrtc a simplified in house version is used instead where only a
+  // certain number of messages is in flight without being acknowledge. Around
+  // 10 seems to be a good number since fewer results in lower speeds and more
+  // does not result in higher speeds and also sometimes crashes the transfer
+  // likely due to some kind of buffer overflow.
+  var maximumInFlightMessages = 10;
+
+  var inFlightMessageCount = 0;
+
   int maximumMessageSize = 16000;
 
   // Binary message did not work on windows pre flutter-webrtc 0.8.9
@@ -65,49 +75,10 @@ class DataSender {
     return max(remoteMaximumSize, maximumMessageSize);
   }
 
-  Future sendNextBatch() async {
-    var state = senderState;
-    print("SENDER: Sending batch for ${state.filename}");
-
-    if (state.sendBatchLock) {
-      print('SENDER: Busy sending, continue later');
-      return;
-    }
-    if (state.fileSendingComplete) {
-      logger('SENDER: File sent completed, cancelled sending');
-      return;
-    }
-    state.sendBatchLock = true;
-
-    int messageSize = maximumMessageSize;
-    var startByte = await state.raFile.position();
-
-    var bufferLimit = (state.acknowledgedChunk ?? 0) + messageSize * 10;
-    if (startByte >= bufferLimit) {
-      print(
-          'SENDER: Not sending next batch right now, lacking ack. Want to send $startByte, acked chunk: ${state.acknowledgedChunk} buffer limit: $bufferLimit');
-      state.sendBatchLock = false;
-      return;
-    }
-
-    print("SENDER: Sending batch: $startByte size: $messageSize");
-    for (int i = 0; i < 10; i++) {
-      await sendChunk();
-      if (state.fileSendingComplete) {
-        break;
-      }
-    }
-
-    state.sendBatchLock = false;
-
-    if (!state.fileSendingComplete) {
-      notifier!();
-    }
-  }
-
   sendChunk() async {
     var state = senderState;
     var startByte = await state.raFile.position();
+    print("SENDER: Sending chunk: $startByte");
 
     var message = {
       "version": 1,
@@ -130,6 +101,9 @@ class DataSender {
     builder.add(chunk);
     var bytes = builder.toBytes();
 
+    inFlightMessageCount += 1;
+    logger('Increased inFlightMessageCount $inFlightMessageCount');
+
     if (useBinaryMessage) {
       await peer.sendBinary(bytes);
     } else {
@@ -143,44 +117,70 @@ class DataSender {
     }
   }
 
-  Function()? notifier;
   Function(int, int)? statusCallback;
 
-  SingleCompleter? batchTimeoutCompleter;
+  SingleCompleter? messageTimeoutCompleter;
 
   sendFile(Function(int, int) statusCallback) async {
     this.statusCallback = statusCallback;
-    notifier = () async {
-      if (senderState.completer.completer.isCompleted) {
-        logger('SENDER: Cancelled next batch due to completed');
+    logger('SENDER: Sending first chunk...');
+    sendNext();
+    await senderState.completer.future;
+  }
+
+  sendNext() async {
+    if (senderState.completer.isCompleted) {
+      logger('SENDER: Cancelled sending chunk due to completed');
+      return;
+    }
+    try {
+      var state = senderState;
+      print("SENDER: Sending chunk for ${state.filename}");
+
+      if (state.fileSendingComplete) {
+        logger('SENDER: File sent completed, cancelled');
         return;
       }
-      try {
-        await sendNextBatch();
-        batchTimeoutCompleter?.complete('done');
-        batchTimeoutCompleter = SingleCompleter();
-        batchTimeoutCompleter!.future.timeout(const Duration(seconds: 10),
-            onTimeout: () {
-          if (senderState.acknowledgedChunk == null) {
-            var exception = AppException('firstDataMessageTimeout',
-                'Connection was successful, but data transfer failed. This could be an issue with the app.');
-            senderState.completer.completeError(exception);
-          } else {
-            var exception = AppException('nextBatchSendingTimeout',
-                'Lost connection. Check your internet connection on this and the receiving device.');
-            exception.info = "Ack chunk ${senderState.acknowledgedChunk ?? -1}";
-            senderState.completer.completeError(exception);
-          }
-        });
-      } catch (error, stack) {
-        batchTimeoutCompleter?.complete('done');
-        ErrorLogger.logStackError('senderSendError', error, stack);
-        senderState.completer.completeError("Could not send batch '$error'");
+
+      if (inFlightMessageCount >= maximumInFlightMessages) {
+        logger('SENDER: Already max massages in flight, cancelled');
+        return;
       }
-    };
-    logger('SENDER: Sending first batch...');
-    notifier!();
-    await senderState.completer.future;
+
+      if (state.sendChunkLock) {
+        logger('SENDER: Already sending chunk, cancelled');
+        return;
+      }
+      state.sendChunkLock = true;
+
+      await sendChunk();
+
+      state.sendChunkLock = false;
+      if (!state.fileSendingComplete) {
+        sendNext();
+      }
+      messageTimeoutCompleter?.complete('done');
+      messageTimeoutCompleter = SingleCompleter();
+      messageTimeoutCompleter!.future.timeout(const Duration(seconds: 10),
+          onTimeout: onDataMessageTimeout);
+    } catch (error, stack) {
+      messageTimeoutCompleter?.complete('done');
+      ErrorLogger.logStackError('senderSendError', error, stack);
+      senderState.completer.completeError("Could not send chunk '$error'");
+    }
+  }
+
+  onDataMessageTimeout() {
+    if (senderState.acknowledgedChunk == null) {
+      var exception = AppException('firstDataMessageTimeout',
+          'Connection was successful, but data transfer failed. This could be an issue with the app.');
+      senderState.completer.completeError(exception);
+    } else {
+      var exception = AppException('nextBatchSendingTimeout',
+          'Lost connection. Check your internet connection on this and the receiving device.');
+      exception.info = "Ack chunk ${senderState.acknowledgedChunk ?? -1}";
+      senderState.completer.completeError(exception);
+    }
   }
 
   connect() async {
@@ -238,6 +238,8 @@ class DataSender {
       return; // No need to handle old ack
     }
     senderState.acknowledgedChunk = finishedChunk;
+    inFlightMessageCount -= 1;
+    logger('decreaed inFlightMessageCount $inFlightMessageCount');
     print(
         'SENDER: Received ack for chunk: $finishedChunk Completed: $fileCompleted');
 
@@ -247,8 +249,8 @@ class DataSender {
     }
 
     if (!fileCompleted) {
-      print('SENDER: Sending next batch...');
-      notifier!();
+      print('SENDER: Sending next chunk...');
+      sendNext();
     } else {
       logger("SENDER: File successfully sent and acknowledged");
       senderState.completer.complete('done');
@@ -271,7 +273,7 @@ class FileSendingState {
 
   var completer = SingleCompleter();
   var fileSendingComplete = false;
-  var sendBatchLock = false;
+  var sendChunkLock = false;
 
   FileSendingState(
       this.file, this.raFile, this.filename, this.fileSize, this.meta);
