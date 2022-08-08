@@ -92,38 +92,8 @@ class DataSender {
 
     print("SENDER: Sending batch: $startByte size: $messageSize");
     for (int i = 0; i < 10; i++) {
-      var startByte = await state.raFile.position();
-
-      var message = {
-        "version": 1,
-        "filename": state.filename,
-        "messageSize": messageSize,
-        "chunkStart": startByte,
-        "fileSize": state.fileSize,
-        "meta": state.meta,
-      };
-
-      List<int> header = utf8.encode('${jsonEncode(message)}\n');
-      var base64Overhead = useBinaryMessage ? 0 : (0.25 * messageSize).floor();
-      var bytesToRead = messageSize - header.length - base64Overhead;
-      var chunk = await state.raFile.read(bytesToRead);
-      var isFileRead = startByte + bytesToRead >= state.fileSize;
-
-      var builder = BytesBuilder();
-      builder.add(header);
-      builder.add(chunk);
-      var bytes = builder.toBytes();
-
-      if (useBinaryMessage) {
-        await peer.sendBinary(bytes);
-      } else {
-        String strPayload = base64.encode(bytes);
-        await peer.sendText(strPayload);
-      }
-
-      if (isFileRead) {
-        logger("SENDER: Last chunk sent");
-        state.fileSendingComplete = true;
+      await sendChunk();
+      if (state.fileSendingComplete) {
         break;
       }
     }
@@ -132,6 +102,44 @@ class DataSender {
 
     if (!state.fileSendingComplete) {
       notifier!();
+    }
+  }
+
+  sendChunk() async {
+    var state = senderState;
+    var startByte = await state.raFile.position();
+
+    var message = {
+      "version": 1,
+      "filename": state.filename,
+      "messageSize": maximumMessageSize,
+      "chunkStart": startByte,
+      "fileSize": state.fileSize,
+      "meta": state.meta,
+    };
+
+    List<int> header = utf8.encode('${jsonEncode(message)}\n');
+    var base64Overhead =
+        useBinaryMessage ? 0 : (0.25 * maximumMessageSize).floor();
+    var bytesToRead = maximumMessageSize - header.length - base64Overhead;
+    var chunk = await state.raFile.read(bytesToRead);
+    var isFileRead = startByte + bytesToRead >= state.fileSize;
+
+    var builder = BytesBuilder();
+    builder.add(header);
+    builder.add(chunk);
+    var bytes = builder.toBytes();
+
+    if (useBinaryMessage) {
+      await peer.sendBinary(bytes);
+    } else {
+      String strPayload = base64.encode(bytes);
+      await peer.sendText(strPayload);
+    }
+
+    if (isFileRead) {
+      logger("SENDER: Last chunk sent");
+      state.fileSendingComplete = true;
     }
   }
 
