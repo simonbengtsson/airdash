@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter_webrtc/flutter_webrtc.dart';
+import 'package:simple_peer/simple_peer.dart';
 
 import '../helpers.dart';
 import '../model/payload.dart';
@@ -11,10 +12,8 @@ import '../reporting/logger.dart';
 import 'data_message.dart';
 
 class Receiver {
-  RTCPeerConnection connection;
-
+  Peer peer;
   FileTransferState? currentState;
-  Function(Map<String, dynamic>)? onIceCandidate;
   Function(double progress, int totalSize)? statusUpdateCallback;
   SingleCompleter<Payload> waitForPayload = SingleCompleter();
 
@@ -23,13 +22,10 @@ class Receiver {
   // Try using negotiated channel instead due to no reply issue
   var useNegotiatedChannel = false;
 
-  Receiver(this.connection);
+  Receiver(this.peer);
 
-  static Future<Receiver> create(
-      config, Map<String, dynamic> loopbackConstraints) async {
-    var connection = await createPeerConnection(config, loopbackConstraints);
-
-    return Receiver(connection);
+  static Future<Receiver> create(Peer peer) async {
+    return Receiver(peer);
   }
 
   Future<Payload> waitForFinish(Function(double, int) callback) {
@@ -37,7 +33,9 @@ class Receiver {
     return waitForPayload.future;
   }
 
-  processMessage(RTCDataChannel channel, FileTransferState state) async {
+  processMessage() async {
+    var state = currentState!;
+
     if (state.processingMessage) {
       print('RECEIVER: Skipping, already processing message');
       return;
@@ -67,7 +65,8 @@ class Receiver {
 
     print(
         'RECEIVER: Chunk received ${message.chunkStart} of ${message.fileSize} of ${message.filename}');
-    await state.tmpFile.writeAsBytes(message.chunk, mode: FileMode.append);
+    var tmpFile = await state.tmpFile();
+    await tmpFile.writeAsBytes(message.chunk, mode: FileMode.append);
     var writtenLength = message.chunkStart + message.chunk.length;
 
     var fileCompleted = writtenLength == message.fileSize;
@@ -77,8 +76,7 @@ class Receiver {
       "acknowledgeChunk": message.chunkStart,
       "acknowledgeFile": fileCompleted,
     });
-    var ackMessage = RTCDataChannelMessage(json);
-    await channel.send(ackMessage);
+    await peer.sendText(json);
     statusUpdateCallback?.call(
         writtenLength / message.fileSize, message.fileSize);
     state.pendingMessages.remove(nextChunk);
@@ -94,14 +92,15 @@ class Receiver {
       if (url != null) {
         payload = UrlPayload(Uri.parse(url));
       } else {
-        payload = FilePayload(state.tmpFile);
+        payload = FilePayload(tmpFile);
       }
       waitForPayload.complete(payload);
     } else {
       // Start over in case new messages were received during processing
-      processMessage(channel, state);
+      processMessage();
     }
-    print('RECEIVER: Sent ack ${message.chunkStart} $fileCompleted');
+    print(
+        'RECEIVER: Sent ack for chunk ${message.chunkStart}-${message.chunkStart + message.chunk.length}. Completed: $fileCompleted');
   }
 
   connect() async {
@@ -114,134 +113,81 @@ class Receiver {
           "Could not connect to sending device. Check your internet connection and try again.");
     });
 
-    connection.onSignalingState = (state) {
-      logger('RECEIVER: onSignalingState ${state.name}');
-    };
-    connection.onConnectionState = (state) async {
+    await peer.connect();
+
+    peer.connection.onConnectionState = (state) async {
       logger('RECEIVER: onConnectionState ${state.name}');
       if (state == RTCPeerConnectionState.RTCPeerConnectionStateFailed ||
           state == RTCPeerConnectionState.RTCPeerConnectionStateDisconnected) {
-        connection.close();
-      }
-      if (state == RTCPeerConnectionState.RTCPeerConnectionStateClosed) {
+        await peer.connection.close();
+      } else if (state == RTCPeerConnectionState.RTCPeerConnectionStateClosed) {
         waitForPayload.completeError(AppException(
             "receiverConnectionClosedDuringTransfer",
             'Connection was closed during transfer. Check your internet connection and try again.'));
       }
     };
-    connection.onIceGatheringState = (state) {
-      logger('RECEIVER: onIceGatheringState ${state.name}');
-    };
-    connection.onIceConnectionState = (state) async {
-      logger('RECEIVER: onIceConnectionState ${state.name}');
-    };
-    connection.onRenegotiationNeeded = () {
-      logger('RECEIVER: onRenegotiationNeeded');
-    };
 
-    if (useNegotiatedChannel) {
-      connection.onDataChannel = (dataChannel) {
-        onDataChannel(dataChannel, firstMessageCompleter);
-      };
-    } else {
-      var dcInit = RTCDataChannelInit();
-      dcInit.negotiated = true;
-      dcInit.id = 1001;
-      var dataChannel =
-          await connection.createDataChannel('sendChannel', dcInit);
-      onDataChannel(dataChannel, firstMessageCompleter);
-    }
-
-    connection.onIceCandidate = (candidate) async {
-      var payload = {
-        'candidate': candidate.candidate,
-        'sdpMid': candidate.sdpMid,
-        'sdpMLineIndex': candidate.sdpMLineIndex
-      };
-      var type = candidate.candidate?.split(' ').tryGet(7);
-      logger("RECEIVER: New local ice candidate: $type");
-      onIceCandidate!(payload);
-    };
-
-    await firstMessage;
-  }
-
-  onDataChannel(
-      RTCDataChannel dataChannel, SingleCompleter firstMessageCompleter) {
     logger('RECEIVER: Data channel received');
     notifier = () async {
       try {
-        await processMessage(dataChannel, currentState!);
+        await processMessage();
       } catch (error, stack) {
         ErrorLogger.logStackError(
             'receiverMessageProcessingError', error, stack);
         waitForPayload.completeError('Could not process message');
-        connection.close();
+        peer.connection.close();
       }
     };
 
-    dataChannel.onDataChannelState = (state) {
-      logger("RECEIVER: onDataChannelState: ${state.toString()}");
-    };
-
     SingleCompleter? cmp;
-    dataChannel.onMessage = (rtcMessage) async {
+    peer.onBinaryData = (bytes) async {
       try {
         firstMessageCompleter.complete('done');
-        handleDataMessage(rtcMessage, dataChannel);
+        await handleDataMessage(bytes);
       } catch (error, stack) {
         ErrorLogger.logStackError('receiverMessageParsingError', error, stack);
         waitForPayload.completeError("Could not parse message");
-        connection.close();
+        peer.connection.close();
       }
 
       cmp?.complete('done');
       cmp = SingleCompleter();
       await cmp!.future.timeout(const Duration(seconds: 20), onTimeout: () {
         waitForPayload.completeError('Receiver data channel timeout');
-        connection.close();
+        peer.connection.close();
       });
     };
+    peer.onTextData = (text) async {
+      try {
+        firstMessageCompleter.complete('done');
+        List<int> bytes = base64.decode(text);
+        await handleDataMessage(bytes);
+      } catch (error, stack) {
+        ErrorLogger.logStackError('receiverMessageParsingError', error, stack);
+        waitForPayload.completeError("Could not parse message");
+        peer.connection.close();
+      }
+
+      cmp?.complete('done');
+      cmp = SingleCompleter();
+      await cmp!.future.timeout(const Duration(seconds: 20), onTimeout: () {
+        waitForPayload.completeError('Receiver data channel timeout');
+        peer.connection.close();
+      });
+    };
+
+    await firstMessage;
   }
 
-  handleDataMessage(
-      RTCDataChannelMessage rtcMessage, RTCDataChannel channel) async {
-    var message = Message.parse(rtcMessage);
+  handleDataMessage(List<int> bytes) async {
+    print('Handling data message');
+    var message = Message.parse(bytes);
     if (currentState == null) {
-      currentState =
-          await FileTransferState.create(message.filename, message.meta);
+      currentState = FileTransferState(message.filename, message.meta);
       logger('RECEIVER: New file transfer started');
     }
     currentState!.pendingMessages[message.chunkStart] = message;
     notifier!();
-  }
-
-  createAnswer(offerSdp, offerType) async {
-    var remoteDesc = RTCSessionDescription(offerSdp, offerType);
-    await connection.setRemoteDescription(remoteDesc);
-    var answerDesc = await connection.createAnswer();
-    await connection.setLocalDescription(answerDesc);
-    logger("RECEIVER: Answer created and set ${answerDesc.type}");
-
-    var payload = {
-      "sdp": answerDesc.sdp,
-      "type": answerDesc.type,
-    };
-    return payload;
-  }
-
-  addIceCandidate(Map<String, dynamic> data) async {
-    try {
-      String candidate = data['candidate'];
-      String sdpMid = data['sdpMid'];
-      int sdpMLineIndex = data['sdpMLineIndex'];
-      var ic = RTCIceCandidate(candidate, sdpMid, sdpMLineIndex);
-      await connection.addCandidate(ic);
-      var type = candidate.split(' ').tryGet(7);
-      logger("RECEIVER: Added remote ice candidate $type");
-    } catch (err) {
-      logger("RECEIVER: Add ice candidate error: ${err.toString()}");
-    }
   }
 }
 
@@ -252,14 +198,15 @@ class FileTransferState {
 
   String filename;
   Map<String, dynamic> meta;
-  File tmpFile;
 
-  FileTransferState(this.filename, this.tmpFile, this.meta);
-
-  static Future<FileTransferState> create(
-      String filename, Map<String, dynamic> meta) async {
-    var file = await getEmptyFile(filename);
-    addUsedFile(file);
-    return FileTransferState(filename, file, meta);
+  File? _tmpFile;
+  Future<File> tmpFile() async {
+    if (_tmpFile == null) {
+      _tmpFile = await getEmptyFile(filename);
+      addUsedFile(_tmpFile!);
+    }
+    return _tmpFile!;
   }
+
+  FileTransferState(this.filename, this.meta);
 }

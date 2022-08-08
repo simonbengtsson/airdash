@@ -5,6 +5,7 @@ import 'dart:io';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:simple_peer/simple_peer.dart';
 import 'package:wakelock/wakelock.dart';
 
 import '../helpers.dart';
@@ -28,18 +29,26 @@ class Connector {
   };
 
   Device localDevice;
-  SignalingObserver observer;
   Signaling signaling;
 
   String? activeTransferId;
+  Function(SignalingInfo)? signal;
 
-  Connector(this.localDevice, this.signaling, this.observer);
-
-  static Connector create(Device localDevice) {
-    var signaling = Signaling();
-    var observer = SignalingObserver(localDevice.id, signaling);
-    return Connector(localDevice, signaling, observer);
+  RTCDataChannelInit get dcConfig {
+    var dcConfig = RTCDataChannelInit();
+    dcConfig.negotiated = true;
+    dcConfig.id = 1001;
+    return dcConfig;
   }
+
+  Connector(this.localDevice, this.signaling);
+
+  static Connector create(Device localDevice, Peer peer) {
+    var signaling = Signaling();
+    return Connector(localDevice, signaling);
+  }
+
+  Function(int)? onPingResponse;
 
   sendFile(Device receiver, List<Payload> payloads,
       Function(int, int) statusCallback) async {
@@ -82,23 +91,24 @@ class Connector {
       await Wakelock.enable();
       logger('SENDER: Start transfer $transferId');
 
+      var config = await getIceServerConfig();
+      var peer = await Peer.create(
+          initiator: true,
+          config: config,
+          dataChannelConfig: dcConfig,
+          verbose: true);
+      signal = peer.signal;
+
       var messageSender =
           MessageSender(localDevice, receiver.id, transferId, signaling);
-      var config = await getIceServerConfig();
-      sender = await DataSender.create(config, file, meta, loopbackConstraints);
-      observer.onAnswer = (answer) {
-        sender!.setAnswer(answer);
+      peer.onSignal = (info) {
+        messageSender.sendMessage(info.type, info.payload);
       };
-      observer.onReceiverIceCandidate = (candidate) {
-        sender!.addIceCandidate(candidate);
-      };
-      sender.onIceCandidate = (candidate) {
-        messageSender.sendMessage('senderIceCandidate', candidate);
-      };
+      sender = await DataSender.create(peer, file, meta);
       await googlePing();
       var completer = SingleCompleter();
       messageSender.sendMessage('ping', {});
-      observer.onPingResponse = (remoteVersion) {
+      onPingResponse = (remoteVersion) {
         if (remoteVersion == MessageSender.communicationVersion) {
           completer.complete('done');
         } else {
@@ -111,11 +121,8 @@ class Connector {
         throw AppException('deviceFirebasePingTimeout',
             'Could not reach the receiving device. Ensure it is connected to the internet and has AirDash open.');
       });
-      var future = sender.connect();
-      var offer = await sender.createOffer();
-      await messageSender.sendMessage('offer', offer);
-      logger('SENDER: Sent offer, waiting for connection...');
-      await future;
+      logger('SENDER: Device ping completed');
+      await sender.connect();
       logger('SENDER: Connection established');
       await sender.sendFile(statusCallback);
     } catch (error) {
@@ -125,14 +132,11 @@ class Connector {
       await Wakelock.disable();
       List<String> connectionTypes = [];
       if (sender != null) {
-        connectionTypes = await getConnectionTypes(sender.connection);
+        connectionTypes = await getConnectionTypes(sender.peer.connection);
         logger('SENDER: Finished with $connectionTypes');
-        await sender.connection.close();
+        await sender.peer.connection.close();
         await sender.senderState.raFile.close();
       }
-      observer.onAnswer = null;
-      observer.onReceiverIceCandidate = null;
-      observer.onPingResponse = null;
       activeTransferId = null;
       signaling.receivedMessages = {};
       if (Platform.isIOS) {
@@ -182,6 +186,7 @@ class Connector {
       Function(Payload? payload, Object? error, String message)
           callback) async {
     activeTransferId = transferId;
+
     logger('RECEIVER: Starting receiving');
     callback(null, null, 'Connecting...');
 
@@ -203,21 +208,19 @@ class Connector {
     Object? receiveError;
     Receiver? receiver;
     try {
+      var config = await getIceServerConfig();
+      var peer = await Peer.create(
+          config: config, dataChannelConfig: dcConfig, verbose: true);
+      signal = peer.signal;
       await Wakelock.enable();
       var messageSender =
           MessageSender(localDevice, remoteId, transferId, signaling);
-      var config = await getIceServerConfig();
-      var receiver = await Receiver.create(config, loopbackConstraints);
-      receiver.onIceCandidate = (candidate) {
-        messageSender.sendMessage('receiverIceCandidate', candidate);
+      peer.onSignal = (info) {
+        messageSender.sendMessage(info.type, info.payload);
       };
-      observer.onSenderIceCandidate = (candidate) {
-        receiver.addIceCandidate(candidate);
-      };
-      var future = receiver.connect();
-      var answer = await receiver.createAnswer(offer['sdp'], offer['type']);
-      await messageSender.sendMessage('answer', answer);
-      await future;
+      var receiver = await Receiver.create(peer);
+      await peer.signal(SignalingInfo('offer', offer));
+      await receiver.connect();
       String? lastProgressStr;
       var payload = await receiver.waitForFinish((progress, totalSize) {
         var payloadMbSize = totalSize / 1000000;
@@ -242,12 +245,11 @@ class Connector {
     } finally {
       List<String> connectionTypes = [];
       if (receiver != null) {
-        connectionTypes = await getConnectionTypes(receiver.connection);
+        connectionTypes = await getConnectionTypes(receiver.peer.connection);
         logger('RECEIVER: Finished with $connectionTypes');
       }
       await Wakelock.disable();
-      await receiver?.connection.close();
-      observer.onSenderIceCandidate = null;
+      await receiver?.peer.connection.close();
       activeTransferId = null;
       signaling.receivedMessages = {};
       logger('RECEIVER: Receiver cleanup finished');
@@ -335,7 +337,17 @@ class Connector {
         }
       } else {
         if (activeTransferId == transferId) {
-          observer.handleMessage(type, remoteVersion, payload);
+          if (type == 'pingResponse') {
+            onPingResponse!(remoteVersion);
+          } else if ([
+            'senderIceCandidate',
+            'receiverIceCandidate',
+            'answer',
+          ].contains(type)) {
+            signal!(SignalingInfo(type, payload));
+          } else {
+            ErrorLogger.logSimpleError('invalidMessageType', {'type': type});
+          }
         } else {
           logger(
               "Message '$type' with incorrect transfer id ignored $transferId != $activeTransferId");
@@ -371,46 +383,6 @@ class Connector {
           {'url': 'stun:stun.l.google.com:19302'},
         ],
       };
-    }
-  }
-}
-
-class SignalingObserver {
-  String localId;
-  Signaling signaling;
-
-  Function(Map<String, dynamic> candidate)? onSenderIceCandidate;
-  Function(Map<String, dynamic> candidate)? onReceiverIceCandidate;
-  Function(Map<String, dynamic> answer)? onAnswer;
-  Function(int version)? onPingResponse;
-
-  SignalingObserver(this.localId, this.signaling);
-
-  handleMessage(String type, int remoteVersion, Map<String, dynamic> payload) {
-    if (type == 'senderIceCandidate') {
-      if (onSenderIceCandidate != null) {
-        onSenderIceCandidate!(payload);
-      } else {
-        logger("No listener for $type");
-      }
-    } else if (type == 'receiverIceCandidate') {
-      if (onReceiverIceCandidate != null) {
-        onReceiverIceCandidate!(payload);
-      } else {
-        logger("No listener for $type");
-      }
-    } else if (type == 'answer') {
-      if (onAnswer != null) {
-        onAnswer!(payload);
-      } else {
-        logger("No listener for $type");
-      }
-    } else if (type == 'pingResponse') {
-      if (onPingResponse != null) {
-        onPingResponse!(remoteVersion);
-      }
-    } else {
-      ErrorLogger.logSimpleError('invalidMessageType', {'type': type});
     }
   }
 }

@@ -3,7 +3,6 @@ import 'dart:convert';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 
 class Message {
-  RTCDataChannelMessage rtcMessage;
   Map<String, dynamic> header;
   List<int> chunk;
   int lengthInBytes;
@@ -37,17 +36,13 @@ class Message {
     return header['chunkStart'] as int;
   }
 
-  Message(this.rtcMessage, this.chunk, this.header, this.lengthInBytes);
+  Message(this.chunk, this.header, this.lengthInBytes);
 
-  static Message parse(RTCDataChannelMessage rtcMessage) {
-    List<int> binary = rtcMessage.isBinary
-        ? rtcMessage.binary
-        : base64.decode(rtcMessage.text);
-
+  static Message parse(List<int> bytes) {
     var isFileContent = false;
     List<int> chunk = [];
     List<int> headerBytes = [];
-    for (var byte in binary) {
+    for (var byte in bytes) {
       if (isFileContent) {
         chunk.add(byte);
       } else if (byte == '\n'.codeUnitAt(0)) {
@@ -60,6 +55,6 @@ class Message {
     var json = utf8.decode(headerBytes);
     Map<String, dynamic> header = jsonDecode(json);
 
-    return Message(rtcMessage, chunk, header, binary.length);
+    return Message(chunk, header, bytes.length);
   }
 }

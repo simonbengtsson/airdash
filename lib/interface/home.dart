@@ -176,8 +176,7 @@ class _MyHomePageState extends State<MyHomePage>
       currentDevice = localDevice;
     });
 
-    connector = Connector(
-        localDevice, signaling, SignalingObserver(deviceId, signaling));
+    connector = Connector(localDevice, signaling);
     devices = valueStore.getReceivers();
     selectedDevice = valueStore.getSelectedDevice();
 
@@ -205,7 +204,11 @@ class _MyHomePageState extends State<MyHomePage>
         }
       } else if (error != null) {
         if (error is AppException) {
-          showSnackBar(error.userError);
+          if (error.type == 'firstDataMessageTimeout') {
+            showTransferFailedToast(error.userError);
+          } else {
+            showSnackBar(error.userError);
+          }
         } else {
           showSnackBar('Could not receive file. Try again.');
         }
@@ -238,6 +241,21 @@ class _MyHomePageState extends State<MyHomePage>
         .start();
   }
 */
+
+  showTransferFailedToast(String message) {
+    var bar = SnackBar(
+      content: Text(message),
+      action: SnackBarAction(
+        label: 'Report Issue',
+        onPressed: () async {
+          var url =
+              Uri.parse('https://github.com/simonbengtsson/airdash/issues');
+          await launchUrl(url);
+        },
+      ),
+    );
+    ScaffoldMessenger.of(context).showSnackBar(bar);
+  }
 
   updateConnectionConfig() async {
     var doc = await Firestore.instance
@@ -634,7 +652,9 @@ class _MyHomePageState extends State<MyHomePage>
   }
 
   showToast(String message) {
-    var bar = SnackBar(content: Text(message));
+    var bar = SnackBar(
+      content: Text(message),
+    );
     ScaffoldMessenger.of(context).showSnackBar(bar);
   }
 

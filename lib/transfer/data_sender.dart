@@ -4,16 +4,14 @@ import 'dart:io';
 import 'dart:math';
 
 import 'package:flutter_webrtc/flutter_webrtc.dart';
+import 'package:simple_peer/simple_peer.dart';
 
 import '../helpers.dart';
 import '../reporting/error_logger.dart';
 import '../reporting/logger.dart';
 
 class DataSender {
-  RTCPeerConnection connection;
-  RTCDataChannel dataChannel;
-  List<RTCIceCandidate> pendingIceCandidates = [];
-  Function(Map<String, dynamic>)? onIceCandidate;
+  Peer peer;
 
   int maximumMessageSize = 16000;
 
@@ -22,44 +20,20 @@ class DataSender {
 
   FileSendingState senderState;
 
-  DataSender(this.connection, this.dataChannel, this.senderState);
+  DataSender(this.peer, this.senderState);
 
-  static Future<DataSender> create(config, File file, Map<String, String> meta,
-      Map<String, dynamic> loopbackConstraints) async {
-    logger('SENDER: Create connection with "${config['provider']}"');
-    var connection = await createPeerConnection(config, loopbackConstraints);
-
-    var dcInit = RTCDataChannelInit();
-    dcInit.negotiated = true;
-    dcInit.id = 1001;
-    var dataChannel = await connection.createDataChannel('sendChannel', dcInit);
+  static Future<DataSender> create(
+      peer, File file, Map<String, String> meta) async {
+    logger('SENDER: Create connection');
 
     var sendingState = await FileSendingState.create(file, meta);
-    return DataSender(connection, dataChannel, sendingState);
-  }
-
-  postIceCandidates() async {
-    var desc = await connection.getRemoteDescription();
-    if (desc == null) {
-      // Confirm that the receiver is ready by waiting for answer
-      // before sending ice candidates
-      return;
-    }
-    for (var candidate in pendingIceCandidates) {
-      var payload = {
-        'candidate': candidate.candidate,
-        'sdpMid': candidate.sdpMid,
-        'sdpMLineIndex': candidate.sdpMLineIndex
-      };
-      var type = candidate.candidate?.split(' ').tryGet(7);
-      logger("SENDER: New local ice candidate: $type");
-      onIceCandidate!(payload);
-    }
+    return DataSender(peer, sendingState);
   }
 
   Future updateMaximumMessageSize() async {
-    RTCSessionDescription? local = await connection.getLocalDescription();
-    RTCSessionDescription? remote = await connection.getRemoteDescription();
+    RTCSessionDescription? local = await peer.connection.getLocalDescription();
+    RTCSessionDescription? remote =
+        await peer.connection.getRemoteDescription();
 
     int localMaximumSize = parseMaximumSize(local);
     int remoteMaximumSize = parseMaximumSize(remote);
@@ -140,14 +114,12 @@ class DataSender {
       builder.add(chunk);
       var bytes = builder.toBytes();
 
-      RTCDataChannelMessage rtcMessage;
       if (useBinaryMessage) {
-        rtcMessage = RTCDataChannelMessage.fromBinary(bytes);
+        await peer.sendBinary(bytes);
       } else {
         String strPayload = base64.encode(bytes);
-        rtcMessage = RTCDataChannelMessage(strPayload);
+        await peer.sendText(strPayload);
       }
-      await dataChannel.send(rtcMessage);
 
       if (isFileRead) {
         logger("SENDER: Last chunk sent");
@@ -181,10 +153,16 @@ class DataSender {
         batchTimeoutCompleter = SingleCompleter();
         batchTimeoutCompleter!.future.timeout(const Duration(seconds: 10),
             onTimeout: () {
-          var exception = AppException('nextBatchSendingTimeout',
-              'Lost connection. Check your internet connection on this and the receiving device.');
-          exception.info = "Ack chunk ${senderState.acknowledgedChunk ?? -1}";
-          senderState.completer.completeError(exception);
+          if (senderState.acknowledgedChunk == null) {
+            var exception = AppException('firstDataMessageTimeout',
+                'Connection was successful, but data transfer failed. This could be an issue with the app. Report Issue');
+            senderState.completer.completeError(exception);
+          } else {
+            var exception = AppException('nextBatchSendingTimeout',
+                'Lost connection. Check your internet connection on this and the receiving device.');
+            exception.info = "Ack chunk ${senderState.acknowledgedChunk ?? -1}";
+            senderState.completer.completeError(exception);
+          }
         });
       } catch (error, stack) {
         batchTimeoutCompleter?.complete('done');
@@ -198,41 +176,18 @@ class DataSender {
   }
 
   connect() async {
-    var dataChannelOpenCompleter = SingleCompleter();
-    var dataChannelReady = dataChannelOpenCompleter.future
-        .timeout(const Duration(seconds: 10), onTimeout: () {
-      throw AppException("senderWebrtcConnectionFailed",
-          "Could not connect to the receiving device. Check your internet connection and try again.");
-    });
-
-    connection.onSignalingState = (state) {};
-    connection.onConnectionState = (state) async {
-      logger('SENDER: onConnectionState ${state.name}');
-      if (state == RTCPeerConnectionState.RTCPeerConnectionStateFailed ||
-          state == RTCPeerConnectionState.RTCPeerConnectionStateDisconnected) {
-        connection.close();
-      }
-      if (state == RTCPeerConnectionState.RTCPeerConnectionStateClosed) {
-        senderState.completer.completeError('Connection was closed');
-      }
-    };
-    connection.onIceGatheringState = (state) {
-      logger('SENDER: onIceGatheringState ${state.name}');
-    };
-    connection.onIceConnectionState = (state) {
-      logger('SENDER: onIceConnectionState ${state.name}');
-    };
-    connection.onRenegotiationNeeded = () {
-      logger('SENDER: onRenegotiationNeeded');
-    };
-
-    connection.onIceCandidate = (candidate) async {
-      pendingIceCandidates.add(candidate);
-      postIceCandidates();
-    };
-
-    dataChannel.onMessage = (message) async {
+    peer.onBinaryData = (bytes) async {
       try {
+        var message = RTCDataChannelMessage.fromBinary(bytes);
+        await handleChannelMessage(message);
+      } catch (error, stack) {
+        ErrorLogger.logStackError('senderMessageProcessingError', error, stack);
+        senderState.completer.completeError('Error handling message $error');
+      }
+    };
+    peer.onTextData = (text) async {
+      try {
+        var message = RTCDataChannelMessage(text);
         await handleChannelMessage(message);
       } catch (error, stack) {
         ErrorLogger.logStackError('senderMessageProcessingError', error, stack);
@@ -240,15 +195,24 @@ class DataSender {
       }
     };
 
-    dataChannel.onDataChannelState = (state) async {
-      logger("SENDER: onDataChannelState: $state");
-      if (state == RTCDataChannelState.RTCDataChannelOpen) {
-        dataChannelOpenCompleter.complete('done');
+    peer.connection.onConnectionState = (state) async {
+      logger('SENDER: onConnectionState ${state.name}');
+      if (state == RTCPeerConnectionState.RTCPeerConnectionStateFailed ||
+          state == RTCPeerConnectionState.RTCPeerConnectionStateDisconnected) {
+        peer.connection.close();
+      }
+      if (state == RTCPeerConnectionState.RTCPeerConnectionStateClosed) {
+        senderState.completer.completeError('Connection was closed');
       }
     };
 
-    await dataChannelReady;
-    logger('SENDER: Data channel ready');
+    await peer.connect().timeout(const Duration(seconds: 10), onTimeout: () {
+      throw AppException("senderWebrtcConnectionFailed",
+          "Could not connect to the receiving device. Check your internet connection and try again.");
+    });
+
+    await updateMaximumMessageSize();
+    logger('SENDER: Peer was connected and data channel ready');
   }
 
   handleChannelMessage(RTCDataChannelMessage message) async {
@@ -266,7 +230,8 @@ class DataSender {
       return; // No need to handle old ack
     }
     senderState.acknowledgedChunk = finishedChunk;
-    print('SENDER: Received ack for chunk: $finishedChunk $fileCompleted');
+    print(
+        'SENDER: Received ack for chunk: $finishedChunk Completed: $fileCompleted');
 
     if (statusCallback != null &&
         !senderState.completer.completer.isCompleted) {
@@ -282,51 +247,8 @@ class DataSender {
     }
   }
 
-  createOffer() async {
-    var offerSdpConstraints = <String, dynamic>{
-      'mandatory': {
-        'OfferToReceiveAudio': false,
-        'OfferToReceiveVideo': false,
-      },
-      'optional': [],
-    };
-    RTCSessionDescription description =
-        await connection.createOffer(offerSdpConstraints);
-    await connection.setLocalDescription(description);
-    logger("SENDER: Offer created and set ${description.type}");
-
-    var offer = {
-      'type': description.type,
-      'sdp': description.sdp,
-    };
-    return offer;
-  }
-
-  setAnswer(Map<String, dynamic> answer) async {
-    var desc = RTCSessionDescription(answer['sdp'], answer['type']);
-    await connection.setRemoteDescription(desc);
-    logger("SENDER: Answer set");
-
-    await updateMaximumMessageSize();
-    postIceCandidates();
-  }
-
   percent(part, total) {
     return ((part / total) * 100).round();
-  }
-
-  addIceCandidate(Map<String, dynamic> data) async {
-    try {
-      String candidate = data['candidate'];
-      String sdpMid = data['sdpMid'];
-      int sdpMLineIndex = data['sdpMLineIndex'];
-      var ic = RTCIceCandidate(candidate, sdpMid, sdpMLineIndex);
-      await connection.addCandidate(ic);
-      var type = candidate.split(' ').tryGet(7);
-      logger("SENDER: Added remote ice candidate $type");
-    } catch (err) {
-      logger("SENDER: Add ice candidate error: ${err.toString()} $data");
-    }
   }
 }
 
