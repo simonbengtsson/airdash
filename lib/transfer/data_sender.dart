@@ -155,7 +155,7 @@ class DataSender {
             onTimeout: () {
           if (senderState.acknowledgedChunk == null) {
             var exception = AppException('firstDataMessageTimeout',
-                'Connection was successful, but data transfer failed. This could be an issue with the app. Report Issue');
+                'Connection was successful, but data transfer failed. This could be an issue with the app.');
             senderState.completer.completeError(exception);
           } else {
             var exception = AppException('nextBatchSendingTimeout',

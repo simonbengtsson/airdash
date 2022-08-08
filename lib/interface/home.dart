@@ -204,11 +204,7 @@ class _MyHomePageState extends State<MyHomePage>
         }
       } else if (error != null) {
         if (error is AppException) {
-          if (error.type == 'firstDataMessageTimeout') {
-            showTransferFailedToast(error.userError);
-          } else {
-            showSnackBar(error.userError);
-          }
+          showSnackBar(error.userError);
         } else {
           showSnackBar('Could not receive file. Try again.');
         }
@@ -244,8 +240,10 @@ class _MyHomePageState extends State<MyHomePage>
 
   showTransferFailedToast(String message) {
     var bar = SnackBar(
+      duration: const Duration(seconds: 10),
       content: Text(message),
       action: SnackBarAction(
+        textColor: Colors.white,
         label: 'Report Issue',
         onPressed: () async {
           var url =
@@ -407,18 +405,20 @@ class _MyHomePageState extends State<MyHomePage>
       });
     } catch (error, stack) {
       logger('SENDER: Send file error "$error"');
-      String errorMessage;
       if (error is AppException) {
-        errorMessage = error.userError;
+        if (error.type == 'firstDataMessageTimeout') {
+          showTransferFailedToast(error.userError);
+        } else {
+          showSnackBar(error.userError);
+        }
         ErrorLogger.logStackError(error.type, error, stack);
       } else if (error is GrpcError && error.code == 14) {
-        errorMessage = "Sending failed. Try again.";
+        showSnackBar("Sending failed. Try again.");
         ErrorLogger.logStackError('internetSenderError', error, stack);
       } else {
-        errorMessage = "Sending failed. Try again.";
+        showSnackBar("Sending failed. Try again.");
         ErrorLogger.logStackError('unknownSenderError', error, stack);
       }
-      showSnackBar(errorMessage);
       setState(() {
         sendingStatus = null;
       });
