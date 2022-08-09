@@ -2,10 +2,13 @@
 
 Transfer photos and files to any device.
 
-### Downloads
-- [iOS & macOS (Apple App Store)](https://apps.apple.com/se/app/airdash-file-sharing/id1596599922)
-- [Android (Google Play)](https://play.google.com/store/apps/details?id=io.flown.airdash)
-- [Windows (Microsoft Store)](https://apps.microsoft.com/store/detail/airdash/9NL9K7CSG30T)
+### Get the app
+- [Apple App Store (iOS & macOS)](https://apps.apple.com/se/app/airdash-file-sharing/id1596599922)
+- [Google Play (Android)](https://play.google.com/store/apps/details?id=io.flown.airdash)
+- [Microsoft Store (Windows)](https://apps.microsoft.com/store/detail/airdash/9NL9K7CSG30T)
+
+### Analytics
+- [Analytics Dashboard](https://mixpanel.com/p/XKeBKcwzQ5HjuUxuxHv934)
 
 ### Key features
 - Support for all major platforms and app stores (iOS, macOS, windows and Android)
