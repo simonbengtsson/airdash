@@ -25,12 +25,6 @@ Future main(List<String> args) async {
     await WindowsAppBuilder().build();
     await MicrosoftStoreSubmitter().submit();
   } else if (script == 'play') {
-    Map<String, dynamic> header = <String, dynamic>{
-      "alg": "ES256",
-      "kid": Config.appStoreConnectApiKeyName,
-      "typ": "JWT",
-    };
-    header.addAll({'alg': '', 'typ': 'JWT'});
   } else {
     print('Invalid script: $script');
   }
