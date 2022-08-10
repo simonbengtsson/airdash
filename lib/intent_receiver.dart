@@ -18,7 +18,7 @@ class IntentReceiver {
     if (Platform.isIOS) {
       const eventChannel = EventChannel('io.flown.airdash/event_communicator');
       eventChannel.receiveBroadcastStream().listen((dynamic event) async {
-        var urls = event as List<String>;
+        var urls = List<String>.from(event as List);
         var url = urls.tryGet(0);
         if (url == null) return;
 
