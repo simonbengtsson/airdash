@@ -9,7 +9,7 @@ import '../helpers.dart';
 import 'analytics_logger.dart';
 
 class SentryManager {
-  static setup(SentryFlutterOptions options) async {
+  static Future setup(SentryFlutterOptions options) async {
     PackageInfo info = await PackageInfo.fromPlatform();
     options.release = info.version;
     options.environment = kDebugMode ? 'development' : 'production';
@@ -23,7 +23,7 @@ class SentryManager {
   }
 
   static SentryEvent? _handleBeforeSend(SentryEvent event) {
-    var throwable = event.throwable;
+    dynamic throwable = event.throwable;
 
     String? type;
     if (throwable is LogError) {
@@ -39,7 +39,7 @@ class SentryManager {
       print('SENTRY: Ignored posting analytics error ${throwable.type}');
     } else {
       // This caused recursion when was called on native error for some reason
-      AnalyticsEvent.errorLogged.log({
+      AnalyticsEvent.errorLogged.log(<String, dynamic>{
         'Logged': throwable is LogError,
         'Type': type ?? 'native',
         'Event ID': event.eventId.toString(),
@@ -51,7 +51,7 @@ class SentryManager {
     return Config.sendErrorAndAnalyticsLogs ? event : null;
   }
 
-  setProfileProps(Map<String, dynamic> userProps) {
+  void setProfileProps(Map<String, dynamic> userProps) {
     var props = <String, dynamic>{};
     for (var key in userProps.keys) {
       var value = userProps[key]?.toString() ?? '(null)';

@@ -12,7 +12,8 @@ class Device {
 
   String get displayId {
     if (id.length < 5) {
-      ErrorLogger.logSimpleError('invalidIdForDisplayId', {'id': id});
+      ErrorLogger.logSimpleError(
+          'invalidIdForDisplayId', <String, String>{'id': id});
       return '';
     }
     return id.substring(0, 5);
@@ -29,7 +30,7 @@ class Device {
   }
 
   Map<String, dynamic> encode() {
-    return {
+    return <String, dynamic>{
       'id': id,
       'name': name,
       'platform': platform,

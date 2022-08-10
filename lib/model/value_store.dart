@@ -21,7 +21,7 @@ class ValueStore {
     return deviceId;
   }
 
-  setDeviceName(String name) {
+  Future<bool> setDeviceName(String name) {
     return prefs.setString('deviceName', name);
   }
 
@@ -59,7 +59,7 @@ class ValueStore {
         .tryGet(0);
   }
 
-  updateStartValues() {
+  void updateStartValues() {
     var firstSeenAt = prefs.getString('firstSeenAt');
     if (firstSeenAt == null) {
       var date = DateTime.now().toIso8601String();

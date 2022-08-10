@@ -1,12 +1,11 @@
 import 'dart:async';
 
-import 'package:airdash/helpers.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:integration_test/integration_test.dart';
 
 final loopbackConstraints = <String, dynamic>{
-  'mandatory': {},
+  'mandatory': <String, String>{},
   'optional': [
     {'DtlsSrtpKeyAgreement': true},
   ],
@@ -23,7 +22,7 @@ void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
   testWidgets('test local ice gathering', (tester) async {
-    var completer = Completer();
+    var completer = Completer<bool>();
     completer.future.timeout(const Duration(seconds: 2));
 
     var local = await createPeerConnection(activeConfig, loopbackConstraints);
@@ -42,7 +41,7 @@ void main() {
 
   // Will currently fail on windows https://github.com/flutter-webrtc/flutter-webrtc/issues/904
   testWidgets('test getStats call', (tester) async {
-    var pc = await createPeerConnection({});
+    var pc = await createPeerConnection(<String, String>{});
     await pc.getStats().timeout(const Duration(seconds: 10));
   });
 
@@ -61,7 +60,7 @@ class AutoNegotiatedTester {
   RTCPeerConnection? local;
   RTCPeerConnection? remote;
 
-  testConnection() async {
+  Future testConnection() async {
     local = await createPeerConnection(activeConfig, loopbackConstraints);
     print('Created local connection');
     var dcInit = RTCDataChannelInit();
@@ -100,7 +99,7 @@ class AutoNegotiatedTester {
     localChannel.onDataChannelState = (state) async {
       print('Local channel state $state');
       if (state == RTCDataChannelState.RTCDataChannelOpen) {
-        await Future.delayed(const Duration(seconds: 1));
+        await Future<dynamic>.delayed(const Duration(seconds: 1));
         var message = RTCDataChannelMessage('Hello from local!');
         await localChannel.send(message);
         print('Sent local message');
@@ -108,16 +107,20 @@ class AutoNegotiatedTester {
     };
 
     print('Waiting for all ice candidates...');
-    await Future.delayed(const Duration(seconds: 2));
+    await Future<dynamic>.delayed(const Duration(seconds: 2));
 
     assert(remoteIceCandidates.isNotEmpty, 'Has remote ice candidates');
     assert(localIceCandidates.isNotEmpty, 'Has local ice candidates');
 
-    remoteIceCandidates.forEach((it) => local!.addCandidate(it));
-    localIceCandidates.forEach((it) => remote!.addCandidate(it));
+    for (var it in remoteIceCandidates) {
+      local!.addCandidate(it);
+    }
+    for (var it in localIceCandidates) {
+      remote!.addCandidate(it);
+    }
     print('Added ice candidates');
 
-    var completer = Completer();
+    var completer = Completer<String>();
     localChannel.onMessage = (message) {
       print('Local channel message: ${message.text}');
       assert(true, 'Got remote reply message');
@@ -139,12 +142,10 @@ class AutoNegotiatedTester {
         print('Sent reply');
       };
     };
-    await completer.future.timeout(const Duration(seconds: 5), onTimeout: () {
-      assert(false, 'Timed out');
-    });
+    await completer.future.timeout(const Duration(seconds: 5));
     remote!.close();
     local!.close();
-    await Future.delayed(const Duration(seconds: 2));
+    await Future<void>.delayed(const Duration(seconds: 2));
     print('Done');
   }
 }
@@ -153,7 +154,7 @@ class ManuallyNegotiatedChannel {
   RTCPeerConnection? local;
   RTCPeerConnection? remote;
 
-  testConnection() async {
+  Future testConnection() async {
     local = await createPeerConnection(activeConfig, loopbackConstraints);
     print('Created local connection');
     var dcInit = RTCDataChannelInit();
@@ -224,7 +225,7 @@ class ManuallyNegotiatedChannel {
     localChannel.onDataChannelState = (state) async {
       print('Local channel state $state');
       if (state == RTCDataChannelState.RTCDataChannelOpen) {
-        await Future.delayed(const Duration(seconds: 1));
+        await Future<void>.delayed(const Duration(seconds: 1));
         var message = RTCDataChannelMessage('Hello from local!');
         await localChannel.send(message);
         print('Sent local message');
@@ -232,16 +233,20 @@ class ManuallyNegotiatedChannel {
     };
 
     print('Waiting for all ice candidates...');
-    await Future.delayed(const Duration(seconds: 2));
+    await Future<void>.delayed(const Duration(seconds: 2));
 
-    remoteIceCandidates.forEach((it) => local!.addCandidate(it));
-    localIceCandidates.forEach((it) => remote!.addCandidate(it));
+    for (var it in remoteIceCandidates) {
+      local!.addCandidate(it);
+    }
+    for (var it in localIceCandidates) {
+      remote!.addCandidate(it);
+    }
     print('Added ice candidates');
 
-    var completer = Completer();
+    var completer = Completer<bool>();
     localChannel.onMessage = (message) {
       print('Got reply: ${message.text}');
-      completer.complete('done');
+      completer.complete(true);
     };
 
     remoteChannel.onMessage = (message) async {
@@ -254,7 +259,7 @@ class ManuallyNegotiatedChannel {
     await completer.future;
     remote!.close();
     local!.close();
-    await Future.delayed(const Duration(seconds: 2));
+    await Future<void>.delayed(const Duration(seconds: 2));
     print('Done');
   }
 }

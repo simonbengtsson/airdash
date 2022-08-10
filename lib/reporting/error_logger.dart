@@ -6,30 +6,30 @@ import '../helpers.dart';
 import 'logger.dart';
 
 class ErrorLogger {
-  static addInfo(String message, Map<String, dynamic>? data) {
-    Sentry.addBreadcrumb(
-        Breadcrumb(message: message, category: 'info', data: data ?? {}));
+  static void addInfo(String message, Map<String, dynamic>? data) {
+    Sentry.addBreadcrumb(Breadcrumb(
+        message: message, category: 'info', data: data ?? <String, String>{}));
   }
 
-  static logError(LogError error) {
+  static void logError(LogError error) {
     _logError(error, null).catchError(_onError);
   }
 
-  static logStackError(String type, dynamic error, StackTrace stack,
+  static void logStackError(String type, dynamic error, StackTrace stack,
       [int? errorCount]) {
     _logError(LogError(type, error, stack, null), errorCount)
         .catchError(_onError);
   }
 
-  static logSimpleError(String type,
+  static void logSimpleError(String type,
       [Map<String, dynamic>? data, int? errorCount]) {
     _logError(LogError(type, null, null, data), errorCount)
         .catchError(_onError);
   }
 
-  static _onError(error) {
+  static void _onError(dynamic error) {
     print(
-        'SEVERE! Caught $error error when logging sentry error, but not posed');
+        'SEVERE! Caught $error error when logging sentry error, but not posted');
   }
 
   static Map<String, int> loggedCount = {};
@@ -54,7 +54,7 @@ class ErrorLogger {
     Sentry.captureException(error, stackTrace: error.stack, withScope: (scope) {
       scope.setTag('action', 'logged');
       scope.setTag('type', error.type);
-      for (var key in (error.context ?? {}).keys) {
+      for (var key in (error.context ?? <String, String>{}).keys) {
         scope.setExtra(key, error.context?[key] ?? '(null)');
       }
       var actual = error.error;
@@ -77,7 +77,7 @@ class ErrorLogger {
         } else if (actual is LogError) {
           scope.setExtra('subType', actual.type);
           scope.setExtra('subError', actual.error?.toString() ?? '');
-          for (var key in (actual.context ?? {}).keys) {
+          for (var key in (actual.context ?? <String, String>{}).keys) {
             scope.setExtra('subContext_$key', actual.context![key]);
           }
         }

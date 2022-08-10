@@ -1,14 +1,14 @@
 import 'package:flutter/foundation.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 
-logger(String message) {
+void logger(String message) {
   Logger.log('', message);
 }
 
 class Logger {
   static Map<String, Function(Log)> logListeners = {};
 
-  static log(String tag, String message) {
+  static void log(String tag, String message) {
     if (kDebugMode) {
       print('logger: $message');
     }
@@ -19,7 +19,7 @@ class Logger {
     Sentry.addBreadcrumb(Breadcrumb(message: message, category: 'logger'));
   }
 
-  static setLogListener(String name, Function(Log) listener) {
+  static void setLogListener(String name, Function(Log) listener) {
     logListeners[name] = listener;
   }
 }

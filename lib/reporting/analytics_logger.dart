@@ -34,7 +34,7 @@ enum AnalyticsEvent {
 }
 
 extension AnalyticsEventName on AnalyticsEvent {
-  log([Map<String, dynamic>? props]) {
+  void log([Map<String, dynamic>? props]) {
     Analytics.logEvent(this, props);
   }
 
@@ -75,10 +75,10 @@ extension AnalyticsEventName on AnalyticsEvent {
 class Analytics {
   static final _manager = AnalyticsManager();
 
-  static logEvent(AnalyticsEvent event, [Map<String, dynamic>? props]) {
+  static void logEvent(AnalyticsEvent event, [Map<String, dynamic>? props]) {
     _manager
-        .logEvent(event.name, props ?? {})
-        .catchError((error, StackTrace stack) {
+        .logEvent(event.name, props ?? <String, String>{})
+        .catchError((Object error, StackTrace stack) {
       print('ANALYTICS: Error when posting event ${event.name}');
       ErrorLogger.logError(
           AnalyticsLogError('analyticsEventError', error, stack));
@@ -94,7 +94,7 @@ class Analytics {
 
     _manager
         .updateMixpanelProfile(FirebaseAuth.instance.userId, userProps)
-        .catchError((error, StackTrace stack) {
+        .catchError((Object error, StackTrace stack) {
       ErrorLogger.logError(
           AnalyticsLogError('analyticsProfileError', error, stack));
     });
@@ -184,7 +184,8 @@ class AnalyticsManager {
     return userProps;
   }
 
-  updateMixpanelProfile(String userId, Map<String, dynamic> props) async {
+  Future updateMixpanelProfile(
+      String userId, Map<String, dynamic> props) async {
     props = _unifyProps(props, '_profile_');
 
     var body = {
@@ -210,9 +211,9 @@ class AnalyticsManager {
 
   Future logEvent(String eventName, Map<String, dynamic> props) async {
     var userProps = await getUserProperties();
-    props = _unifyProps({...props, ...userProps}, eventName);
+    props = _unifyProps(<String, dynamic>{...props, ...userProps}, eventName);
 
-    var eventProps = {
+    var eventProps = <String, dynamic>{
       'time': DateTime.now().millisecondsSinceEpoch,
       'token': Config.mixpanelProjectToken,
       'distinct_id': FirebaseAuth.instance.userId,
@@ -223,18 +224,18 @@ class AnalyticsManager {
       'event': eventName,
       'properties': eventProps,
     };
-    await queueRequest(body);
+    queueRequest(body);
 
     var crumb =
         Breadcrumb(message: eventName, category: 'analytics', data: props);
     Sentry.addBreadcrumb(crumb);
   }
 
-  upload() async {
+  Future upload() async {
     var prefs = await SharedPreferences.getInstance();
 
     var rawRequests = prefs.getString('pendingMixpanelRequests');
-    var requests = jsonDecode(rawRequests ?? '[]') as List;
+    var requests = List<Map>.from(jsonDecode(rawRequests ?? '[]') as List);
 
     while (requests.isNotEmpty) {
       var request = requests.removeLast();
@@ -247,10 +248,10 @@ class AnalyticsManager {
         var response =
             await http.post(mixpanelApiUrl, headers: headers, body: current);
 
-        var body = jsonDecode(response.body);
+        var body = jsonDecode(response.body) as Map<String, dynamic>;
         if (body['status'] != 1) {
-          ErrorLogger.logError(
-              LogError('analyticsEventNotAccepted', null, null, {
+          ErrorLogger.logError(LogError(
+              'analyticsEventNotAccepted', null, null, <String, dynamic>{
             'body': response.body,
             'status': response.statusCode,
             'reason': response.reasonPhrase,
@@ -268,14 +269,14 @@ class AnalyticsManager {
     }
   }
 
-  queueRequest(Map body) async {
+  void queueRequest(Map body) async {
     var prefs = await SharedPreferences.getInstance();
     var rawRequests = prefs.getString('pendingMixpanelRequests');
     var requests = jsonDecode(rawRequests ?? '[]') as List;
     requests.add(body);
 
     if (requests.length > 100) {
-      ErrorLogger.logSimpleError('tooManyAnalyticsEvents', {
+      ErrorLogger.logSimpleError('tooManyAnalyticsEvents', <String, dynamic>{
         'count': requests.length,
       });
       requests.removeAt(0);
@@ -290,7 +291,7 @@ class AnalyticsManager {
   Map<String, dynamic> _unifyProps(
       Map<String, dynamic> props, String eventName) {
     for (var key in props.keys) {
-      var value = props[key] ?? '(null)';
+      dynamic value = props[key] ?? '(null)';
       if (value is DateTime) {
         props[key] = value.toIso8601String();
       } else if (value is! String &&
@@ -298,7 +299,7 @@ class AnalyticsManager {
           value is! bool &&
           value is! Map &&
           value is! List) {
-        ErrorLogger.logSimpleError('invalidEventPropertyType', {
+        ErrorLogger.logSimpleError('invalidEventPropertyType', <String, String>{
           'type': value.runtimeType.toString(),
           'key': key,
           'eventName': eventName,

@@ -33,14 +33,14 @@ import '../reporting/logger.dart';
 import '../transfer/connector.dart';
 import '../transfer/signaling.dart';
 
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({Key? key}) : super(key: key);
+class HomeScreen extends StatefulWidget {
+  const HomeScreen({Key? key}) : super(key: key);
 
   @override
-  State<MyHomePage> createState() => _MyHomePageState();
+  State<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _MyHomePageState extends State<MyHomePage>
+class _HomeScreenState extends State<HomeScreen>
     with TrayListener, WindowListener {
   Connector? connector;
   final IntentReceiver intentReceiver = IntentReceiver();
@@ -148,7 +148,7 @@ class _MyHomePageState extends State<MyHomePage>
     );
   }
 
-  init() async {
+  Future init() async {
     try {
       await start().timeout(const Duration(seconds: 10));
       selectDebugFile();
@@ -238,7 +238,7 @@ class _MyHomePageState extends State<MyHomePage>
   }
 */
 
-  showTransferFailedToast(String message) {
+  void showTransferFailedToast(String message) {
     var bar = SnackBar(
       duration: const Duration(seconds: 10),
       content: Text(message),
@@ -255,7 +255,7 @@ class _MyHomePageState extends State<MyHomePage>
     ScaffoldMessenger.of(context).showSnackBar(bar);
   }
 
-  updateConnectionConfig() async {
+  Future updateConnectionConfig() async {
     var doc = await Firestore.instance
         .collection('appInfo')
         .document('appInfo')
@@ -320,7 +320,7 @@ class _MyHomePageState extends State<MyHomePage>
     }
   }
 
-  observeIntentFile() async {
+  Future observeIntentFile() async {
     intentReceiver.observe((payload, error) async {
       if (payload == null) {
         showToast(error ?? 'Could not handle payload');
@@ -335,14 +335,14 @@ class _MyHomePageState extends State<MyHomePage>
     });
   }
 
-  showSnackBar(String message) {
+  void showSnackBar(String message) {
     if (mounted) {
       var bar = SnackBar(content: Text(message));
       ScaffoldMessenger.of(context).showSnackBar(bar);
     }
   }
 
-  selectDebugFile() async {
+  void selectDebugFile() async {
     if (kDebugMode && Platform.isMacOS) {
       try {
         var dir = await getApplicationDocumentsDirectory();
@@ -358,7 +358,7 @@ class _MyHomePageState extends State<MyHomePage>
     }
   }
 
-  sendPayload(Device receiver, List<Payload> payloads) async {
+  Future sendPayload(Device receiver, List<Payload> payloads) async {
     var payload = payloads.tryGet(0);
     if (payload == null) {
       print('HOME: No payload');
@@ -434,7 +434,7 @@ class _MyHomePageState extends State<MyHomePage>
     return payloadMbSize > 1000 ? 1 : 0;
   }
 
-  setReceivedFile(File? file, String? status) {
+  void setReceivedFile(File? file, String? status) {
     setState(() {
       receivedFile = file;
       receivingStatus = status;
@@ -458,7 +458,7 @@ class _MyHomePageState extends State<MyHomePage>
                   devices.add(receiver);
                   selectedDevice = receiver;
                 });
-                AnalyticsEvent.pairingCompleted.log({
+                AnalyticsEvent.pairingCompleted.log(<String, String>{
                   'Device ID': receiver.id,
                   'Device Name': receiver.name,
                   'Device OS': receiver.platform ?? '',
@@ -469,7 +469,7 @@ class _MyHomePageState extends State<MyHomePage>
         });
   }
 
-  persistState() async {
+  Future persistState() async {
     var prefs = await SharedPreferences.getInstance();
     await prefs.setStringList(
         'receivers', devices.map((r) => jsonEncode(r.encode())).toList());
@@ -523,8 +523,8 @@ class _MyHomePageState extends State<MyHomePage>
     );
   }
 
-  openPhotoAndFileBottomSheet() {
-    showModalBottomSheet(
+  void openPhotoAndFileBottomSheet() {
+    showModalBottomSheet<void>(
         context: context,
         builder: (context) {
           return SafeArea(
@@ -552,7 +552,7 @@ class _MyHomePageState extends State<MyHomePage>
         });
   }
 
-  openFilePicker(FileType type) async {
+  Future openFilePicker(FileType type) async {
     isPickingFile = true;
     var result = await FilePicker.platform.pickFiles(
       dialogTitle: 'Pick File',
@@ -574,7 +574,7 @@ class _MyHomePageState extends State<MyHomePage>
     }
   }
 
-  setPayload(List<Payload> payloads, String source) async {
+  Future setPayload(List<Payload> payloads, String source) async {
     for (var payload in payloads) {
       if (payload is FilePayload) {
         try {
@@ -590,7 +590,7 @@ class _MyHomePageState extends State<MyHomePage>
         }
       }
     }
-    AnalyticsEvent.payloadSelected.log({
+    AnalyticsEvent.payloadSelected.log(<String, dynamic>{
       'Source': source,
       ...await payloadProperties(payloads),
     });
@@ -599,7 +599,7 @@ class _MyHomePageState extends State<MyHomePage>
     });
   }
 
-  openFile(File file) async {
+  Future openFile(File file) async {
     try {
       String path = file.path;
       if (Platform.isIOS) {
@@ -607,13 +607,13 @@ class _MyHomePageState extends State<MyHomePage>
         // Encode path to support filenames with spaces
         var encodedPath = Uri.encodeFull(path);
         await communicatorChannel
-            .invokeMethod('openFile', {'url': encodedPath});
+            .invokeMethod<void>('openFile', {'url': encodedPath});
       } else if (Platform.isAndroid) {
         var launchUrl = file.path;
         logger('MAIN: Will open: $launchUrl');
         try {
           await communicatorChannel
-              .invokeMethod('openFile', {'url': launchUrl});
+              .invokeMethod<void>('openFile', {'url': launchUrl});
         } catch (error, stack) {
           ErrorLogger.logStackError(
               'noInstalledAppCouldOpenFile', error, stack);
@@ -630,7 +630,8 @@ class _MyHomePageState extends State<MyHomePage>
             throw Exception('launchUrlErrorFalse');
           }
         } catch (error, stack) {
-          ErrorLogger.logError(LogError('launchFileUrlError', error, stack, {
+          ErrorLogger.logError(
+              LogError('launchFileUrlError', error, stack, <String, String>{
             'encodedPath': encodedPath,
             'rawPath': path,
           }));
@@ -638,20 +639,20 @@ class _MyHomePageState extends State<MyHomePage>
         }
       }
     } catch (error, stack) {
-      ErrorLogger.logError(
-          SevereLogError('openFileAndFolderError', error, stack, {
+      ErrorLogger.logError(SevereLogError(
+          'openFileAndFolderError', error, stack, <String, dynamic>{
         'path': file.path,
       }));
       showToast('Could not open file');
     }
     var props = await fileProperties(file);
-    AnalyticsEvent.fileActionTaken.log({
+    AnalyticsEvent.fileActionTaken.log(<String, dynamic>{
       'Action': 'Open',
       ...props,
     });
   }
 
-  showToast(String message) {
+  void showToast(String message) {
     var bar = SnackBar(
       content: Text(message),
     );
@@ -716,7 +717,7 @@ class _MyHomePageState extends State<MyHomePage>
     );
   }
 
-  selectFile() {
+  void selectFile() {
     AnalyticsEvent.fileSelectionStarted.log();
     if (Platform.isIOS) {
       openPhotoAndFileBottomSheet();
@@ -752,7 +753,7 @@ class _MyHomePageState extends State<MyHomePage>
                                 setState(() =>
                                     disabledKeys['selectFileButton'] = true);
                                 selectFile();
-                                await Future.delayed(Duration(
+                                await Future<void>.delayed(Duration(
                                     milliseconds: isDesktop() ? 2000 : 500));
                                 setState(() =>
                                     disabledKeys.remove('selectFileButton'));
@@ -814,7 +815,7 @@ class _MyHomePageState extends State<MyHomePage>
     );
   }
 
-  openShareSheet(File file, BuildContext context) async {
+  Future openShareSheet(File file, BuildContext context) async {
     String filename = getFilename(file);
     String filePath = file.path;
     final box = context.findRenderObject() as RenderBox?;
@@ -825,13 +826,13 @@ class _MyHomePageState extends State<MyHomePage>
           sharePositionOrigin: box.localToGlobal(Offset.zero) & box.size);
     }
     var props = await fileProperties(file);
-    AnalyticsEvent.fileActionTaken.log({
+    AnalyticsEvent.fileActionTaken.log(<String, dynamic>{
       'Action': 'Share',
       ...props,
     });
   }
 
-  showDropOverlay() {
+  void showDropOverlay() {
     showGeneralDialog(
       context: context,
       barrierColor: Colors.white.withOpacity(0.95),
@@ -853,8 +854,8 @@ class _MyHomePageState extends State<MyHomePage>
     );
   }
 
-  deleteDevice(Device device) {
-    AnalyticsEvent.receiverDeleted.log({
+  void deleteDevice(Device device) {
+    AnalyticsEvent.receiverDeleted.log(<String, String>{
       'Device ID': device.id,
       'Device Name': device.name,
       'Device OS': device.platform ?? '',
@@ -886,7 +887,7 @@ class _MyHomePageState extends State<MyHomePage>
           var selected = selectedDevice?.id == it.id;
           return ListTile(
             onLongPress: () {
-              showDialog(
+              showDialog<void>(
                   context: context,
                   builder: (ctx) {
                     return AlertDialog(
@@ -901,7 +902,7 @@ class _MyHomePageState extends State<MyHomePage>
                         TextButton(
                             onPressed: () async {
                               Navigator.of(ctx).pop();
-                              await deleteDevice(it);
+                              deleteDevice(it);
                             },
                             child: const Text('Remove')),
                       ],
@@ -912,7 +913,7 @@ class _MyHomePageState extends State<MyHomePage>
               setState(() {
                 selectedDevice = it;
               });
-              AnalyticsEvent.receiverSelected.log({
+              AnalyticsEvent.receiverSelected.log(<String, dynamic>{
                 ...remoteDeviceProperties(it),
               });
               persistState();
@@ -937,7 +938,7 @@ class _MyHomePageState extends State<MyHomePage>
                       : () async {
                           setState(() => disabledKeys['pairNewDevice'] = true);
                           openPairReceiverDialog(currentDevice!, context);
-                          await Future.delayed(
+                          await Future<void>.delayed(
                               const Duration(milliseconds: 200));
                           setState(() => disabledKeys.remove('pairNewDevice'));
                         },
@@ -996,8 +997,8 @@ class _MyHomePageState extends State<MyHomePage>
     );
   }
 
-  openSettingsDialog(Device currentDevice) {
-    showDialog(
+  void openSettingsDialog(Device currentDevice) {
+    showDialog<void>(
       context: context,
       builder: (_) => AlertDialog(
           title: const Text('Settings'),

@@ -75,7 +75,7 @@ class DataSender {
     return max(remoteMaximumSize, maximumMessageSize);
   }
 
-  sendChunk() async {
+  Future sendChunk() async {
     var state = senderState;
     var startByte = await state.raFile.position();
     print("SENDER: Sending chunk: $startByte");
@@ -119,16 +119,16 @@ class DataSender {
 
   Function(int, int)? statusCallback;
 
-  SingleCompleter? messageTimeoutCompleter;
+  SingleCompleter<bool>? messageTimeoutCompleter;
 
-  sendFile(Function(int, int) statusCallback) async {
+  Future sendFile(Function(int, int) statusCallback) async {
     this.statusCallback = statusCallback;
     logger('SENDER: Sending first chunk...');
     sendNext();
     await senderState.completer.future;
   }
 
-  sendNext() async {
+  Future sendNext() async {
     if (senderState.completer.isCompleted) {
       logger('SENDER: Cancelled sending chunk due to completed');
       return;
@@ -159,18 +159,18 @@ class DataSender {
       if (!state.fileSendingComplete) {
         sendNext();
       }
-      messageTimeoutCompleter?.complete('done');
+      messageTimeoutCompleter?.complete(true);
       messageTimeoutCompleter = SingleCompleter();
-      messageTimeoutCompleter!.future.timeout(const Duration(seconds: 10),
+      await messageTimeoutCompleter!.future.timeout(const Duration(seconds: 10),
           onTimeout: onDataMessageTimeout);
     } catch (error, stack) {
-      messageTimeoutCompleter?.complete('done');
+      messageTimeoutCompleter?.complete(true);
       ErrorLogger.logStackError('senderSendError', error, stack);
       senderState.completer.completeError("Could not send chunk '$error'");
     }
   }
 
-  onDataMessageTimeout() {
+  bool onDataMessageTimeout() {
     if (senderState.acknowledgedChunk == null) {
       var exception = AppException('firstDataMessageTimeout',
           'Connection was successful, but data transfer failed. This could be an issue with the app.');
@@ -181,9 +181,10 @@ class DataSender {
       exception.info = "Ack chunk ${senderState.acknowledgedChunk ?? -1}";
       senderState.completer.completeError(exception);
     }
+    return true;
   }
 
-  connect() async {
+  Future connect() async {
     peer.onBinaryData = (bytes) async {
       try {
         var message = RTCDataChannelMessage.fromBinary(bytes);
@@ -223,7 +224,7 @@ class DataSender {
     logger('SENDER: Peer was connected and data channel ready');
   }
 
-  handleChannelMessage(RTCDataChannelMessage message) async {
+  Future handleChannelMessage(RTCDataChannelMessage message) async {
     var json = jsonDecode(message.text) as Map<String, dynamic>;
     var type = json['type'] as String;
     if (type != 'acknowledge') {
@@ -257,7 +258,7 @@ class DataSender {
     }
   }
 
-  percent(part, total) {
+  num percent(num part, num total) {
     return ((part / total) * 100).round();
   }
 }
@@ -271,7 +272,7 @@ class FileSendingState {
 
   int? acknowledgedChunk;
 
-  var completer = SingleCompleter();
+  var completer = SingleCompleter<String>();
   var fileSendingComplete = false;
   var sendChunkLock = false;
 

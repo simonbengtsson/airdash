@@ -17,14 +17,14 @@ class Signaling {
   Timer? observerTimer;
   StreamSubscription? _messagesStream;
 
-  var receivedMessages = {};
+  var receivedMessages = <String, dynamic>{};
 
   Future observe(Device localDevice,
       Function(String message, String senderId) onMessage) async {
     restartListen(localDevice, onMessage);
   }
 
-  restartListen(Device localDevice, Function onMessage) {
+  void restartListen(Device localDevice, Function onMessage) {
     _messagesStream?.cancel();
     _messagesStream = Firestore.instance
         .collection('messages')
@@ -37,7 +37,7 @@ class Signaling {
       if (state != null) {
         ErrorLogger.logSimpleError(
             'observerCallbackErrorRecovery',
-            {
+            <String, dynamic>{
               'errorCount': state.callbackErrors.length,
               'startedAt': state.startedAt.toIso8601String(),
               'lastErrorAt': state.lastErrorAt.toIso8601String(),
@@ -49,7 +49,7 @@ class Signaling {
       if (missingPingErrorState != null) {
         ErrorLogger.logSimpleError(
             'observerMissingPingRecovery',
-            {
+            <String, dynamic>{
               'callbackErrorState': state != null,
               'errors': missingPingErrorState!.restartCount,
             },
@@ -76,7 +76,7 @@ class Signaling {
 
       // Delay to not cause infinite quick restarts in case of
       // immediate error
-      await Future.delayed(const Duration(seconds: 5));
+      await Future<void>.delayed(const Duration(seconds: 5));
       restartListen(localDevice, onMessage);
       // Send ping to get message quickly in case connection is restored
       sendPing(this, localDevice);
@@ -109,7 +109,7 @@ class Signaling {
     });
   }
 
-  Future _handleDocs(docs, onMessage) async {
+  Future _handleDocs(List<Document> docs, Function onMessage) async {
     for (var doc in docs) {
       if (receivedMessages[doc.id] != null) {
         continue;
@@ -136,12 +136,13 @@ class Signaling {
     }
   }
 
-  sendMessage(String senderId, String receiverId, String message) async {
+  Future<String> sendMessage(
+      String senderId, String receiverId, String message) async {
     var doc = await Firestore.instance
         .collection('messages')
         .document(receiverId)
         .collection('messages')
-        .add({
+        .add(<String, dynamic>{
       'date': DateTime.now(),
       'senderId': senderId,
       'receiverId': receiverId,

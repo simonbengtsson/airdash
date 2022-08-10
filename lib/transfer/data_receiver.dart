@@ -33,7 +33,7 @@ class Receiver {
     return waitForPayload.future;
   }
 
-  processMessage() async {
+  Future processMessage() async {
     var state = currentState!;
 
     if (state.processingMessage) {
@@ -103,8 +103,8 @@ class Receiver {
         'RECEIVER: Sent ack for chunk ${message.chunkStart}-${message.chunkStart + message.chunk.length}. Completed: $fileCompleted');
   }
 
-  connect() async {
-    var firstMessageCompleter = SingleCompleter();
+  Future connect() async {
+    var firstMessageCompleter = SingleCompleter<String>();
     // Use a higher timeout than sender so that errors are originated from
     // sender if possible
     var firstMessage = firstMessageCompleter.future
@@ -139,7 +139,7 @@ class Receiver {
       }
     };
 
-    SingleCompleter? cmp;
+    SingleCompleter<bool>? messageCompleter;
     peer.onBinaryData = (bytes) async {
       try {
         firstMessageCompleter.complete('done');
@@ -150,11 +150,13 @@ class Receiver {
         peer.connection.close();
       }
 
-      cmp?.complete('done');
-      cmp = SingleCompleter();
-      await cmp!.future.timeout(const Duration(seconds: 20), onTimeout: () {
+      messageCompleter?.complete(true);
+      messageCompleter = SingleCompleter();
+      await messageCompleter!.future.timeout(const Duration(seconds: 20),
+          onTimeout: () {
         waitForPayload.completeError('Receiver data channel timeout');
         peer.connection.close();
+        return true;
       });
     };
     peer.onTextData = (text) async {
@@ -168,18 +170,20 @@ class Receiver {
         peer.connection.close();
       }
 
-      cmp?.complete('done');
-      cmp = SingleCompleter();
-      await cmp!.future.timeout(const Duration(seconds: 20), onTimeout: () {
+      messageCompleter?.complete(true);
+      messageCompleter = SingleCompleter();
+      await messageCompleter!.future.timeout(const Duration(seconds: 20),
+          onTimeout: () {
         waitForPayload.completeError('Receiver data channel timeout');
         peer.connection.close();
+        return true;
       });
     };
 
     await firstMessage;
   }
 
-  handleDataMessage(List<int> bytes) async {
+  Future handleDataMessage(List<int> bytes) async {
     print('Handling data message');
     var message = Message.parse(bytes);
     if (currentState == null) {

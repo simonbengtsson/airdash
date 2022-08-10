@@ -13,11 +13,11 @@ class IntentReceiver {
   StreamSubscription? intentDataStreamSubscription;
   StreamSubscription? intentTextStreamSubscription;
 
-  observe(Function(Payload? payload, String? error) callback) async {
+  Future observe(Function(Payload? payload, String? error) callback) async {
     logger('MAIN: Started observing file intent');
     if (Platform.isIOS) {
       const eventChannel = EventChannel('io.flown.airdash/event_communicator');
-      eventChannel.receiveBroadcastStream().listen((event) async {
+      eventChannel.receiveBroadcastStream().listen((dynamic event) async {
         var urls = event as List<String>;
         var url = urls.tryGet(0);
         if (url == null) return;
@@ -36,12 +36,13 @@ class IntentReceiver {
             callback(FilePayload(file), null);
           } else {
             callback(null, 'Could not read the provided file');
-            ErrorLogger.logSimpleError('fileIntentFileNotFoundError', {
+            ErrorLogger.logSimpleError(
+                'fileIntentFileNotFoundError', <String, String>{
               'path': file.path,
             });
           }
         }
-      }, onError: (error, StackTrace stack) {
+      }, onError: (Object error, StackTrace stack) {
         callback(null, 'Could not handle the provided file');
         ErrorLogger.logStackError('fileIntentError', error, stack);
       });
@@ -60,13 +61,14 @@ class IntentReceiver {
           if (await file.exists()) {
             callback(FilePayload(file), null);
           } else {
-            ErrorLogger.logSimpleError('intentReceiverFileNotFound', {
+            ErrorLogger.logSimpleError(
+                'intentReceiverFileNotFound', <String, String>{
               'path': file.path,
             });
             callback(null, 'Could not read the provided file');
           }
         }
-      }, onError: (error, StackTrace stack) {
+      }, onError: (Object error, StackTrace stack) {
         ErrorLogger.logStackError('intentReceiverError', error, stack);
         callback(null, 'Could not handle the provided file');
       });
@@ -88,7 +90,7 @@ class IntentReceiver {
     }
   }
 
-  handleText(String? text, Function(Payload?, String?) callback) async {
+  Future handleText(String? text, Function(Payload?, String?) callback) async {
     if (text == null) return;
     var uri = Uri.tryParse(text);
     if (uri != null && uri.scheme.startsWith('http')) {

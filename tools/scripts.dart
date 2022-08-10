@@ -25,6 +25,15 @@ Future main(List<String> args) async {
     await WindowsAppBuilder().build();
     await MicrosoftStoreSubmitter().submit();
   } else if (script == 'play') {
+    try {
+      await Future<void>.delayed(const Duration(seconds: 2))
+          .timeout(const Duration(seconds: 3), onTimeout: () {
+        throw Exception('hello excp');
+      });
+    } catch (error) {
+      print('caught!');
+    }
+    print('Hello!');
   } else {
     print('Invalid script: $script');
   }

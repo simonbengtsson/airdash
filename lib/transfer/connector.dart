@@ -22,7 +22,7 @@ typedef Json = Map<String, dynamic>;
 
 class Connector {
   final loopbackConstraints = <String, dynamic>{
-    'mandatory': {},
+    'mandatory': <String, String>{},
     'optional': [
       {'DtlsSrtpKeyAgreement': true},
     ],
@@ -50,7 +50,7 @@ class Connector {
 
   Function(int)? onPingResponse;
 
-  sendFile(Device receiver, List<Payload> payloads,
+  Future sendFile(Device receiver, List<Payload> payloads,
       Function(int, int) statusCallback) async {
     var payload = payloads.first;
 
@@ -72,7 +72,8 @@ class Connector {
     var startTime = DateTime.now();
 
     if (Platform.isIOS) {
-      communicatorChannel.invokeMethod('startFileSending', {});
+      await communicatorChannel
+          .invokeMethod<void>('startFileSending', <String, dynamic>{});
     }
     logger('SENDER: Started background task');
 
@@ -82,7 +83,7 @@ class Connector {
     activeTransferId = transferId;
 
     var payloadProps = await payloadProperties(payloads);
-    AnalyticsEvent.sendingStarted.log({
+    AnalyticsEvent.sendingStarted.log(<String, dynamic>{
       'Transfer ID': transferId,
       ...remoteDeviceProperties(receiver),
       ...payloadProps,
@@ -107,8 +108,8 @@ class Connector {
       };
       sender = await DataSender.create(peer, file, meta);
       await googlePing();
-      var completer = SingleCompleter();
-      messageSender.sendMessage('ping', {});
+      var completer = SingleCompleter<String>();
+      messageSender.sendMessage('ping', <String, dynamic>{});
       onPingResponse = (remoteVersion) {
         if (remoteVersion == MessageSender.communicationVersion) {
           completer.complete('done');
@@ -139,13 +140,14 @@ class Connector {
         await sender.senderState.raFile.close();
       }
       activeTransferId = null;
-      signaling.receivedMessages = {};
+      signaling.receivedMessages = <String, dynamic>{};
       if (Platform.isIOS) {
-        communicatorChannel.invokeMethod('endFileSending', {});
+        await communicatorChannel
+            .invokeMethod<void>('endFileSending', <String, dynamic>{});
       }
       logger('SENDER: Connector cleaned up');
 
-      AnalyticsEvent.sendingCompleted.log({
+      AnalyticsEvent.sendingCompleted.log(<String, dynamic>{
         'Duration': DateTime.now().difference(startTime).inSeconds.abs(),
         'Success': sendError == null,
         'Transfer ID': transferId,
@@ -157,7 +159,7 @@ class Connector {
     }
   }
 
-  saveDeviceInfo(Device device) async {
+  Future saveDeviceInfo(Device device) async {
     var prefs = await SharedPreferences.getInstance();
     var list = prefs.getStringList('receivers') ?? [];
     var devices = list
@@ -169,7 +171,7 @@ class Connector {
         'receivers', devices.map((r) => jsonEncode(r.encode())).toList());
   }
 
-  googlePing() async {
+  Future googlePing() async {
     try {
       await http
           .get(Uri.parse('https://www.google.com'))
@@ -181,7 +183,7 @@ class Connector {
     }
   }
 
-  receiveFile(
+  Future receiveFile(
       String localId,
       String remoteId,
       String transferId,
@@ -204,7 +206,7 @@ class Connector {
       ErrorLogger.logSimpleError('Receiving file from unknown sender');
     }
 
-    AnalyticsEvent.receivingStarted.log({
+    AnalyticsEvent.receivingStarted.log(<String, dynamic>{
       'Transfer ID': transferId,
       if (sender != null) ...remoteDeviceProperties(sender),
     });
@@ -257,10 +259,10 @@ class Connector {
       await Wakelock.disable();
       await receiver?.peer.connection.close();
       activeTransferId = null;
-      signaling.receivedMessages = {};
+      signaling.receivedMessages = <String, dynamic>{};
       logger('RECEIVER: Receiver cleanup finished');
 
-      AnalyticsEvent.receivingCompleted.log({
+      AnalyticsEvent.receivingCompleted.log(<String, dynamic>{
         'Success': receiveError == null,
         'Remote Device ID': remoteId,
         'Transfer ID': transferId,
@@ -321,14 +323,17 @@ class Connector {
         logger('PING: Received');
         var messageSender =
             MessageSender(localDevice, remoteId, transferId, signaling);
-        await messageSender.sendMessage('pingResponse', {});
+        await messageSender.sendMessage('pingResponse', <String, dynamic>{});
 
         // This is for receiver, sender is handled as an AppException
         if (remoteVersion != localVersion) {
           callback(null, null,
               'Transfer failed. Update to the latest app version on both the sending and receiving devices.');
-          ErrorLogger.logSimpleError('receiverVersionMismatch',
-              {'local': localVersion, 'remote': remoteVersion});
+          ErrorLogger.logSimpleError(
+              'receiverVersionMismatch', <String, dynamic>{
+            'local': localVersion,
+            'remote': remoteVersion
+          });
         }
         return;
       }
@@ -353,7 +358,8 @@ class Connector {
           ].contains(type)) {
             signal!(SignalingInfo(type, payload));
           } else {
-            ErrorLogger.logSimpleError('invalidMessageType', {'type': type});
+            ErrorLogger.logSimpleError(
+                'invalidMessageType', <String, dynamic>{'type': type});
           }
         } else {
           logger(
@@ -363,7 +369,7 @@ class Connector {
     });
   }
 
-  startPing() {
+  void startPing() {
     Timer.periodic(const Duration(seconds: 60),
         (timer) => sendPing(signaling, localDevice));
     sendPing(signaling, localDevice);
@@ -374,10 +380,10 @@ class Connector {
     String? appInfoJson = prefs.getString('appInfo');
     if (appInfoJson != null) {
       var appInfo = jsonDecode(appInfoJson) as Map<String, dynamic>;
-      var config = appInfo['connectionConfig'];
+      var config = appInfo['connectionConfig'] as Map;
       var provider = config['provider'] as String;
       var iceServers = jsonDecode(config['iceServers'] as String) as List;
-      return {
+      return <String, dynamic>{
         //'iceTransportPolicy': 'relay',
         'provider': provider,
         'iceServers': iceServers,
@@ -404,7 +410,7 @@ class MessageSender {
 
   MessageSender(this.sender, this.remoteId, this.transferId, this.signaling);
 
-  sendMessage(String type, Map<String, dynamic> payload) async {
+  Future sendMessage(String type, Map<String, dynamic> payload) async {
     var json = jsonEncode({
       'version': communicationVersion,
       'transferId': transferId,

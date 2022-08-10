@@ -6,8 +6,8 @@ class Message {
   int lengthInBytes;
 
   Map<String, String> get meta {
-    var meta = header['meta'];
-    return meta as Map<String, String>? ?? {};
+    return Map<String, String>.from(
+        header['meta'] as Map? ?? <String, dynamic>{});
   }
 
   int get version {

@@ -9,7 +9,7 @@ import '../helpers.dart';
 import '../reporting/logger.dart';
 
 class WindowManager {
-  setupWindow() async {
+  Future setupWindow() async {
     if (!isDesktop()) {
       return;
     }
@@ -36,7 +36,7 @@ class WindowManager {
     });
   }
 
-  _setupTray() async {
+  Future _setupTray() async {
     await trayManager.setIcon(
       Platform.isWindows ? 'images/tray_icon.ico' : 'images/tray_icon.png',
     );

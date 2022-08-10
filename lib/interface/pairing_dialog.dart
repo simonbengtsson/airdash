@@ -163,7 +163,7 @@ class PairingDialogState extends State<PairingDialog> {
     );
   }
 
-  handlePairing() async {
+  Future handlePairing() async {
     AnalyticsEvent.pairingStarted.log();
 
     setState(() {
@@ -175,7 +175,8 @@ class PairingDialogState extends State<PairingDialog> {
       String remoteKey = response['deviceKey']! as String;
       var remoteName = response['deviceName'] as String? ?? 'Unknown';
       var platform = response['devicePlatform'] as String?;
-      var meta = response['meta'] as Map<String, dynamic>? ?? {};
+      var meta =
+          response['meta'] as Map<String, dynamic>? ?? <String, dynamic>{};
       var userId = meta['userId'] as String?;
       var device = Device(remoteKey, remoteName, platform, userId);
       await widget.onPair(device);
@@ -225,7 +226,7 @@ class PairingDialogState extends State<PairingDialog> {
       body = jsonDecode(result.body) as Map<String, dynamic>;
     } catch (_) {}
     if (body == null || result.statusCode != 200) {
-      throw LogError('pairingHttpError', null, null, {
+      throw LogError('pairingHttpError', null, null, <String, dynamic>{
         'statusCode': result.statusCode,
         'reason': result.reasonPhrase,
         'responseBody': result.body,

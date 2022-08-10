@@ -68,22 +68,22 @@ Map<String, String> errorProps(Object error) {
 Future<Map<String, dynamic>> payloadProperties(List<Payload> payloads) async {
   var payload = payloads.firstOrNull;
   if (payload is UrlPayload) {
-    return {
+    return <String, String>{
       'Type': 'url',
       'URL': payload.httpUrl.toString(),
     };
   } else if (payload is FilePayload) {
-    return {
+    return <String, dynamic>{
       'Type': 'file',
       ...await fileProperties(payload.file),
     };
   } else {
-    return {'Type': 'unknown'};
+    return <String, String>{'Type': 'unknown'};
   }
 }
 
 Map<String, dynamic> remoteDeviceProperties(Device remote) {
-  return {
+  return <String, String>{
     'Remote Device ID': remote.id,
     'Remote Device Name': remote.name,
     'Remote Device OS': remote.platform ?? '',
@@ -100,7 +100,7 @@ Future<Map<String, dynamic>> fileProperties(File file) async {
     print('Could not get file length $error');
   }
   String filename = file.uri.pathSegments.last;
-  return {
+  return <String, dynamic>{
     'File Size': fileSize,
     'File Size MB': fileSize / 1000000,
     'File Name': filename,
@@ -108,7 +108,7 @@ Future<Map<String, dynamic>> fileProperties(File file) async {
   };
 }
 
-reportError(String message, Map<String, dynamic> data) {
+void reportError(String message, Map<String, dynamic> data) {
   var details = FlutterErrorDetails(
     exception: {
       'message': message,
@@ -123,7 +123,7 @@ String getFilename(File file) {
   return file.uri.pathSegments.last;
 }
 
-addUsedFile(File file) async {
+Future addUsedFile(File file) async {
   var prefs = await SharedPreferences.getInstance();
   var tmpFiles = prefs.getStringList('temporary_files') ?? [];
   if (!tmpFiles.contains(file.path)) tmpFiles.add(file.path);
@@ -186,26 +186,26 @@ class SingleCompleter<T> {
     return completer.future;
   }
 
-  completeError(Object error) {
+  void completeError(Object error) {
     if (!completer.isCompleted) {
       completer.completeError(error);
     }
   }
 
-  complete(T result) {
+  void complete(T result) {
     if (!completer.isCompleted) {
       completer.complete(result);
     }
   }
 }
 
-sendPing(Signaling signaling, Device localDevice) async {
+Future sendPing(Signaling signaling, Device localDevice) async {
   try {
     var transferId = generateId(28);
     var messageSender =
         MessageSender(localDevice, localDevice.id, transferId, signaling);
     logger('PING: Local ping sent');
-    await messageSender.sendMessage('localPing', {});
+    await messageSender.sendMessage('localPing', <String, String>{});
   } catch (error) {
     var errorStr = error is GrpcError ? error.code : error.toString();
     logger('PING: Local ping error code: $errorStr');

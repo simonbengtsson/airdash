@@ -17,7 +17,7 @@ class User {
   }
 
   Map<String, dynamic> encode({bool firebase = false}) {
-    return {
+    return <String, String>{
       'id': id,
     };
   }
@@ -39,7 +39,7 @@ class UserState {
     }
   }
 
-  saveUser(User currentUser) async {
+  Future saveUser(User currentUser) async {
     var json = jsonEncode(currentUser.encode());
     prefs.setString('currentUser', json);
   }

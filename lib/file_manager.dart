@@ -44,7 +44,7 @@ class FileManager {
     }
   }
 
-  cleanUsedFiles(List<Payload> selectedPayloads, File? receivedFile,
+  Future cleanUsedFiles(List<Payload> selectedPayloads, File? receivedFile,
       String? receivingStatus) async {
     if (pendingClean) return;
     print('HOME: Starting cleaning used files...');
@@ -58,7 +58,7 @@ class FileManager {
     }
 
     // Could potentially be performance heavy so delay to after start
-    await Future.delayed(const Duration(seconds: 3));
+    await Future<void>.delayed(const Duration(seconds: 3));
 
     var tmpDir = await getTemporaryDirectory();
     print('Temporary dir: ${tmpDir.path}');
@@ -97,21 +97,21 @@ class FileManager {
     pendingClean = false;
   }
 
-  openFinder(File file) async {
+  Future openFinder(File file) async {
     if (!Platform.isMacOS) throw Exception('Not supported');
 
     String path = file.path;
     logger('MAIN: Will open folder at: $path');
-    await communicatorChannel.invokeMethod('openFinder', {'url': path});
+    await communicatorChannel.invokeMethod<void>('openFinder', {'url': path});
 
     var props = await fileProperties(file);
-    AnalyticsEvent.fileActionTaken.log({
+    AnalyticsEvent.fileActionTaken.log(<String, dynamic>{
       'Action': 'File Manager',
       ...props,
     });
   }
 
-  openParentFolder(File file) async {
+  Future openParentFolder(File file) async {
     if (Platform.isMacOS) {
       await openFinder(file);
     } else {

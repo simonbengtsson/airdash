@@ -45,7 +45,7 @@ class _SetupScreenState extends State<SetupScreen> {
                 showTryAgain = false;
                 loadingText = 'Setting up';
               });
-              await Future.delayed(const Duration(seconds: 1));
+              await Future<void>.delayed(const Duration(seconds: 1));
               await trySignIn();
             },
             child: const Text('Try Again'),
@@ -54,7 +54,7 @@ class _SetupScreenState extends State<SetupScreen> {
     )));
   }
 
-  initFirebase() async {
+  Future initFirebase() async {
     var prefs = await SharedPreferences.getInstance();
     FirebaseAuth.initialize(
         Config.firebaseApiKey, SharedPreferenceStore(prefs));
@@ -62,7 +62,7 @@ class _SetupScreenState extends State<SetupScreen> {
     await trySignIn();
   }
 
-  clear() async {
+  Future clear() async {
     try {
       await FirebaseAuth.instance.deleteAccount();
       FirebaseAuth.instance.signOut();
@@ -73,7 +73,7 @@ class _SetupScreenState extends State<SetupScreen> {
     prefs.remove('currentUser');
   }
 
-  trySignIn() async {
+  Future trySignIn() async {
     var prefs = await SharedPreferences.getInstance();
     var userState = UserState(prefs);
     normalizeAuthState(prefs, userState);
@@ -109,7 +109,7 @@ class _SetupScreenState extends State<SetupScreen> {
     }
   }
 
-  normalizeAuthState(SharedPreferences prefs, UserState userState) {
+  void normalizeAuthState(SharedPreferences prefs, UserState userState) {
     var storedUser = userState.getCurrentUser();
 
     if (storedUser == null && FirebaseAuth.instance.isSignedIn) {
@@ -117,14 +117,16 @@ class _SetupScreenState extends State<SetupScreen> {
       if (firebaseUserId == 'TP8nXzD9lUaxJYZlnhDSuZdlqWE3') {
         logger('Demo user signed out');
       } else {
-        ErrorLogger.logSimpleError('missingStoredUser',
-            {'firebase': firebaseUserId, 'stored': storedUser?.id ?? '(null)'});
+        ErrorLogger.logSimpleError('missingStoredUser', <String, dynamic>{
+          'firebase': firebaseUserId,
+          'stored': storedUser?.id ?? '(null)'
+        });
       }
       FirebaseAuth.instance.signOut();
     }
 
     if (storedUser != null && !FirebaseAuth.instance.isSignedIn) {
-      ErrorLogger.logSimpleError('missingFirebaseUser', {
+      ErrorLogger.logSimpleError('missingFirebaseUser', <String, String>{
         'stored': storedUser.id,
       });
       prefs.remove('currentUser');
@@ -132,9 +134,9 @@ class _SetupScreenState extends State<SetupScreen> {
     }
   }
 
-  navigateToHome() {
-    var route = PageRouteBuilder(
-      pageBuilder: (context, animation1, animation2) => const MyHomePage(),
+  void navigateToHome() {
+    var route = PageRouteBuilder<void>(
+      pageBuilder: (context, animation1, animation2) => const HomeScreen(),
       transitionDuration: Duration.zero,
       reverseTransitionDuration: Duration.zero,
     );
