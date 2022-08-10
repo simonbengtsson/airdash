@@ -48,7 +48,7 @@ class VersionEditor {
     return parts.toList();
   }
 
-  _replaceLine(File file, Pattern lineMatch, String newLine) {
+  void _replaceLine(File file, Pattern lineMatch, String newLine) {
     var runnerFileContents = file.readAsStringSync();
     var lines = runnerFileContents.split('\n');
     var indexes = lines.where((element) => element.startsWith(lineMatch));

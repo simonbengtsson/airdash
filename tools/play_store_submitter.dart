@@ -12,7 +12,7 @@ class PlayStoreSubmitter {
   var baseUrl =
       'https://androidpublisher.googleapis.com/androidpublisher/v3/applications/io.flown.airdash';
 
-  play() async {
+  Future play() async {
     var editId = await createEdit();
     print(editId);
     var res = await send('GET', '/edits/$editId/tracks');
@@ -70,8 +70,9 @@ class PlayStoreSubmitter {
       throw Exception('Invalid status code ${res.statusCode}');
     }
 
-    var decoded = Map<String, dynamic>.from(jsonDecode(body) as Map);
-    return body.isNotEmpty ? decoded : {'success': true};
+    return body.isNotEmpty
+        ? jsonDecode(body) as Map<String, dynamic>
+        : <String, dynamic>{'success': true};
   }
 
   Future<String> _generateToken() async {
@@ -92,7 +93,7 @@ class PlayStoreSubmitter {
         "scope": 'https://www.googleapis.com/auth/androidpublisher',
         "aud": tokenUri,
       },
-      header: {
+      header: <String, String>{
         "alg": "RS256",
         "typ": "JWT",
       },
@@ -108,7 +109,7 @@ class PlayStoreSubmitter {
 
     var uri = Uri.parse('https://oauth2.googleapis.com/token');
     var res = await http.post(uri, body: jsonEncode(json));
-    var resBody = jsonDecode(res.body);
+    var resBody = jsonDecode(res.body) as Map;
     var accessToken = resBody['access_token'] as String;
 
     return accessToken;

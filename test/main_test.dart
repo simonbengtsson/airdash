@@ -2,7 +2,7 @@
 
 import 'package:flutter_test/flutter_test.dart';
 
-main() {
+void main() {
   test('Main', () async {
     assert(true);
   });

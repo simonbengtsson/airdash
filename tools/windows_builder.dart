@@ -4,8 +4,8 @@ import 'command_runner.dart';
 import 'tools_config.dart';
 
 class WindowsAppBuilder {
-  build() async {
-    await setupWindows((runWinCommand) async {
+  Future build() async {
+    await setupWindows((Function runWinCommand) async {
       var repoPath = Config.windowsVmRepoPath;
       runWinCommand('cd "$repoPath" && git pull -r && git reset --hard');
       runWinCommand('cd "$repoPath" && flutter pub get');
@@ -15,16 +15,16 @@ class WindowsAppBuilder {
     });
   }
 
-  setupWindows(Function ready) async {
+  Future setupWindows(Function ready) async {
     print('Running: vmrun start ${Config.localWindowsVmPath} nogui');
     await Process.start('vmrun', ['start', Config.localWindowsVmPath, 'nogui'],
         environment: Config.env);
-    await Future.delayed(const Duration(seconds: 1));
+    await Future<void>.delayed(const Duration(seconds: 1));
     await ready(runWindowsCommand);
     runLocalCommand('vmrun suspend ${Config.localWindowsVmPath}');
   }
 
-  runWindowsCommand(String commandStr) {
+  void runWindowsCommand(String commandStr) {
     print('Running on windows: $commandStr');
 
     var exitCodeCommand =
@@ -72,7 +72,7 @@ class WindowsAppBuilder {
     ]);
   }
 
-  fetchWindowsFile(String windowsPath, String localPath,
+  void fetchWindowsFile(String windowsPath, String localPath,
       [bool silent = false]) {
     var result = runUserVmRunCommand(
         'CopyFileFromGuestToHost', [windowsPath, localPath]);
@@ -82,7 +82,7 @@ class WindowsAppBuilder {
     if (!silent) print('Finished copy to $localPath');
   }
 
-  _printProcessResult(ProcessResult result) {
+  void _printProcessResult(ProcessResult result) {
     String content = result.stdout.toString().trim();
     content += result.stderr.toString().trim();
     var printableContent = '-   ${content.split('\n').join('\n    ')}';

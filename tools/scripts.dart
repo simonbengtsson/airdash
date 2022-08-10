@@ -4,12 +4,11 @@ import 'dart:io';
 import 'app_store_version_submitter.dart';
 import 'command_runner.dart';
 import 'microsoft_store_submitter.dart';
-import 'play_store_submitter.dart';
 import 'tools_config.dart';
 import 'version_editor.dart';
 import 'windows_builder.dart';
 
-main(List<String> args) async {
+Future main(List<String> args) async {
   var script = args.isEmpty ? null : args.first;
   if (script == 'app_env') {
     var appEnvJson = jsonEncode(Config.getAppEnv());
@@ -26,15 +25,12 @@ main(List<String> args) async {
     await WindowsAppBuilder().build();
     await MicrosoftStoreSubmitter().submit();
   } else if (script == 'play') {
-    Map<String, dynamic> map = {"hello": 5, 'one': 'one'};
-    var num = map['one'] as int?;
-    print(num);
   } else {
     print('Invalid script: $script');
   }
 }
 
-release() async {
+Future release() async {
   var startedAt = DateTime.now();
   var startedTimeStr = startedAt.toIso8601String().substring(11, 19);
   print('$startedTimeStr Starting build...');

@@ -11,7 +11,7 @@ class MicrosoftStoreSubmitter {
   var api = MicrosoftPartnerCenterApi();
   var applicationId = Config.windowsApiAppId;
 
-  submit() async {
+  Future submit() async {
     var status = await getAppStatus();
     if (status['pendingApplicationSubmission'] != null) {
       var submissionId = status['pendingApplicationSubmission']['id'] as String;
@@ -34,11 +34,12 @@ class MicrosoftStoreSubmitter {
     print('Submission finished');
   }
 
-  getAppStatus() {
-    return api.send('GET', '/my/applications/$applicationId');
+  Future<Map> getAppStatus() async {
+    var map = await api.send('GET', '/my/applications/$applicationId');
+    return map!;
   }
 
-  deleteSubmission(String submissionId) async {
+  Future deleteSubmission(String submissionId) async {
     var path = '/my/applications/$applicationId/submissions/$submissionId';
     await api.send('DELETE', path);
   }
@@ -48,7 +49,7 @@ class MicrosoftStoreSubmitter {
     return api.send('POST', path) as Map;
   }
 
-  waitForProcessing(String submissionId) async {
+  Future waitForProcessing(String submissionId) async {
     while (true) {
       var status = await getSubmissionStatus(submissionId);
       if (!['PreProcessing', 'CommitStarted'].contains(status['status'])) {
@@ -60,49 +61,51 @@ class MicrosoftStoreSubmitter {
         break;
       }
       print('Waiting, still ${status['status']}');
-      await Future.delayed(const Duration(seconds: 5));
+      await Future<void>.delayed(const Duration(seconds: 5));
     }
   }
 
-  getSubmissionStatus(String submissionId) async {
+  Future<Map> getSubmissionStatus(String submissionId) async {
     var path =
         '/my/applications/$applicationId/submissions/$submissionId/status';
-    return api.send('GET', path);
+    var res = await api.send('GET', path);
+    return res!;
   }
 
-  getCurrentSubmissionStatus() async {
+  Future<Map> getCurrentSubmissionStatus() async {
     var status = await getAppStatus();
     var submissionId = status['pendingApplicationSubmission']['id'] as String;
     return getSubmissionStatus(submissionId);
   }
 
-  getSubmission(String submissionId) async {
+  Future getSubmission(String submissionId) async {
     var path = '/my/applications/$applicationId/submissions/$submissionId';
     return api.send('GET', path);
   }
 
-  submitSubmission(String submissionId) async {
+  Future submitSubmission(String submissionId) async {
     var path =
         '/my/applications/$applicationId/submissions/$submissionId/commit';
     await api.send('POST', path);
   }
 
-  updateSubmissionPackages(Map submission, List<int> version) async {
+  Future updateSubmissionPackages(Map submission, List<int> version) async {
     var path =
         '/my/applications/$applicationId/submissions/${submission['id']}';
     var packages = submission['applicationPackages'] as Iterable?;
-    var applicationPackages = List.from(packages ?? []);
+    var applicationPackages = List<Map>.from(packages ?? <Map>[]);
     for (var package in applicationPackages) {
       package['fileStatus'] = 'PendingDelete';
     }
-    applicationPackages.add({
+    applicationPackages.add(<String, String>{
       'fileName': 'AirDash.msix',
       'version': '${version.join('.')}.0',
     });
     return api.send('PUT', path, body: jsonEncode(submission));
   }
 
-  uploadPackage(String submissionId, String url, List<int> version) async {
+  Future uploadPackage(
+      String submissionId, String url, List<int> version) async {
     var zipFile = File('build/upload.zip');
     runLocalCommand(
         'zip ${zipFile.path} ${Config.localRepoPath}/build/AirDash.msix -j');
@@ -127,7 +130,7 @@ class MicrosoftStoreSubmitter {
 class MicrosoftPartnerCenterApi {
   var baseUrl = 'https://manage.devcenter.microsoft.com/v1.0';
 
-  Future<dynamic> send(String method, String path, {String? body}) async {
+  Future<Map?> send(String method, String path, {String? body}) async {
     print('$method $path');
 
     var url = Uri.parse('$baseUrl$path');
@@ -146,7 +149,7 @@ class MicrosoftPartnerCenterApi {
 
     if (res.statusCode >= 200 && res.statusCode < 300) {
       try {
-        return jsonDecode(resBody);
+        return jsonDecode(resBody) as Map;
       } catch (error) {
         print(resBody);
         print('Could not parse json');
