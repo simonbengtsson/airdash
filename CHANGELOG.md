@@ -3,6 +3,8 @@
 Release notes for major releases of AirDash will be posted here
 
 ### Unreleased
+- [internal] Use strong mode for implicit-casts and implicit-dynamic
+- [internal] Use simple_peer library for connection
 - [internal] Update third party libraries
 - [internal] Add connection type logging
 - [internal] Use higher timeout for data receiver
