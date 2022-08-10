@@ -88,7 +88,7 @@ class Receiver {
       logger("RECEIVER: File received: ${message.filename}");
       currentState = null;
       Payload payload;
-      var url = state.meta['url'];
+      var url = state.meta['url'] as String?;
       if (url != null) {
         payload = UrlPayload(Uri.parse(url));
       } else {

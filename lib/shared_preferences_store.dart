@@ -17,7 +17,7 @@ class SharedPreferenceStore extends TokenStore {
     var json = prefs.getString(storeKey);
     if (json == null) return null;
 
-    var map = jsonDecode(json);
+    var map = jsonDecode(json) as Map<String, dynamic>;
     var token = Token.fromMap(map);
     logger('STORE: Token read ${map['expiry']?.toString()}');
     return token;

@@ -82,7 +82,7 @@ Future<Map<String, dynamic>> payloadProperties(List<Payload> payloads) async {
   }
 }
 
-Map remoteDeviceProperties(Device remote) {
+Map<String, dynamic> remoteDeviceProperties(Device remote) {
   return {
     'Remote Device ID': remote.id,
     'Remote Device Name': remote.name,
@@ -131,7 +131,7 @@ addUsedFile(File file) async {
   print('HOME: Used file added ${file.path}');
 }
 
-secondsSince(DateTime date) {
+int secondsSince(DateTime date) {
   return DateTime.now().difference(date).inSeconds;
 }
 

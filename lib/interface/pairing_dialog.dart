@@ -172,11 +172,11 @@ class PairingDialogState extends State<PairingDialog> {
 
     try {
       var response = await pairRemote(localPairingCode, remotePairingCode);
-      String remoteKey = response['deviceKey']!;
-      var remoteName = response['deviceName'] ?? 'Unknown';
-      String? platform = response['devicePlatform'];
-      var meta = Map<String, dynamic>.from(response['meta'] ?? {});
-      String? userId = meta['userId'];
+      String remoteKey = response['deviceKey']! as String;
+      var remoteName = response['deviceName'] as String? ?? 'Unknown';
+      var platform = response['devicePlatform'] as String?;
+      var meta = response['meta'] as Map<String, dynamic>? ?? {};
+      var userId = meta['userId'] as String?;
       var device = Device(remoteKey, remoteName, platform, userId);
       await widget.onPair(device);
       if (mounted) {
@@ -222,7 +222,7 @@ class PairingDialogState extends State<PairingDialog> {
 
     Map<String, dynamic>? body;
     try {
-      body = jsonDecode(result.body);
+      body = jsonDecode(result.body) as Map<String, dynamic>;
     } catch (_) {}
     if (body == null || result.statusCode != 200) {
       throw LogError('pairingHttpError', null, null, {

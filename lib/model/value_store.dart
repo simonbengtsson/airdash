@@ -31,9 +31,11 @@ class ValueStore {
       final deviceInfoPlugin = DeviceInfoPlugin();
       final deviceInfo = await deviceInfoPlugin.deviceInfo;
       var info = deviceInfo.toMap();
-      deviceName = info['name'] ?? info['computerName'] ?? '';
+      deviceName =
+          info['name'] as String? ?? info['computerName'] as String? ?? '';
       if (deviceName.isEmpty) {
-        deviceName = info['manufacturer'] ?? Platform.operatingSystem;
+        deviceName =
+            info['manufacturer'] as String? ?? Platform.operatingSystem;
         deviceName = deviceName.capitalize();
       }
       prefs.setString('deviceName', deviceName);
@@ -43,7 +45,9 @@ class ValueStore {
 
   List<Device> getReceivers() {
     var list = prefs.getStringList('receivers') ?? [];
-    return list.map((r) => Device.decode(jsonDecode(r))).toList();
+    return list
+        .map((r) => Device.decode(jsonDecode(r) as Map<String, dynamic>))
+        .toList();
   }
 
   Device? getSelectedDevice() {

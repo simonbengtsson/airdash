@@ -1,7 +1,5 @@
 import 'dart:convert';
 
-import 'package:flutter_webrtc/flutter_webrtc.dart';
-
 class Message {
   Map<String, dynamic> header;
   List<int> chunk;
@@ -9,11 +7,7 @@ class Message {
 
   Map<String, String> get meta {
     var meta = header['meta'];
-    if (meta != null) {
-      return Map<String, String>.from(meta);
-    } else {
-      return {};
-    }
+    return meta as Map<String, String>? ?? {};
   }
 
   int get version {
@@ -53,7 +47,7 @@ class Message {
     }
 
     var json = utf8.decode(headerBytes);
-    Map<String, dynamic> header = jsonDecode(json);
+    var header = jsonDecode(json) as Map<String, dynamic>;
 
     return Message(chunk, header, bytes.length);
   }

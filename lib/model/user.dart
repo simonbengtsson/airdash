@@ -12,7 +12,7 @@ class User {
   }
 
   static User decode(Map data) {
-    String id = data['id'];
+    var id = data['id'] as String;
     return User(id);
   }
 
@@ -31,7 +31,7 @@ class UserState {
   User? getCurrentUser() {
     var json = prefs.getString('currentUser');
     if (json != null) {
-      var data = jsonDecode(json);
+      var data = jsonDecode(json) as Map;
       var user = User.decode(data);
       return user;
     } else {

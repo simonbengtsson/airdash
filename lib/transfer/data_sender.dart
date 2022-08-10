@@ -33,7 +33,7 @@ class DataSender {
   DataSender(this.peer, this.senderState);
 
   static Future<DataSender> create(
-      peer, File file, Map<String, String> meta) async {
+      Peer peer, File file, Map<String, String> meta) async {
     logger('SENDER: Create connection');
 
     var sendingState = await FileSendingState.create(file, meta);
@@ -224,14 +224,14 @@ class DataSender {
   }
 
   handleChannelMessage(RTCDataChannelMessage message) async {
-    Map<String, dynamic> json = jsonDecode(message.text);
-    String type = json['type'];
+    var json = jsonDecode(message.text) as Map<String, dynamic>;
+    var type = json['type'] as String;
     if (type != 'acknowledge') {
       logger("Unknown message ${message.text}");
       return;
     }
-    int finishedChunk = json['acknowledgeChunk'];
-    bool fileCompleted = json['acknowledgeFile'];
+    var finishedChunk = json['acknowledgeChunk'] as int;
+    var fileCompleted = json['acknowledgeFile'] as bool;
 
     var ackChunk = senderState.acknowledgedChunk;
     if (ackChunk != null && finishedChunk <= ackChunk) {

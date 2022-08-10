@@ -777,7 +777,7 @@ class _MyHomePageState extends State<MyHomePage>
     );
   }
 
-  buildSelectedUrlTile(Uri url) {
+  Widget buildSelectedUrlTile(Uri url) {
     var urlString = url.toString();
     if (urlString.length > 100) {
       urlString = '${urlString.substring(0, 97)}...';
@@ -796,7 +796,7 @@ class _MyHomePageState extends State<MyHomePage>
     );
   }
 
-  buildSelectedFileTile(File file) {
+  Widget buildSelectedFileTile(File file) {
     return ListTile(
       leading: Image.file(file, height: 40, fit: BoxFit.contain,
           errorBuilder: (ctx, err, stack) {
@@ -866,7 +866,7 @@ class _MyHomePageState extends State<MyHomePage>
     });
   }
 
-  buildSectionTitle(String text) {
+  Widget buildSectionTitle(String text) {
     return Padding(
       padding: const EdgeInsets.only(left: 16, right: 16),
       child: Text(text.toUpperCase(),
@@ -874,7 +874,7 @@ class _MyHomePageState extends State<MyHomePage>
     );
   }
 
-  buildReceiverButtons(List<Device> devices) {
+  Widget buildReceiverButtons(List<Device> devices) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [

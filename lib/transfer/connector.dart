@@ -102,7 +102,8 @@ class Connector {
       var messageSender =
           MessageSender(localDevice, receiver.id, transferId, signaling);
       peer.onSignal = (info) {
-        messageSender.sendMessage(info.type, info.payload);
+        var payload = info.payload as Map<String, dynamic>;
+        messageSender.sendMessage(info.type, payload);
       };
       sender = await DataSender.create(peer, file, meta);
       await googlePing();
@@ -159,7 +160,9 @@ class Connector {
   saveDeviceInfo(Device device) async {
     var prefs = await SharedPreferences.getInstance();
     var list = prefs.getStringList('receivers') ?? [];
-    var devices = list.map((r) => Device.decode(jsonDecode(r))).toList();
+    var devices = list
+        .map((r) => Device.decode(jsonDecode(r) as Map<String, dynamic>))
+        .toList();
     devices.removeWhere((element) => element.id == device.id);
     devices.add(device);
     await prefs.setStringList(
@@ -192,7 +195,9 @@ class Connector {
 
     var prefs = await SharedPreferences.getInstance();
     var list = prefs.getStringList('receivers') ?? [];
-    var devices = list.map((r) => Device.decode(jsonDecode(r))).toList();
+    var devices = list
+        .map((r) => Device.decode(jsonDecode(r) as Map<String, dynamic>))
+        .toList();
     var sender = devices.where((element) => element.id == remoteId).firstOrNull;
 
     if (sender == null) {
@@ -216,7 +221,8 @@ class Connector {
       var messageSender =
           MessageSender(localDevice, remoteId, transferId, signaling);
       peer.onSignal = (info) {
-        messageSender.sendMessage(info.type, info.payload);
+        messageSender.sendMessage(
+            info.type, info.payload as Map<String, dynamic>);
       };
       var receiver = await Receiver.create(peer);
       await peer.signal(SignalingInfo('offer', offer));
@@ -279,8 +285,9 @@ class Connector {
     }
     var pairs =
         stats.where((element) => element.type == 'googCandidatePair').toList();
-    var usedPairs =
-        pairs.where((it) => int.parse(it.values['bytesSent']) > 0).toList();
+    var usedPairs = pairs
+        .where((it) => int.parse(it.values['bytesSent'] as String) > 0)
+        .toList();
     return usedPairs
         .map((it) => it.values['googRemoteCandidateType'].toString())
         .toList();
@@ -290,12 +297,12 @@ class Connector {
       Function(Payload? payload, Object? error, String message)
           callback) async {
     await signaling.observe(localDevice, (message, remoteId) async {
-      Map<String, dynamic> json = jsonDecode(message);
-      String type = json['type'];
-      String transferId = json['transferId'];
-      int remoteVersion = json['version'] ?? 0;
-      Map<String, dynamic> payload = json['payload'];
-      Map<String, dynamic>? senderData = json['sender'];
+      var json = jsonDecode(message) as Map<String, dynamic>;
+      var type = json['type'] as String;
+      var transferId = json['transferId'] as String;
+      int remoteVersion = json['version'] as int? ?? 0;
+      var payload = json['payload'] as Map<String, dynamic>;
+      var senderData = json['sender'] as Map<String, dynamic>?;
       if (senderData != null) {
         var device = Device.decode(senderData);
         if (device.id != localDevice.id) {
@@ -366,10 +373,10 @@ class Connector {
     var prefs = await SharedPreferences.getInstance();
     String? appInfoJson = prefs.getString('appInfo');
     if (appInfoJson != null) {
-      Map<String, dynamic> appInfo = jsonDecode(appInfoJson);
+      var appInfo = jsonDecode(appInfoJson) as Map<String, dynamic>;
       var config = appInfo['connectionConfig'];
-      String provider = config['provider'];
-      List<dynamic> iceServers = jsonDecode(config['iceServers']);
+      var provider = config['provider'] as String;
+      var iceServers = jsonDecode(config['iceServers'] as String) as List;
       return {
         //'iceTransportPolicy': 'relay',
         'provider': provider,

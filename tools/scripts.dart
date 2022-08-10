@@ -26,6 +26,9 @@ main(List<String> args) async {
     await WindowsAppBuilder().build();
     await MicrosoftStoreSubmitter().submit();
   } else if (script == 'play') {
+    Map<String, dynamic> map = {"hello": 5, 'one': 'one'};
+    var num = map['one'] as int?;
+    print(num);
   } else {
     print('Invalid script: $script');
   }

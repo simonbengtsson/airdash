@@ -24,7 +24,8 @@ class Device {
   }
 
   static Device decode(Map<String, dynamic> data) {
-    return Device(data['id'], data['name'], data['platform'], data['userId']);
+    return Device(data['id'] as String, data['name'] as String,
+        data['platform'] as String?, data['userId'] as String?);
   }
 
   Map<String, dynamic> encode() {

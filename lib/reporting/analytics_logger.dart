@@ -76,7 +76,9 @@ class Analytics {
   static final _manager = AnalyticsManager();
 
   static logEvent(AnalyticsEvent event, [Map<String, dynamic>? props]) {
-    _manager.logEvent(event.name, props ?? {}).catchError((error, stack) {
+    _manager
+        .logEvent(event.name, props ?? {})
+        .catchError((error, StackTrace stack) {
       print('ANALYTICS: Error when posting event ${event.name}');
       ErrorLogger.logError(
           AnalyticsLogError('analyticsEventError', error, stack));
@@ -92,7 +94,7 @@ class Analytics {
 
     _manager
         .updateMixpanelProfile(FirebaseAuth.instance.userId, userProps)
-        .catchError((error, stack) {
+        .catchError((error, StackTrace stack) {
       ErrorLogger.logError(
           AnalyticsLogError('analyticsProfileError', error, stack));
     });
@@ -142,11 +144,14 @@ class AnalyticsManager {
     prefs.setInt('appOpenCount', appOpens);
 
     var info = deviceInfo.toMap();
-    String model = info['utsname']?['machine'] ?? info['model'] ?? '';
-    String deviceName = info['name'] ?? info['computerName'] ?? '';
+    String model = info['utsname']?['machine'] as String? ??
+        info['model'] as String? ??
+        '';
+    String deviceName =
+        info['name'] as String? ?? info['computerName'] as String? ?? '';
     String brand = Platform.isMacOS || Platform.isIOS
         ? 'Apple'
-        : info['manufacturer'] ?? '';
+        : info['manufacturer'] as String? ?? '';
 
     var screenSize = window.physicalSize;
     var timezoneOffset = DateTime.now().timeZoneOffset.inSeconds;
@@ -229,7 +234,7 @@ class AnalyticsManager {
     var prefs = await SharedPreferences.getInstance();
 
     var rawRequests = prefs.getString('pendingMixpanelRequests');
-    List requests = jsonDecode(rawRequests ?? '[]');
+    var requests = jsonDecode(rawRequests ?? '[]') as List;
 
     while (requests.isNotEmpty) {
       var request = requests.removeLast();
@@ -266,7 +271,7 @@ class AnalyticsManager {
   queueRequest(Map body) async {
     var prefs = await SharedPreferences.getInstance();
     var rawRequests = prefs.getString('pendingMixpanelRequests');
-    List requests = jsonDecode(rawRequests ?? '[]');
+    var requests = jsonDecode(rawRequests ?? '[]') as List;
     requests.add(body);
 
     if (requests.length > 100) {

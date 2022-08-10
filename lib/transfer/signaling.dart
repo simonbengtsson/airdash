@@ -62,7 +62,7 @@ class Signaling {
       } catch (error, stack) {
         ErrorLogger.logStackError('signaling_handlingDocsError', error, stack);
       }
-    }, onError: (error, stack) async {
+    }, onError: (Object error, StackTrace stack) async {
       if (callbackErrorState == null) {
         callbackErrorState = CallbackErrorState();
         callbackErrorState!.callbackErrors.add(error);
@@ -117,9 +117,9 @@ class Signaling {
       receivedMessages[doc.id] = true;
 
       var data = doc.map;
-      DateTime date = data['date'];
-      String message = data['message'];
-      String senderId = data['senderId'];
+      var date = data['date'] as DateTime;
+      var message = data['message'] as String;
+      var senderId = data['senderId'] as String;
 
       if (date.millisecondsSinceEpoch <
           DateTime.now().millisecondsSinceEpoch - 15000) {

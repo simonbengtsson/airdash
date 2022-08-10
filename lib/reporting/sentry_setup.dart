@@ -22,8 +22,8 @@ class SentryManager {
     };
   }
 
-  static _handleBeforeSend(SentryEvent event) {
-    Object throwable = event.throwable;
+  static SentryEvent? _handleBeforeSend(SentryEvent event) {
+    var throwable = event.throwable;
 
     String? type;
     if (throwable is LogError) {
@@ -51,8 +51,8 @@ class SentryManager {
     return Config.sendErrorAndAnalyticsLogs ? event : null;
   }
 
-  setProfileProps(Map userProps) {
-    var props = {};
+  setProfileProps(Map<String, dynamic> userProps) {
+    var props = <String, dynamic>{};
     for (var key in userProps.keys) {
       var value = userProps[key]?.toString() ?? '(null)';
       key = key.replaceAll('\$', '');
@@ -63,7 +63,7 @@ class SentryManager {
     Sentry.configureScope((scope) {
       scope.setTag('platform', Platform.operatingSystem);
       for (var it in props.entries) {
-        scope.setTag(it.key, it.value);
+        scope.setTag(it.key, it.value.toString());
       }
       scope.setContexts('User Properties', props);
     });
