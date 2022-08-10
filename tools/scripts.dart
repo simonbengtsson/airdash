@@ -25,15 +25,12 @@ Future main(List<String> args) async {
     await WindowsAppBuilder().build();
     await MicrosoftStoreSubmitter().submit();
   } else if (script == 'play') {
-    try {
-      await Future<void>.delayed(const Duration(seconds: 2))
-          .timeout(const Duration(seconds: 3), onTimeout: () {
-        throw Exception('hello excp');
-      });
-    } catch (error) {
-      print('caught!');
-    }
-    print('Hello!');
+    Map<String, dynamic> header = <String, dynamic>{
+      "alg": "ES256",
+      "kid": Config.appStoreConnectApiKeyName,
+      "typ": "JWT",
+    };
+    header.addAll({'alg': '', 'typ': 'JWT'});
   } else {
     print('Invalid script: $script');
   }
@@ -45,27 +42,27 @@ Future release() async {
   print('$startedTimeStr Starting build...');
   var version = VersionEditor().readCurrentVersion();
 
-  version = VersionEditor().bumpPatchVersion();
+  //version = VersionEditor().bumpPatchVersion();
 
-  runLocalCommand('flutter build macos');
-  runLocalCommand(
-      'fastlane run build_mac_app export_team_id:"${Config.appStoreTeamId}" workspace:macos/Runner.xcworkspace output_directory:build');
-  runLocalCommand(
-      'xcrun altool --upload-app --type macos -f build/AirDash.pkg --apiKey ${Config.appStoreConnectApiKeyName} --apiIssuer ${Config.appStoreConnectIssuerId}');
+  //runLocalCommand('flutter build macos');
+  //runLocalCommand(
+  //'fastlane run build_mac_app export_team_id:"${Config.appStoreTeamId}" workspace:macos/Runner.xcworkspace output_directory:build');
+  //runLocalCommand(
+  //'xcrun altool --upload-app --type macos -f build/AirDash.pkg --apiKey ${Config.appStoreConnectApiKeyName} --apiIssuer ${Config.appStoreConnectIssuerId}');
 
-  runLocalCommand('flutter build ipa');
-  runLocalCommand(
-      'xcrun altool --upload-app --type ios -f build/ios/ipa/*.ipa --apiKey ${Config.appStoreConnectApiKeyName} --apiIssuer ${Config.appStoreConnectIssuerId}');
+  //runLocalCommand('flutter build ipa');
+  //runLocalCommand(
+  //  'xcrun altool --upload-app --type ios -f build/ios/ipa/*.ipa --apiKey ${Config.appStoreConnectApiKeyName} --apiIssuer ${Config.appStoreConnectIssuerId}');
 
-  runLocalCommand('flutter build appbundle');
-  runLocalCommand('flutter build apk');
-  runLocalCommand(
-      'cp build/app/outputs/flutter-apk/app-release.apk build/AirDash.apk');
-  runLocalCommand(
-      'fastlane upload_to_play_store --aab ${Config.localAabPath} --package_name io.flown.airdash --json_key ${Config.googlePlayKeyPath}');
+  //runLocalCommand('flutter build appbundle');
+  //runLocalCommand('flutter build apk');
+  //runLocalCommand(
+  //'cp build/app/outputs/flutter-apk/app-release.apk build/AirDash.apk');
+  //runLocalCommand(
+  //  'fastlane upload_to_play_store --aab ${Config.localAabPath} --package_name io.flown.airdash --json_key ${Config.googlePlayKeyPath}');
 
-  await WindowsAppBuilder().build();
-  await MicrosoftStoreSubmitter().submit();
+  //await WindowsAppBuilder().build();
+  //await MicrosoftStoreSubmitter().submit();
 
   await AppStoreVersionSubmitter().submit();
 

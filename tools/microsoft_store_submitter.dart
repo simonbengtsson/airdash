@@ -46,7 +46,8 @@ class MicrosoftStoreSubmitter {
 
   Future<Map> addSubmission() async {
     var path = '/my/applications/$applicationId/submissions';
-    return api.send('POST', path) as Map;
+    var res = api.send('POST', path);
+    return res as Map;
   }
 
   Future waitForProcessing(String submissionId) async {

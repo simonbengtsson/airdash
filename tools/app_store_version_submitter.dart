@@ -146,7 +146,7 @@ class AppStoreVersionSubmitter {
   Future submitPlatformVersion(String platform, String versionId) async {
     var appId = Config.appStoreAppId;
     var res = await api.send('GET', '/reviewSubmissions?filter[app]=$appId');
-    var reviewSubmissions = res['data'] as Iterable<Map>;
+    var reviewSubmissions = List<Map>.from(res['data'] as List);
     var pendingSubmissions = reviewSubmissions
         .where((it) => it['attributes']['state'] != 'COMPLETE')
         .toList();
@@ -282,16 +282,17 @@ class AppStoreConnectApi {
         "exp": creationTime + 60 * 20,
         "aud": "appstoreconnect-v1"
       },
-      header: <String, String>{
+      header: <String, dynamic>{
         "alg": "ES256",
         "kid": Config.appStoreConnectApiKeyName,
-        "typ": "JWT"
+        "typ": "JWT",
       },
       issuer: Config.appStoreConnectIssuerId,
     );
 
     var pem = File(Config.appStoreConnectKeyPath).readAsStringSync();
-    var token = jwt.sign(ECPrivateKey(pem), algorithm: JWTAlgorithm.ES256);
+    var key = ECPrivateKey(pem);
+    var token = jwt.sign(key, algorithm: JWTAlgorithm.ES256);
 
     return token;
   }
