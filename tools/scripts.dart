@@ -26,7 +26,6 @@ main(List<String> args) async {
     await WindowsAppBuilder().build();
     await MicrosoftStoreSubmitter().submit();
   } else if (script == 'play') {
-    await PlayStoreSubmitter().play();
   } else {
     print('Invalid script: $script');
   }

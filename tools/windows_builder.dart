@@ -60,7 +60,7 @@ class WindowsAppBuilder {
     }
   }
 
-  runUserVmRunCommand(String command, List<String> args) {
+  ProcessResult runUserVmRunCommand(String command, List<String> args) {
     return Process.runSync('vmrun', environment: Config.env, [
       '-gu',
       Config.windowsVmUser,
@@ -72,7 +72,8 @@ class WindowsAppBuilder {
     ]);
   }
 
-  fetchWindowsFile(String windowsPath, String localPath, [silent = false]) {
+  fetchWindowsFile(String windowsPath, String localPath,
+      [bool silent = false]) {
     var result = runUserVmRunCommand(
         'CopyFileFromGuestToHost', [windowsPath, localPath]);
     _printProcessResult(result);

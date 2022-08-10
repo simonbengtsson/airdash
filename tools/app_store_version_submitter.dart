@@ -20,7 +20,7 @@ class AppStoreVersionSubmitter {
     var build = await waitForBuild(appVersion, platform);
     var pendingVersion = await getPendingVersion(platform);
 
-    var versionId = pendingVersion['id'];
+    var versionId = pendingVersion['id'] as String;
     await updateVersion(build, appVersion, versionId, platform);
     await updateAppVersionLocalizations(versionId);
     await submitPlatformVersion(platform, versionId);
@@ -50,7 +50,7 @@ class AppStoreVersionSubmitter {
     throw Exception('Could not find build. Timeout reached');
   }
 
-  fetchBuild(String platform, int buildVersion) async {
+  Future<Map?> fetchBuild(String platform, int buildVersion) async {
     bool isCorrectPlatform(build) {
       // Hack for checking. Only mac builds seems to have the lsMinimumSystemVersion
       // set to a none null value
@@ -59,7 +59,7 @@ class AppStoreVersionSubmitter {
     }
 
     var res = await api.send('GET', '/apps/${Config.appStoreAppId}/builds');
-    var allBuilds = List.from(res['data']);
+    var allBuilds = List<Map>.from(res['data'] as Iterable);
     var builds = allBuilds
         .where((it) => it['attributes']['version'] == '$buildVersion')
         .where((it) => isCorrectPlatform(it));
@@ -70,7 +70,7 @@ class AppStoreVersionSubmitter {
     var appId = Config.appStoreAppId;
     var result = await api.send(
         'GET', '/apps/$appId/appStoreVersions?filter[platform]=$platform');
-    var allVersions = List.from(result['data']);
+    var allVersions = List<Map>.from(result['data'] as Iterable);
     var pendingVersions = allVersions.where((it) {
       var state = it['attributes']['appStoreState'];
       return ['PREPARE_FOR_SUBMISSION', 'DEVELOPER_REJECTED'].contains(state);
@@ -99,7 +99,7 @@ class AppStoreVersionSubmitter {
       }
     };
     var result = await api.send('POST', '/appStoreVersions', body);
-    return result['data'];
+    return result['data'] as Map;
   }
 
   updateVersion(
@@ -146,7 +146,7 @@ class AppStoreVersionSubmitter {
     var appId = Config.appStoreAppId;
     var reviewSubmissions =
         await api.send('GET', '/reviewSubmissions?filter[app]=$appId');
-    var pendingSubmissions = reviewSubmissions['data']
+    var pendingSubmissions = (reviewSubmissions['data'] as Iterable)
         .where((it) => it['attributes']['state'] != 'COMPLETE')
         .toList();
     var platformPending = List.from(pendingSubmissions
@@ -160,7 +160,7 @@ class AppStoreVersionSubmitter {
       await Future.delayed(const Duration(seconds: 1));
     }
 
-    var submissionId = submission['id'];
+    var submissionId = submission['id'] as String;
     await createReviewSubmissionItem(platform, versionId, submissionId);
 
     var body = {
@@ -224,12 +224,12 @@ class AppStoreVersionSubmitter {
   Future deleteAllBuilds() async {
     var res =
         await api.send('GET', '/apps/${Config.appStoreAppId}/builds?limit=200');
-    var allBuilds = List.from(res['data']);
+    var allBuilds = List.from(res['data'] as Iterable);
     var activeBuilds =
         allBuilds.where((it) => it['attributes']['expired'] == false);
     print('Active builds: ${activeBuilds.length}');
     for (var build in activeBuilds) {
-      await expireBuild(build['id']);
+      await expireBuild(build['id'] as String);
     }
     print('Done!');
   }
@@ -248,7 +248,7 @@ class AppStoreVersionSubmitter {
 }
 
 class AppStoreConnectApi {
-  send(String method, String apiPath, [Map? requestBody]) async {
+  Future send(String method, String apiPath, [Map? requestBody]) async {
     var basePath = 'https://api.appstoreconnect.apple.com/v1';
     var uri = Uri.parse('$basePath$apiPath');
     print('$method ${uri.host}${uri.path}');

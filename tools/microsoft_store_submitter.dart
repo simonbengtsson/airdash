@@ -14,18 +14,18 @@ class MicrosoftStoreSubmitter {
   submit() async {
     var status = await getAppStatus();
     if (status['pendingApplicationSubmission'] != null) {
-      var submissionId = status['pendingApplicationSubmission']['id'];
+      var submissionId = status['pendingApplicationSubmission']['id'] as String;
       await deleteSubmission(submissionId);
     }
 
     // Got InvalidState error for addSubmission. Worth exploring further?
     // When it happened the deleteSubmission call was not called above.
     var submission = await addSubmission();
-    var submissionId = submission['id'];
+    var submissionId = submission['id'] as String;
 
     var currentVersion = VersionEditor().readCurrentVersion();
     await uploadPackage(
-        submissionId, submission['fileUploadUrl'], currentVersion);
+        submissionId, submission['fileUploadUrl'] as String, currentVersion);
     await updateSubmissionPackages(submission, currentVersion);
 
     await submitSubmission(submissionId);
@@ -43,9 +43,9 @@ class MicrosoftStoreSubmitter {
     await api.send('DELETE', path);
   }
 
-  addSubmission() async {
+  Future<Map> addSubmission() async {
     var path = '/my/applications/$applicationId/submissions';
-    return api.send('POST', path);
+    return api.send('POST', path) as Map;
   }
 
   waitForProcessing(String submissionId) async {
@@ -72,7 +72,7 @@ class MicrosoftStoreSubmitter {
 
   getCurrentSubmissionStatus() async {
     var status = await getAppStatus();
-    var submissionId = status['pendingApplicationSubmission']['id'];
+    var submissionId = status['pendingApplicationSubmission']['id'] as String;
     return getSubmissionStatus(submissionId);
   }
 
@@ -90,7 +90,8 @@ class MicrosoftStoreSubmitter {
   updateSubmissionPackages(Map submission, List<int> version) async {
     var path =
         '/my/applications/$applicationId/submissions/${submission['id']}';
-    List applicationPackages = submission['applicationPackages'] ?? [];
+    var packages = submission['applicationPackages'] as Iterable?;
+    var applicationPackages = List.from(packages ?? []);
     for (var package in applicationPackages) {
       package['fileStatus'] = 'PendingDelete';
     }
@@ -126,7 +127,7 @@ class MicrosoftStoreSubmitter {
 class MicrosoftPartnerCenterApi {
   var baseUrl = 'https://manage.devcenter.microsoft.com/v1.0';
 
-  send(String method, String path, {String? body}) async {
+  Future<dynamic> send(String method, String path, {String? body}) async {
     print('$method $path');
 
     var url = Uri.parse('$baseUrl$path');
@@ -149,6 +150,7 @@ class MicrosoftPartnerCenterApi {
       } catch (error) {
         print(resBody);
         print('Could not parse json');
+        return null;
       }
     } else {
       print(resBody);
@@ -178,7 +180,7 @@ class MicrosoftPartnerCenterApi {
       throw Exception('Could not get access token');
     }
 
-    String accessToken = jsonDecode(result.body)['access_token'];
+    var accessToken = jsonDecode(result.body)['access_token'] as String;
     print('Got access token: ${accessToken.substring(0, 10)}...');
 
     return accessToken;

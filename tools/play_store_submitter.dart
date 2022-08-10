@@ -21,7 +21,7 @@ class PlayStoreSubmitter {
 
   Future<String> createEdit() async {
     var edit = await send('POST', '/edits');
-    return edit['id'];
+    return edit['id'] as String;
   }
 
   Future<dynamic> commitEdit(String editId) async {
@@ -70,16 +70,17 @@ class PlayStoreSubmitter {
       throw Exception('Invalid status code ${res.statusCode}');
     }
 
-    return body.isNotEmpty ? jsonDecode(body) : {'success': true};
+    var decoded = Map<String, dynamic>.from(jsonDecode(body) as Map);
+    return body.isNotEmpty ? decoded : {'success': true};
   }
 
   Future<String> _generateToken() async {
     var serviceAccountJson = File(Config.googlePlayKeyPath).readAsStringSync();
-    Map serviceAccount = jsonDecode(serviceAccountJson);
+    var serviceAccount = jsonDecode(serviceAccountJson) as Map;
 
-    String email = serviceAccount['client_email'];
-    String tokenUri = serviceAccount['token_uri'];
-    String privateKey = serviceAccount['private_key'];
+    var email = serviceAccount['client_email'] as String;
+    var tokenUri = serviceAccount['token_uri'] as String;
+    var privateKey = serviceAccount['private_key'] as String;
 
     int creationTime = DateTime.now().millisecondsSinceEpoch ~/ 1000;
 
@@ -108,7 +109,7 @@ class PlayStoreSubmitter {
     var uri = Uri.parse('https://oauth2.googleapis.com/token');
     var res = await http.post(uri, body: jsonEncode(json));
     var resBody = jsonDecode(res.body);
-    String accessToken = resBody['access_token'];
+    var accessToken = resBody['access_token'] as String;
 
     return accessToken;
   }

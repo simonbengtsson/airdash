@@ -956,7 +956,7 @@ class _MyHomePageState extends State<MyHomePage>
     );
   }
 
-  buildOwnDeviceView(Device device) {
+  Widget buildOwnDeviceView(Device device) {
     return Container(
       decoration: const BoxDecoration(
         color: Colors.white,

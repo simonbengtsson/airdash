@@ -156,7 +156,7 @@ bool isMobile() {
 }
 
 MaterialColor createMaterialColor(Color color) {
-  List strengths = <double>[.05];
+  var strengths = <double>[.05];
   final swatch = <int, Color>{};
   final int r = color.red, g = color.green, b = color.blue;
 

@@ -18,7 +18,7 @@ class IntentReceiver {
     if (Platform.isIOS) {
       const eventChannel = EventChannel('io.flown.airdash/event_communicator');
       eventChannel.receiveBroadcastStream().listen((event) async {
-        var urls = event as List;
+        var urls = event as List<String>;
         var url = urls.tryGet(0);
         if (url == null) return;
 
@@ -41,7 +41,7 @@ class IntentReceiver {
             });
           }
         }
-      }, onError: (error, stack) {
+      }, onError: (error, StackTrace stack) {
         callback(null, 'Could not handle the provided file');
         ErrorLogger.logStackError('fileIntentError', error, stack);
       });
@@ -66,7 +66,7 @@ class IntentReceiver {
             callback(null, 'Could not read the provided file');
           }
         }
-      }, onError: (error, stack) {
+      }, onError: (error, StackTrace stack) {
         ErrorLogger.logStackError('intentReceiverError', error, stack);
         callback(null, 'Could not handle the provided file');
       });

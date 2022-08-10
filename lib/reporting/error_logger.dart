@@ -15,7 +15,7 @@ class ErrorLogger {
     _logError(error, null).catchError(_onError);
   }
 
-  static logStackError(String type, Object error, StackTrace stack,
+  static logStackError(String type, dynamic error, StackTrace stack,
       [int? errorCount]) {
     _logError(LogError(type, error, stack, null), errorCount)
         .catchError(_onError);
