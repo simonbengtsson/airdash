@@ -2,7 +2,7 @@ name: airdash
 description: Share files anywhere
 publish_to: 'none'
 
-version: 2.0.132+132
+version: 2.0.133+133
 
 environment:
   sdk: ">=2.17.1 <3.0.0"
@@ -78,7 +78,7 @@ msix_config:
   publisher_display_name: Flownio
   publisher: CN=74819260-D638-4972-AE3E-CA996FB6EF34
   identity_name: 24192Flownio.AirDash
-  msix_version: 2.0.132.0
+  msix_version: 2.0.133.0
   logo_path: logo.png
   capabilities: internetClient
   store: true
