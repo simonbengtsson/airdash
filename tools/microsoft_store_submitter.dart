@@ -36,7 +36,7 @@ class MicrosoftStoreSubmitter {
 
   Future<Map> getAppStatus() async {
     var map = await api.send('GET', '/my/applications/$applicationId');
-    return map!;
+    return map;
   }
 
   Future deleteSubmission(String submissionId) async {
@@ -47,7 +47,7 @@ class MicrosoftStoreSubmitter {
   Future<Map> addSubmission() async {
     var path = '/my/applications/$applicationId/submissions';
     var res = await api.send('POST', path);
-    return res as Map;
+    return res;
   }
 
   Future waitForProcessing(String submissionId) async {
@@ -70,7 +70,7 @@ class MicrosoftStoreSubmitter {
     var path =
         '/my/applications/$applicationId/submissions/$submissionId/status';
     var res = await api.send('GET', path);
-    return res!;
+    return res;
   }
 
   Future<Map> getCurrentSubmissionStatus() async {
@@ -131,7 +131,8 @@ class MicrosoftStoreSubmitter {
 class MicrosoftPartnerCenterApi {
   var baseUrl = 'https://manage.devcenter.microsoft.com/v1.0';
 
-  Future<Map?> send(String method, String path, {String? body}) async {
+  Future<Map> send(String method, String path,
+      {String? body, int retries = 3}) async {
     print('$method $path');
 
     var url = Uri.parse('$baseUrl$path');
@@ -149,17 +150,22 @@ class MicrosoftPartnerCenterApi {
     final resBody = await res.stream.bytesToString();
 
     if (res.statusCode >= 200 && res.statusCode < 300) {
-      try {
+      if (resBody.isNotEmpty) {
         return jsonDecode(resBody) as Map;
-      } catch (error) {
-        print(resBody);
-        print('Could not parse json');
-        return null;
+      } else {
+        return <dynamic, dynamic>{};
       }
     } else {
       print(resBody);
       print('Status code ${res.statusCode}');
-      throw Exception('Error calling api');
+
+      if (res.statusCode == 500 && retries > 0) {
+        print('Retrying... Retries left: $retries');
+        await Future<void>.delayed(const Duration(seconds: 1));
+        return send(method, path, body: body, retries: retries - 1);
+      } else {
+        throw Exception('Error calling api and no retries left');
+      }
     }
   }
 
