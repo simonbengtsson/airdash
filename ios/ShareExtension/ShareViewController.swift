@@ -137,8 +137,7 @@ class ShareViewController: UIViewController {
     }
     
     private func getGroupId() -> String {
-        let hostId = getHostId()
-        return "group.\(hostId)"
+        return "group.io.flown.airdash_appgroup"
     }
 
     private func redirectToHostApp() {

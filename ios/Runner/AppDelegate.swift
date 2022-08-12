@@ -135,8 +135,7 @@ extension AppDelegate: FlutterStreamHandler {
     }
     
     private func getGroupId() -> String {
-        let hostId = Bundle.main.bundleIdentifier!
-        return "group.\(hostId)"
+        return "group.io.flown.airdash_appgroup"
     }
     
     public func hasMatchingSchemePrefix(_ url: URL) -> Bool {

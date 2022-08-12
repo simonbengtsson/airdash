@@ -43,22 +43,22 @@
 		<key>NSAllowsLocalNetworking</key>
 		<true/>
 	</dict>
-	<key>NSMicrophoneUsageDescription</key>
-	<string>Enables video recording and then sharing of videos</string>
+	<key>NSBluetoothAlwaysUsageDescription</key>
+	<string>The app uses bluetooth to find, connect and transfer data between different devices</string>
+	<key>NSBluetoothPeripheralUsageDescription</key>
+	<string>The app uses bluetooth to find, connect and transfer data between different devices</string>
 	<key>NSCameraUsageDescription</key>
 	<string>Enables photo sharing directly from the camera</string>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>The app uses location to find and connect to nearby devices</string>
+	<key>NSLocationAlwaysUsageDescription</key>
+	<string>The app uses location to find and connect to nearby devices</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>The app uses location to find and connect to nearby devices</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Enables video recording and then sharing of videos</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>Enables photo sharing from gallery</string>
-    <key>NSBluetoothAlwaysUsageDescription</key>
-    <string>The app uses bluetooth to find, connect and transfer data between different devices</string>
-    <key>NSBluetoothPeripheralUsageDescription</key>
-    <string>The app uses bluetooth to find, connect and transfer data between different devices</string>
-    <key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
-    <string>The app uses location to find and connect to nearby devices</string>
-    <key>NSLocationAlwaysUsageDescription</key>
-    <string>The app uses location to find and connect to nearby devices</string>
-    <key>NSLocationWhenInUseUsageDescription</key>
-    <string>The app uses location to find and connect to nearby devices</string>
 	<key>UIBackgroundModes</key>
 	<array/>
 	<key>UILaunchStoryboardName</key>
