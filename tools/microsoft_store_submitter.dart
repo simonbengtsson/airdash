@@ -133,10 +133,9 @@ class MicrosoftPartnerCenterApi {
 
   Future<Map> send(String method, String path,
       {String? body, int retries = 3}) async {
-    print('$method $path');
-
     var url = Uri.parse('$baseUrl$path');
     var accessToken = await _getAccessToken();
+    print('$method $path ${accessToken.substring(0, 10)}...');
 
     var headers = {
       'Content-Type': 'application/json',
@@ -161,7 +160,7 @@ class MicrosoftPartnerCenterApi {
 
       if (res.statusCode == 500 && retries > 0) {
         print('Retrying... Retries left: $retries');
-        await Future<void>.delayed(const Duration(seconds: 1));
+        await Future<void>.delayed(const Duration(seconds: 2));
         return send(method, path, body: body, retries: retries - 1);
       } else {
         throw Exception('Error calling api and no retries left');
@@ -191,8 +190,6 @@ class MicrosoftPartnerCenterApi {
     }
 
     var accessToken = jsonDecode(result.body)['access_token'] as String;
-    print('Got access token: ${accessToken.substring(0, 10)}...');
-
     return accessToken;
   }
 }
