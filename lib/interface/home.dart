@@ -49,9 +49,6 @@ class HomeScreenState extends ConsumerState<HomeScreen>
   final fileManager = FileManager();
   late final ValueStore valueStore;
 
-  List<Log> logs = [];
-  String? loggingMode;
-
   Device? currentDevice;
 
   List<Device> devices = [];
@@ -88,7 +85,6 @@ class HomeScreenState extends ConsumerState<HomeScreen>
 
   @override
   Widget build(BuildContext context) {
-    print('uilf ${currentDevice?.name}');
     return DropTarget(
       onDragDone: (detail) async {
         logger('DROP: Files dropped ${detail.files.length}');
@@ -168,7 +164,6 @@ class HomeScreenState extends ConsumerState<HomeScreen>
         Device(deviceId, deviceName, Platform.operatingSystem, user?.id);
     setState(() {
       currentDevice = localDevice;
-      print('dsrttt');
     });
 
     connector = Connector(localDevice, signaling);
@@ -1009,7 +1004,6 @@ class HomeScreenState extends ConsumerState<HomeScreen>
             onChanged: (text) async {
               setState(() {
                 this.currentDevice = currentDevice.withName(text);
-                print('ste ${currentDevice.name}');
               });
               await persistState();
             },
