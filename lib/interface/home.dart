@@ -556,6 +556,7 @@ class HomeScreenState extends ConsumerState<HomeScreen>
       withData: false,
       allowCompression: false,
       withReadStream: true,
+      allowMultiple: false,
     );
     if (result != null && result.files.isNotEmpty) {
       var file = File(result.files.first.path!);
