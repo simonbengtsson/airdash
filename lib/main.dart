@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart' hide MenuItem;
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 
 import 'interface/setup_screen.dart';
@@ -13,7 +14,7 @@ void main() async {
     },
     appRunner: () {
       WindowManager().setupWindow();
-      return runApp(const App());
+      return runApp(const ProviderScope(child: App()));
     },
   );
 }
