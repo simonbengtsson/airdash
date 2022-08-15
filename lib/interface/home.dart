@@ -8,6 +8,7 @@ import 'package:firedart/firestore/firestore.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart' hide MenuItem;
 import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:grpc/grpc.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:path_provider/path_provider.dart';
@@ -33,14 +34,14 @@ import '../reporting/logger.dart';
 import '../transfer/connector.dart';
 import '../transfer/signaling.dart';
 
-class HomeScreen extends StatefulWidget {
+class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
 
   @override
-  State<HomeScreen> createState() => _HomeScreenState();
+  HomeScreenState createState() => HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen>
+class HomeScreenState extends ConsumerState<HomeScreen>
     with TrayListener, WindowListener {
   Connector? connector;
   final IntentReceiver intentReceiver = IntentReceiver();
@@ -57,7 +58,6 @@ class _HomeScreenState extends State<HomeScreen>
 
   File? receivedFile;
   List<Payload> selectedPayloads = [];
-  Device? selectedDevice;
   String? sendingStatus;
   String? receivingStatus;
 
@@ -88,6 +88,7 @@ class _HomeScreenState extends State<HomeScreen>
 
   @override
   Widget build(BuildContext context) {
+    print('uilf ${currentDevice?.name}');
     return DropTarget(
       onDragDone: (detail) async {
         logger('DROP: Files dropped ${detail.files.length}');
@@ -167,11 +168,15 @@ class _HomeScreenState extends State<HomeScreen>
         Device(deviceId, deviceName, Platform.operatingSystem, user?.id);
     setState(() {
       currentDevice = localDevice;
+      print('dsrttt');
     });
 
     connector = Connector(localDevice, signaling);
     devices = valueStore.getReceivers();
-    selectedDevice = valueStore.getSelectedDevice();
+
+    ref
+        .read(selectedDeviceProvider.notifier)
+        .setDevice(valueStore.getSelectedDevice());
 
     await connector!.observe((payload, error, statusUpdate) async {
       if (payload is UrlPayload) {
@@ -449,7 +454,7 @@ class _HomeScreenState extends State<HomeScreen>
                 setState(() {
                   devices.removeWhere((it) => it.id == receiver.id);
                   devices.add(receiver);
-                  selectedDevice = receiver;
+                  ref.read(selectedDeviceProvider.notifier).setDevice(receiver);
                 });
                 AnalyticsEvent.pairingCompleted.log(<String, String>{
                   'Device ID': receiver.id,
@@ -466,8 +471,9 @@ class _HomeScreenState extends State<HomeScreen>
     var prefs = await SharedPreferences.getInstance();
     await prefs.setStringList(
         'receivers', devices.map((r) => jsonEncode(r.encode())).toList());
+    var selectedDevice = ref.read(selectedDeviceProvider.notifier).getDevice();
     if (selectedDevice != null) {
-      await prefs.setString('selectedReceivingDeviceId', selectedDevice!.id);
+      await prefs.setString('selectedReceivingDeviceId', selectedDevice.id);
     } else {
       await prefs.remove('selectedReceivingDeviceId');
     }
@@ -478,6 +484,7 @@ class _HomeScreenState extends State<HomeScreen>
   }
 
   Widget renderSendButton() {
+    Device? selectedDevice = ref.watch(selectedDeviceProvider);
     var disabled = selectedPayloads.isEmpty ||
         selectedDevice == null ||
         sendingStatus != null;
@@ -485,7 +492,7 @@ class _HomeScreenState extends State<HomeScreen>
       onPressed: disabled
           ? null
           : () {
-              sendPayload(selectedDevice!, selectedPayloads);
+              sendPayload(selectedDevice, selectedPayloads);
             },
       child: Text(
         sendingStatus ?? "Send",
@@ -855,7 +862,7 @@ class _HomeScreenState extends State<HomeScreen>
     });
     setState(() {
       devices = devices.where((r) => r.id != device.id).toList();
-      selectedDevice = devices.firstOrNull;
+      ref.read(selectedDeviceProvider.notifier).setDevice(devices.firstOrNull);
       persistState();
     });
   }
@@ -869,6 +876,7 @@ class _HomeScreenState extends State<HomeScreen>
   }
 
   Widget buildReceiverButtons(List<Device> devices) {
+    Device? selectedDevice = ref.watch(selectedDeviceProvider);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -903,9 +911,7 @@ class _HomeScreenState extends State<HomeScreen>
                   });
             },
             onTap: () {
-              setState(() {
-                selectedDevice = it;
-              });
+              ref.read(selectedDeviceProvider.notifier).setDevice(it);
               AnalyticsEvent.receiverSelected.log(<String, dynamic>{
                 ...remoteDeviceProperties(it),
               });
@@ -1002,7 +1008,8 @@ class _HomeScreenState extends State<HomeScreen>
             initialValue: currentDevice.name,
             onChanged: (text) async {
               setState(() {
-                currentDevice.name = text;
+                this.currentDevice = currentDevice.withName(text);
+                print('ste ${currentDevice.name}');
               });
               await persistState();
             },

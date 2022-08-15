@@ -1,14 +1,25 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../reporting/error_logger.dart';
 
+@immutable
 class Device {
-  String id;
-  String name;
-  String? platform;
-  String? userId;
+  final String id;
+  final String name;
+  final String? platform;
+  final String? userId;
 
-  Device(this.id, this.name, this.platform, this.userId);
+  const Device(this.id, this.name, this.platform, this.userId);
+
+  Device withName(String name) {
+    return Device(
+      id,
+      name,
+      platform,
+      userId,
+    );
+  }
 
   String get displayId {
     if (id.length < 5) {
@@ -38,3 +49,20 @@ class Device {
     };
   }
 }
+
+class SelectedDeviceNotifier extends StateNotifier<Device?> {
+  SelectedDeviceNotifier() : super(null);
+
+  Device? getDevice() {
+    return state;
+  }
+
+  void setDevice(Device? device) {
+    state = device;
+  }
+}
+
+final selectedDeviceProvider =
+    StateNotifierProvider<SelectedDeviceNotifier, Device?>((ref) {
+  return SelectedDeviceNotifier();
+});
