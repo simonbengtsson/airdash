@@ -50,7 +50,6 @@ class _HomeScreenState extends State<HomeScreen>
 
   List<Log> logs = [];
   String? loggingMode;
-  bool isDragging = false;
 
   Device? currentDevice;
 
@@ -97,15 +96,9 @@ class _HomeScreenState extends State<HomeScreen>
         await setPayload(payloads, 'dropped');
       },
       onDragEntered: (detail) {
-        setState(() {
-          isDragging = true;
-        });
         showDropOverlay();
       },
       onDragExited: (detail) {
-        setState(() {
-          isDragging = false;
-        });
         Navigator.pop(context);
       },
       child: Scaffold(
