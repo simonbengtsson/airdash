@@ -16,14 +16,6 @@ class VersionEditor {
         'version: ${newVersion.join('.')}+${newVersion[2]}');
     _replaceLine(pubspecFile, '  msix_version: ${oldVersion.join('.')}.0',
         '  msix_version: ${newVersion.join('.')}.0');
-    _replaceLine(
-        runnerFile,
-        '#define VERSION_AS_NUMBER ${oldVersion.join(',')}',
-        '#define VERSION_AS_NUMBER ${newVersion.join(',')}');
-    _replaceLine(
-        runnerFile,
-        '#define VERSION_AS_STRING "${oldVersion.join('.')}"',
-        '#define VERSION_AS_STRING "${newVersion.join('.')}"');
 
     runLocalCommand('git reset');
     runLocalCommand('git add ${pubspecFile.path} ${runnerFile.path}');

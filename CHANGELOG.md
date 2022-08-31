@@ -1,8 +1,9 @@
 # Changelog
 
-Release notes for major releases of AirDash will be posted here
-
 ### Unreleased
+- [internal] Upgrade to flutter 3.3
+
+### v2.0.134 15 August 2022
 - [internal] Use strong mode for implicit-casts and implicit-dynamic
 - [internal] Use simple_peer library for connection
 - [internal] Update third party libraries
