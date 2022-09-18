@@ -15,8 +15,8 @@ Transfer photos and files to any device.
 - Free forever to send any number of files of any size
 - Maximum privacy and security by fully encrypting files and transferring them directly between devices
 - Quickly start transfers using native mobile share sheet and drag and drop on desktop
-- Send files anywhere
-- Automatically uses the best and fastest connection available
+- Send files anywhere (no need to be on the same network)
+- Automatically uses the best and fastest connection available (wifi, mobile internet, ethernet etc)
 
 ### Key technologies
 - Flutter 3.0 (iOS, macOS, Android and windows app)
