@@ -217,6 +217,7 @@ class AnalyticsManager {
       'time': DateTime.now().millisecondsSinceEpoch,
       'token': Config.mixpanelProjectToken,
       'distinct_id': FirebaseAuth.instance.userId,
+      'airdash_test_id': generateId(5),
       ...props,
     };
 
@@ -260,7 +261,6 @@ class AnalyticsManager {
         }
       }
 
-      requests.remove(request);
       var json = jsonEncode(requests);
       prefs.setString('pendingMixpanelRequests', json);
 
