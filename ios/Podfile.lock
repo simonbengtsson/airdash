@@ -36,9 +36,9 @@ PODS:
     - DKImagePickerController/PhotoGallery
     - Flutter
   - Flutter (1.0.0)
-  - flutter_webrtc (0.9.0):
+  - flutter_webrtc (0.9.13):
     - Flutter
-    - WebRTC-SDK (= 97.4692.07)
+    - WebRTC-SDK (= 104.5112.06)
   - integration_test (0.0.1):
     - Flutter
   - package_info_plus (0.4.5):
@@ -49,16 +49,14 @@ PODS:
     - Flutter
   - receive_sharing_intent (0.0.1):
     - Flutter
-  - SDWebImage (5.13.2):
-    - SDWebImage/Core (= 5.13.2)
-  - SDWebImage/Core (5.13.2)
-  - Sentry (7.23.0):
-    - Sentry/Core (= 7.23.0)
-  - Sentry/Core (7.23.0)
+  - SDWebImage (5.14.1):
+    - SDWebImage/Core (= 5.14.1)
+  - SDWebImage/Core (5.14.1)
+  - Sentry/HybridSDK (7.30.2)
   - sentry_flutter (0.0.1):
     - Flutter
     - FlutterMacOS
-    - Sentry (~> 7.23.0)
+    - Sentry/HybridSDK (= 7.30.2)
   - share_plus (0.0.1):
     - Flutter
   - shared_preferences_ios (0.0.1):
@@ -68,7 +66,7 @@ PODS:
     - Flutter
   - wakelock (0.0.1):
     - Flutter
-  - WebRTC-SDK (97.4692.07)
+  - WebRTC-SDK (104.5112.06)
 
 DEPENDENCIES:
   - device_info_plus (from `.symlinks/plugins/device_info_plus/ios`)
@@ -131,21 +129,21 @@ SPEC CHECKSUMS:
   DKPhotoGallery: fdfad5125a9fdda9cc57df834d49df790dbb4179
   file_picker: 817ab1d8cd2da9d2da412a417162deee3500fc95
   Flutter: f04841e97a9d0b0a8025694d0796dd46242b2854
-  flutter_webrtc: 82a3f058c7c149bad88bb204362fbec5dfe35a64
+  flutter_webrtc: 6e85da5004f21fd21255228a76c2d4867c3b8972
   integration_test: a1e7d09bd98eca2fc37aefd79d4f41ad37bdbbe5
   package_info_plus: 6c92f08e1f853dc01228d6f553146438dafcd14e
   path_provider_ios: 14f3d2fd28c4fdb42f44e0f751d12861c43cee02
   quick_look: 59394001d6b484c13fd5f73b555398d523726c8c
   receive_sharing_intent: c0d87310754e74c0f9542947e7cbdf3a0335a3b1
-  SDWebImage: 72f86271a6f3139cc7e4a89220946489d4b9a866
-  Sentry: a0d4563fa4ddacba31fdcc35daaa8573d87224d6
-  sentry_flutter: 8bde7d0e57a721727fe573f13bb292c497b5a249
+  SDWebImage: e1b3c38f170c6100130fce6856e423ed9e5f4fce
+  Sentry: 9be48e341494bc976c963b05aa4a8ca48308c684
+  sentry_flutter: 544e6376e35b00eef9f0864f8bb7f10a0e204993
   share_plus: 056a1e8ac890df3e33cb503afffaf1e9b4fbae68
   shared_preferences_ios: 548a61f8053b9b8a49ac19c1ffbc8b92c50d68ad
   SwiftyGif: 6c3eafd0ce693cad58bb63d2b2fb9bacb8552780
   url_launcher_ios: 839c58cdb4279282219f5e248c3321761ff3c4de
   wakelock: d0fc7c864128eac40eba1617cb5264d9c940b46f
-  WebRTC-SDK: e16ed5e9f54d2a983d5f1f479a4b55f20da202fe
+  WebRTC-SDK: 85ee61404eb5698cf23a69a27008271db07159fc
 
 PODFILE CHECKSUM: 0ced81da2c64e61384d192723de129524a5c0398
 
