@@ -1,26 +1,24 @@
 PODS:
   - desktop_drop (0.0.1):
     - FlutterMacOS
-  - device_info_plus_macos (0.0.1):
+  - device_info_plus (0.0.1):
     - FlutterMacOS
-  - flutter_webrtc (0.9.0):
+  - flutter_webrtc (0.9.13):
     - FlutterMacOS
-    - WebRTC-SDK (= 97.4692.07)
+    - WebRTC-SDK (= 104.5112.06)
   - FlutterMacOS (1.0.0)
-  - package_info_plus_macos (0.0.1):
+  - package_info_plus (0.0.1):
     - FlutterMacOS
   - path_provider_macos (0.0.1):
     - FlutterMacOS
   - screen_retriever (0.0.1):
     - FlutterMacOS
-  - Sentry (7.23.0):
-    - Sentry/Core (= 7.23.0)
-  - Sentry/Core (7.23.0)
+  - Sentry/HybridSDK (7.30.2)
   - sentry_flutter (0.0.1):
     - Flutter
     - FlutterMacOS
-    - Sentry (~> 7.23.0)
-  - share_plus_macos (0.0.1):
+    - Sentry/HybridSDK (= 7.30.2)
+  - share_plus (0.0.1):
     - FlutterMacOS
   - shared_preferences_macos (0.0.1):
     - FlutterMacOS
@@ -30,20 +28,20 @@ PODS:
     - FlutterMacOS
   - wakelock_macos (0.0.1):
     - FlutterMacOS
-  - WebRTC-SDK (97.4692.07)
+  - WebRTC-SDK (104.5112.06)
   - window_manager (0.2.0):
     - FlutterMacOS
 
 DEPENDENCIES:
   - desktop_drop (from `Flutter/ephemeral/.symlinks/plugins/desktop_drop/macos`)
-  - device_info_plus_macos (from `Flutter/ephemeral/.symlinks/plugins/device_info_plus_macos/macos`)
+  - device_info_plus (from `Flutter/ephemeral/.symlinks/plugins/device_info_plus/macos`)
   - flutter_webrtc (from `Flutter/ephemeral/.symlinks/plugins/flutter_webrtc/macos`)
   - FlutterMacOS (from `Flutter/ephemeral`)
-  - package_info_plus_macos (from `Flutter/ephemeral/.symlinks/plugins/package_info_plus_macos/macos`)
+  - package_info_plus (from `Flutter/ephemeral/.symlinks/plugins/package_info_plus/macos`)
   - path_provider_macos (from `Flutter/ephemeral/.symlinks/plugins/path_provider_macos/macos`)
   - screen_retriever (from `Flutter/ephemeral/.symlinks/plugins/screen_retriever/macos`)
   - sentry_flutter (from `Flutter/ephemeral/.symlinks/plugins/sentry_flutter/macos`)
-  - share_plus_macos (from `Flutter/ephemeral/.symlinks/plugins/share_plus_macos/macos`)
+  - share_plus (from `Flutter/ephemeral/.symlinks/plugins/share_plus/macos`)
   - shared_preferences_macos (from `Flutter/ephemeral/.symlinks/plugins/shared_preferences_macos/macos`)
   - tray_manager (from `Flutter/ephemeral/.symlinks/plugins/tray_manager/macos`)
   - url_launcher_macos (from `Flutter/ephemeral/.symlinks/plugins/url_launcher_macos/macos`)
@@ -58,22 +56,22 @@ SPEC REPOS:
 EXTERNAL SOURCES:
   desktop_drop:
     :path: Flutter/ephemeral/.symlinks/plugins/desktop_drop/macos
-  device_info_plus_macos:
-    :path: Flutter/ephemeral/.symlinks/plugins/device_info_plus_macos/macos
+  device_info_plus:
+    :path: Flutter/ephemeral/.symlinks/plugins/device_info_plus/macos
   flutter_webrtc:
     :path: Flutter/ephemeral/.symlinks/plugins/flutter_webrtc/macos
   FlutterMacOS:
     :path: Flutter/ephemeral
-  package_info_plus_macos:
-    :path: Flutter/ephemeral/.symlinks/plugins/package_info_plus_macos/macos
+  package_info_plus:
+    :path: Flutter/ephemeral/.symlinks/plugins/package_info_plus/macos
   path_provider_macos:
     :path: Flutter/ephemeral/.symlinks/plugins/path_provider_macos/macos
   screen_retriever:
     :path: Flutter/ephemeral/.symlinks/plugins/screen_retriever/macos
   sentry_flutter:
     :path: Flutter/ephemeral/.symlinks/plugins/sentry_flutter/macos
-  share_plus_macos:
-    :path: Flutter/ephemeral/.symlinks/plugins/share_plus_macos/macos
+  share_plus:
+    :path: Flutter/ephemeral/.symlinks/plugins/share_plus/macos
   shared_preferences_macos:
     :path: Flutter/ephemeral/.symlinks/plugins/shared_preferences_macos/macos
   tray_manager:
@@ -87,20 +85,20 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   desktop_drop: 69eeff437544aa619c8db7f4481b3a65f7696898
-  device_info_plus_macos: 1ad388a1ef433505c4038e7dd9605aadd1e2e9c7
-  flutter_webrtc: 708996d57dcf06da1c6a8e820a43112618d62213
+  device_info_plus: 5401765fde0b8d062a2f8eb65510fb17e77cf07f
+  flutter_webrtc: 4bb537cadddcfb5e5b24c96cbd6ff56f064b8faf
   FlutterMacOS: ae6af50a8ea7d6103d888583d46bd8328a7e9811
-  package_info_plus_macos: f010621b07802a241d96d01876d6705f15e77c1c
+  package_info_plus: 02d7a575e80f194102bef286361c6c326e4c29ce
   path_provider_macos: 3c0c3b4b0d4a76d2bf989a913c2de869c5641a19
   screen_retriever: 59634572a57080243dd1bf715e55b6c54f241a38
-  Sentry: a0d4563fa4ddacba31fdcc35daaa8573d87224d6
-  sentry_flutter: 8bde7d0e57a721727fe573f13bb292c497b5a249
-  share_plus_macos: 853ee48e7dce06b633998ca0735d482dd671ade4
+  Sentry: 9be48e341494bc976c963b05aa4a8ca48308c684
+  sentry_flutter: 544e6376e35b00eef9f0864f8bb7f10a0e204993
+  share_plus: 76dd39142738f7a68dd57b05093b5e8193f220f7
   shared_preferences_macos: a64dc611287ed6cbe28fd1297898db1336975727
   tray_manager: 9064e219c56d75c476e46b9a21182087930baf90
   url_launcher_macos: 597e05b8e514239626bcf4a850fcf9ef5c856ec3
   wakelock_macos: bc3f2a9bd8d2e6c89fee1e1822e7ddac3bd004a9
-  WebRTC-SDK: e16ed5e9f54d2a983d5f1f479a4b55f20da202fe
+  WebRTC-SDK: 85ee61404eb5698cf23a69a27008271db07159fc
   window_manager: 3a1844359a6295ab1e47659b1a777e36773cd6e8
 
 PODFILE CHECKSUM: f38fc595808854674fc4cc06f9f29e6451a19f29

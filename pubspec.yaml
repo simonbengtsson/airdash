@@ -18,7 +18,7 @@ dependencies:
   cupertino_icons: ^1.0.2
   # Not able to use 0.9.2 due to error during flutter build ipa
   # Lexical or Preprocessor Issue (Xcode): 'WebRTC/WebRTC.h' file not found
-  flutter_webrtc: 0.9.1
+  flutter_webrtc: ^0.9.14
   #flutter_webrtc:
     #path: ../flutter-webrtc
     #git:
@@ -27,7 +27,7 @@ dependencies:
   http: ^0.13.4
   file_picker: ^5.0.0
   path_provider: ^2.0.10
-  share_plus: ^4.0.4
+  share_plus: ^6.2.0
   shared_preferences: ^2.0.15
   receive_sharing_intent: ^1.4.5
   # Only git dep to avoid noisy print
@@ -37,11 +37,11 @@ dependencies:
       url: https://github.com/erikhellq/firedart
       ref: patch-1
   url_launcher: ^6.1.2
-  package_info_plus: ^1.4.2
-  device_info_plus: ^4.0.0
+  package_info_plus: ^3.0.1
+  device_info_plus: ^8.0.0
   desktop_drop: ^0.3.3
   quick_look: ^0.0.4
-  tray_manager: ^0.1.7
+  tray_manager: ^0.2.0
   window_manager: ^0.2.5
   mime: ^1.0.2
   # Would like to use main branch due to: https://github.com/getsentry/sentry-dart/issues/898
