@@ -20,7 +20,7 @@ class VersionEditor {
     runLocalCommand('git reset');
     runLocalCommand('git add ${pubspecFile.path} ${runnerFile.path}');
     runLocalCommand('git commit -m v${newVersion.join('.')}');
-    runLocalCommand('git tag v${newVersion.join('.')}');
+    runLocalCommand('git tag v${newVersion.join('.')} -f');
     runLocalCommand('git push && git push -f --tags');
 
     print(newVersion.join('.'));
