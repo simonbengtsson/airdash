@@ -240,12 +240,14 @@ class AnalyticsManager {
 
     while (requests.isNotEmpty) {
       var request = requests.removeLast();
+      request['properties']['airdash_test_id_pre'] = generateId(5);
       var current = jsonEncode([request]);
       var headers = {'Content-Type': 'application/json'};
 
       if (Config.sendErrorAndAnalyticsLogs) {
         var mixpanelApiUrl =
             Uri.parse('https://api.mixpanel.com/track?verbose=1&ip=1');
+        logger('ANALYTICS: Will post event "${request['event']}"');
         var response =
             await http.post(mixpanelApiUrl, headers: headers, body: current);
 
