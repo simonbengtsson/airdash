@@ -60,9 +60,14 @@ Future release() async {
       'fastlane upload_to_play_store --aab ${Config.localAabPath} --package_name io.flown.airdash --json_key ${Config.googlePlayKeyPath}');
 
   await WindowsAppBuilder().build();
-  await MicrosoftStoreSubmitter().submit();
 
   await AppStoreVersionSubmitter().submit();
+  try {
+    await MicrosoftStoreSubmitter().submit();
+  } catch (error) {
+    print(error);
+    print('Microsoft submit error');
+  }
 
   runLocalCommand(
       'gh release create v${version.join('.')} build/AirDash.msix build/AirDash.apk --notes "See what\'s new in the [release notes](https://github.com/simonbengtsson/airdash/blob/master/CHANGELOG.md). The msix and apk files are included as assets below, but the update will soon be available in all supported app stores."');
