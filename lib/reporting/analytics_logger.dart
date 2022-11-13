@@ -102,6 +102,8 @@ class Analytics {
 }
 
 class AnalyticsManager {
+  static var loggedEvents = <dynamic, dynamic>{};
+
   Future<int> getBuildNumber() async {
     PackageInfo packageInfo = await PackageInfo.fromPlatform();
 
@@ -217,11 +219,11 @@ class AnalyticsManager {
       'time': DateTime.now().millisecondsSinceEpoch,
       'token': Config.mixpanelProjectToken,
       'distinct_id': FirebaseAuth.instance.userId,
-      'airdash_test_id': generateId(5),
       ...props,
     };
 
     var body = {
+      'airdash_event_id': generateId(10),
       'event': eventName,
       'properties': eventProps,
     };
@@ -240,9 +242,14 @@ class AnalyticsManager {
 
     while (requests.isNotEmpty) {
       var request = requests.removeLast();
-      request['properties']['airdash_test_id_pre'] = generateId(5);
       var current = jsonEncode([request]);
       var headers = {'Content-Type': 'application/json'};
+
+      if (AnalyticsManager.loggedEvents[request['airdash_event_id']] != null) {
+        print('ANALYTICS: Skipped already logged event');
+        continue;
+      }
+      AnalyticsManager.loggedEvents[request['airdash_event_id']] = true;
 
       if (Config.sendErrorAndAnalyticsLogs) {
         var mixpanelApiUrl =
