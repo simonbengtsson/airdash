@@ -30,7 +30,7 @@ class ValueStore {
     if (deviceName.isEmpty) {
       final deviceInfoPlugin = DeviceInfoPlugin();
       final deviceInfo = await deviceInfoPlugin.deviceInfo;
-      var info = deviceInfo.toMap();
+      var info = deviceInfo.data;
       deviceName =
           info['name'] as String? ?? info['computerName'] as String? ?? '';
       if (deviceName.isEmpty) {

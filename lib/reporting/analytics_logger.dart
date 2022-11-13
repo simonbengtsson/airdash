@@ -143,7 +143,7 @@ class AnalyticsManager {
     appOpens++;
     prefs.setInt('appOpenCount', appOpens);
 
-    var info = deviceInfo.toMap();
+    var info = deviceInfo.data;
     String model = info['utsname']?['machine'] as String? ??
         info['model'] as String? ??
         '';

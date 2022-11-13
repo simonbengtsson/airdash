@@ -25,6 +25,10 @@ Future main(List<String> args) async {
     await WindowsAppBuilder().build();
     await MicrosoftStoreSubmitter().submit();
   } else if (script == 'play') {
+    await WindowsAppBuilder().build();
+    await MicrosoftStoreSubmitter().submit();
+
+    await AppStoreVersionSubmitter().submit();
   } else {
     print('Invalid script: $script');
   }
