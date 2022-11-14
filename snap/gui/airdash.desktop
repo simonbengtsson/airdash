@@ -1,0 +1,8 @@
+[Desktop Entry]
+Name=Airdash
+Comment=Transfer photos and files anywhere
+Exec=airdash
+Icon=${SNAP}/meta/gui/airdash.png
+Terminal=false
+Type=Application
+Categories=Utilities;

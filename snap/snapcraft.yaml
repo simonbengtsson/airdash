@@ -1,0 +1,29 @@
+name: airdash
+base: core18
+version: '0.1'
+summary: Not used
+description: Not used
+
+grade: stable
+confinement: strict
+
+slots:
+  dbus-airdash:
+    interface: dbus
+    bus: session
+    name: io.flown.airdash
+
+apps:
+  airdash:
+    command: airdash
+    extensions: [flutter-master]
+    plugs:
+      - network
+    slots:
+      - dbus-airdash
+
+parts:
+  airdash-part:
+    source: .
+    plugin: flutter
+    flutter-target: lib/main.dart
