@@ -1,6 +1,7 @@
 *.cache
 gpkey.json
 private_keys
+.snapcraft_cred
 
 GoogleService-Info.plist
 google-services.json

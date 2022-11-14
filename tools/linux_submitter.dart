@@ -8,12 +8,11 @@ class SnapStoreSubmitter {
   Future buildAndSubmit() async {
     await linuxVmHelper.runVmCommands((Function runVmCommand) async {
       var repoPath = Config.linuxVmRepoPath;
-      runVmCommand('cd "$repoPath" && git pull -r && git reset --hard');
-      runVmCommand('cd "$repoPath" && snapcraft clean --use-lxd');
+      //runVmCommand('cd "$repoPath" && git pull -r && git reset --hard');
+      //runVmCommand('cd "$repoPath" && snapcraft clean --use-lxd');
+      //runVmCommand('cd "$repoPath" && snapcraft snap --output build/app.snap --use-lxd');
       runVmCommand(
-          'cd "$repoPath" && snapcraft snap --output build/app.snap --use-lxd');
-      runVmCommand(
-          'cd "$repoPath" && snapcraft upload --release=stable build/app.snap');
+          'cd "$repoPath" && export SNAPCRAFT_STORE_CREDENTIALS=\$(cat .snapcraft_cred) && snapcraft upload --release=stable build/app.snap');
     });
   }
 }
