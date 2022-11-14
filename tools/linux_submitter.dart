@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'command_runner.dart';
 import 'tools_config.dart';
 
 class SnapStoreSubmitter {
@@ -8,9 +9,10 @@ class SnapStoreSubmitter {
   Future buildAndSubmit() async {
     await linuxVmHelper.runVmCommands((Function runVmCommand) async {
       var repoPath = Config.linuxVmRepoPath;
-      //runVmCommand('cd "$repoPath" && git pull -r && git reset --hard');
-      //runVmCommand('cd "$repoPath" && snapcraft clean --use-lxd');
-      //runVmCommand('cd "$repoPath" && snapcraft snap --output build/app.snap --use-lxd');
+      runVmCommand('cd "$repoPath" && git pull -r && git reset --hard');
+      runVmCommand('cd "$repoPath" && snapcraft clean --use-lxd');
+      runVmCommand(
+          'cd "$repoPath" && snapcraft snap --output build/app.snap --use-lxd');
       runVmCommand(
           'cd "$repoPath" && export SNAPCRAFT_STORE_CREDENTIALS=\$(cat .snapcraft_cred) && snapcraft upload --release=stable build/app.snap');
     });
@@ -35,7 +37,7 @@ class VirtualMachineHelper {
       _runVmCommand(
           cmdString, Config.linuxVmOutputPath, 'build/stdout.txt', bashPath);
     });
-    //runLocalCommand('vmrun suspend ${vmPath}');
+    runLocalCommand('vmrun suspend ${vmPath}');
   }
 
   void _runVmCommand(String commandStr, String outputPath,
