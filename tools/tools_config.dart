@@ -18,6 +18,12 @@ class Config {
   static final windowsVmPassword = _env('WINDOWS_VM_USER_PASSWORD');
   static const windowsVmBashPath = r'C:\Program Files\Git\bin\bash.exe';
 
+  static final linuxVmUser = _env('LINUX_VM_USER');
+  static final linuxVmPassword = _env('LINUX_VM_USER_PASSWORD');
+  static final linuxVmRepoPath = _env('LINUX_VM_REPO_PATH');
+  static final linuxVmOutputPath = '$linuxVmRepoPath/build/stdout.txt';
+  static final localLinuxVmPath = _env('LINUX_VM_PATH');
+
   static final windowsVmRepoPath = _env('WINDOWS_VM_REPO_PATH');
   static final windowsVmOutputPath = '$windowsVmRepoPath\\build\\stdout.txt';
   static final windowsVmMsixPath =

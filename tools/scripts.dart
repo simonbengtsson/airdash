@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'app_store_version_submitter.dart';
 import 'command_runner.dart';
+import 'linux_submitter.dart';
 import 'microsoft_store_submitter.dart';
 import 'tools_config.dart';
 import 'version_editor.dart';
@@ -25,10 +26,7 @@ Future main(List<String> args) async {
     await WindowsAppBuilder().build();
     await MicrosoftStoreSubmitter().submit();
   } else if (script == 'play') {
-    await WindowsAppBuilder().build();
-    await MicrosoftStoreSubmitter().submit();
-
-    await AppStoreVersionSubmitter().submit();
+    await SnapStoreSubmitter().build();
   } else {
     print('Invalid script: $script');
   }

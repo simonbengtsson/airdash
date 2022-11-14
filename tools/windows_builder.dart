@@ -37,7 +37,7 @@ class WindowsAppBuilder {
       _printProcessResult(result);
       print('Local command failed with: ${result.exitCode}');
       print(StackTrace.current);
-      throw Exception('hey');
+      throw Exception('Error');
     }
 
     fetchWindowsFile(Config.windowsVmOutputPath, Config.localStdoutPath, true);
