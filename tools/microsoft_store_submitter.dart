@@ -51,6 +51,7 @@ class MicrosoftStoreSubmitter {
   }
 
   Future waitForProcessing(String submissionId) async {
+    var startedAt = DateTime.now();
     while (true) {
       var status = await getSubmissionStatus(submissionId);
       if (!['PreProcessing', 'CommitStarted'].contains(status['status'])) {
@@ -64,6 +65,9 @@ class MicrosoftStoreSubmitter {
       print('Waiting, still ${status['status']}');
       await Future<void>.delayed(const Duration(seconds: 5));
     }
+    var endedAt = DateTime.now();
+    print(
+        'Done! Took ${(endedAt.difference(startedAt).inSeconds / 60).toStringAsFixed(1)} min');
   }
 
   Future<Map> getSubmissionStatus(String submissionId) async {
@@ -100,8 +104,10 @@ class MicrosoftStoreSubmitter {
     }
     applicationPackages.add(<String, String>{
       'fileName': 'AirDash.msix',
+      'fileStatus': 'PendingUpload',
       'version': '${version.join('.')}.0',
     });
+    submission['applicationPackages'] = applicationPackages;
     return api.send('PUT', path, body: jsonEncode(submission));
   }
 
