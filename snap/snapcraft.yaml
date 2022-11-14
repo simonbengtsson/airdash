@@ -16,7 +16,7 @@ slots:
 apps:
   airdash:
     command: airdash
-    extensions: [flutter-master]
+    extensions: [flutter-stable]
     plugs:
       - network
     slots:
