@@ -6,12 +6,13 @@ Transfer photos and files to any device.
 - [Apple App Store (iOS & macOS)](https://apps.apple.com/se/app/airdash-file-sharing/id1596599922)
 - [Google Play (Android)](https://play.google.com/store/apps/details?id=io.flown.airdash)
 - [Microsoft Store (Windows)](https://apps.microsoft.com/store/detail/airdash/9NL9K7CSG30T)
+- [Snap Store (Linux)](https://snapcraft.io/airdash)
 
 ### Analytics
 - [Analytics Dashboard](https://mixpanel.com/p/XKeBKcwzQ5HjuUxuxHv934)
 
 ### Key features
-- Support for all major platforms and app stores (iOS, macOS, windows and Android)
+- Support for all major platforms and app stores (iOS, macOS, Windows, Linux and Android)
 - Free forever to send any number of files of any size
 - Maximum privacy and security by fully encrypting files and transferring them directly between devices
 - Quickly start transfers using native mobile share sheet and drag and drop on desktop
@@ -19,7 +20,7 @@ Transfer photos and files to any device.
 - Automatically uses the best and fastest connection available (wifi, mobile internet, ethernet etc)
 
 ### Key technologies
-- Flutter 3.0 (iOS, macOS, Android and windows app)
+- Flutter 3.0 (iOS, macOS, Android, Linux and Windows apps)
 - WebRTC (file and data transfers)
 - Firebase Firestore (WebRTC signaling and config storage)
 - Firebase Functions (device pairing and config automation)
