@@ -1,6 +1,9 @@
 # Changelog
 
 ### Unreleased
+
+### v2.0.141 14 Novemeber 2022
+- [internal] Improved error and analytics logs
 - [internal] Upgrade to flutter 3.3
 
 ### v2.0.134 15 August 2022
