@@ -26,7 +26,7 @@ Future main(List<String> args) async {
     await WindowsAppBuilder().build();
     await MicrosoftStoreSubmitter().submit();
   } else if (script == 'play') {
-    VersionEditor().bumpPatchVersion();
+    await SnapStoreSubmitter().buildAndSubmit();
   } else {
     print('Invalid script: $script');
   }

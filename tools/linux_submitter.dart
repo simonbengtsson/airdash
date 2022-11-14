@@ -9,6 +9,7 @@ class SnapStoreSubmitter {
     await linuxVmHelper.runVmCommands((Function runVmCommand) async {
       var repoPath = Config.linuxVmRepoPath;
       runVmCommand('cd "$repoPath" && git pull -r && git reset --hard');
+      runVmCommand('cd "$repoPath" && snapcraft clean --use-lxd');
       runVmCommand(
           'cd "$repoPath" && snapcraft snap --output build/app.snap --use-lxd');
       runVmCommand(
