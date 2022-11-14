@@ -3,6 +3,7 @@
 ### Unreleased
 - [improvement] Improve app icon on Android
 - [internal] Update app icon generation script
+- [internal] Remove custom version script for msix package
 
 ### v2.0.141 14 November 2022
 - [internal] Improved error and analytics logs
