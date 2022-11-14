@@ -1,8 +1,10 @@
 # Changelog
 
 ### Unreleased
+- [improvement] Improve app icon on Android
+- [internal] Update app icon generation script
 
-### v2.0.141 14 Novemeber 2022
+### v2.0.141 14 November 2022
 - [internal] Improved error and analytics logs
 - [internal] Upgrade to flutter 3.3
 
