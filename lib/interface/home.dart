@@ -14,7 +14,6 @@ import 'package:package_info_plus/package_info_plus.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:tray_manager/tray_manager.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:window_manager/window_manager.dart';
 //import 'package:beacon_broadcast/beacon_broadcast.dart';
@@ -66,7 +65,7 @@ class HomeScreenState extends ConsumerState<HomeScreen>
   @override
   void initState() {
     windowManager.addListener(this);
-    trayManager.addListener(this);
+    //trayManager.addListener(this);
     super.initState();
 
     init();
@@ -75,7 +74,7 @@ class HomeScreenState extends ConsumerState<HomeScreen>
   @override
   void dispose() {
     windowManager.removeListener(this);
-    trayManager.removeListener(this);
+    //trayManager.removeListener(this);
     intentReceiver.intentDataStreamSubscription?.cancel();
     intentReceiver.intentDataStreamSubscription = null;
     intentReceiver.intentTextStreamSubscription?.cancel();
@@ -294,7 +293,7 @@ class HomeScreenState extends ConsumerState<HomeScreen>
   @override
   void onTrayIconRightMouseDown() async {
     print('tray icon right mouse down');
-    await trayManager.popUpContextMenu();
+    //await trayManager.popUpContextMenu();
   }
 
   @override
@@ -1048,4 +1047,16 @@ class HomeScreenState extends ConsumerState<HomeScreen>
       ),
     );
   }
+}
+
+abstract class TrayListener {
+  void onTrayIconMouseDown() {}
+  void onTrayIconMouseUp() {}
+  void onTrayIconRightMouseDown() {}
+  void onTrayIconRightMouseUp() {}
+  void onTrayMenuItemClick(MenuItem menuItem) {}
+}
+
+class MenuItem {
+  String key = '';
 }

@@ -376,13 +376,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "0.1.5"
-  menu_base:
-    dependency: transitive
-    description:
-      name: menu_base
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "0.1.1"
   meta:
     dependency: transitive
     description:
@@ -691,13 +684,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.0.3"
-  shortid:
-    dependency: transitive
-    description:
-      name: shortid
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "0.1.2"
   simple_peer:
     dependency: "direct main"
     description:
@@ -794,13 +780,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "0.4.16"
-  tray_manager:
-    dependency: "direct main"
-    description:
-      name: tray_manager
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "0.2.0"
   typed_data:
     dependency: transitive
     description:
