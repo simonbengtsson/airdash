@@ -32,6 +32,7 @@ class Config {
   static final localWindowsVmPath = _env('WINDOWS_VM_PATH');
   static final localStdoutPath = '$localRepoPath/build/stdout.txt';
   static final localPubspecPath = '$localRepoPath/pubspec.yaml';
+  static final localSnapcraftPath = '$localRepoPath/snap/snapcraft.yaml';
   static final localRunnerRcPath = '$localRepoPath/windows/runner/Runner.rc';
 
   static final localAabPath =

@@ -5,7 +5,7 @@ class SnapStoreSubmitter {
   var linuxVmHelper = VirtualMachineHelper(Config.linuxVmUser,
       Config.linuxVmPassword, Config.localLinuxVmPath, '/bin/bash');
 
-  Future build() async {
+  Future buildAndSubmit() async {
     await linuxVmHelper.runVmCommands((Function runVmCommand) async {
       var repoPath = Config.linuxVmRepoPath;
       runVmCommand('cd "$repoPath" && git pull -r && git reset --hard');
@@ -13,14 +13,7 @@ class SnapStoreSubmitter {
           'cd "$repoPath" && snapcraft snap --output build/app.snap --use-lxd');
       runVmCommand(
           'cd "$repoPath" && snapcraft upload --release=stable build/app.snap');
-      //var vmSnapPath = '$repoPath/build/app.snap';
-      //var localSnapPath = '${Config.localRepoPath}/build/app.snap';
-      //linuxVmHelper.fetchVmFile(vmSnapPath, localSnapPath);
     });
-  }
-
-  Future submit() async {
-    print('sdf');
   }
 }
 

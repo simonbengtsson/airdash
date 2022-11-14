@@ -26,7 +26,7 @@ Future main(List<String> args) async {
     await WindowsAppBuilder().build();
     await MicrosoftStoreSubmitter().submit();
   } else if (script == 'play') {
-    await SnapStoreSubmitter().build();
+    VersionEditor().bumpPatchVersion();
   } else {
     print('Invalid script: $script');
   }
@@ -61,6 +61,8 @@ Future release() async {
 
   await AppStoreVersionSubmitter().submit();
   await MicrosoftStoreSubmitter().submit();
+
+  await SnapStoreSubmitter().buildAndSubmit();
 
   runLocalCommand(
       'gh release create v${version.join('.')} build/AirDash.msix build/AirDash.apk --notes "See what\'s new in the [release notes](https://github.com/simonbengtsson/airdash/blob/master/CHANGELOG.md). The msix and apk files are included as assets below, but the update will soon be available in all supported app stores."');

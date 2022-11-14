@@ -6,9 +6,12 @@ import 'tools_config.dart';
 class VersionEditor {
   List<int> bumpPatchVersion() {
     var pubspecFile = File(Config.localPubspecPath);
+    var snapcraftPath = File(Config.localSnapcraftPath);
     var oldVersion = readCurrentVersion();
     var newVersion = [oldVersion[0], oldVersion[1], oldVersion[2] + 1];
 
+    _replaceLine(snapcraftPath, "version: '${oldVersion.join('.')}'",
+        "version: '${newVersion.join('.')}'");
     _replaceLine(
         pubspecFile,
         'version: ${oldVersion.join('.')}+${oldVersion[2]}',
