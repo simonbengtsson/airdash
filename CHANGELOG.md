@@ -1,7 +1,11 @@
 # Changelog
 
 ### Unreleased
+
+### v2.0.142 15 November 2022
+- [new] Linux support!
 - [improvement] Improve app icon on Android
+- [internal] Dependency upgrades
 - [internal] Update app icon generation script
 - [internal] Remove custom version script for msix package
 
