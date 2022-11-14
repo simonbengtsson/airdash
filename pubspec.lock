@@ -309,7 +309,7 @@ packages:
     source: hosted
     version: "4.0.2"
   icons_launcher:
-    dependency: "direct main"
+    dependency: "direct dev"
     description:
       name: icons_launcher
       url: "https://pub.dartlang.org"
