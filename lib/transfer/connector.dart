@@ -89,7 +89,9 @@ class Connector {
       ...payloadProps,
     });
     try {
-      await Wakelock.enable();
+      if (!Platform.isLinux) {
+        await Wakelock.enable();
+      }
       logger('SENDER: Start transfer $transferId');
 
       var config = await getIceServerConfig();
@@ -131,7 +133,9 @@ class Connector {
       sendError = error;
       rethrow;
     } finally {
-      await Wakelock.disable();
+      if (!Platform.isLinux) {
+        await Wakelock.disable();
+      }
       List<String> connectionTypes = [];
       if (sender != null) {
         connectionTypes = await getConnectionTypes(sender.peer.connection);
