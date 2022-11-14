@@ -5,7 +5,6 @@ import 'tools_config.dart';
 
 class VersionEditor {
   List<int> bumpPatchVersion() {
-    var runnerFile = File(Config.localRunnerRcPath);
     var pubspecFile = File(Config.localPubspecPath);
     var oldVersion = readCurrentVersion();
     var newVersion = [oldVersion[0], oldVersion[1], oldVersion[2] + 1];
@@ -14,11 +13,9 @@ class VersionEditor {
         pubspecFile,
         'version: ${oldVersion.join('.')}+${oldVersion[2]}',
         'version: ${newVersion.join('.')}+${newVersion[2]}');
-    _replaceLine(pubspecFile, '  msix_version: ${oldVersion.join('.')}.0',
-        '  msix_version: ${newVersion.join('.')}.0');
 
     runLocalCommand('git reset');
-    runLocalCommand('git add ${pubspecFile.path} ${runnerFile.path}');
+    runLocalCommand('git add ${pubspecFile.path}');
     runLocalCommand('git commit -m v${newVersion.join('.')}');
     runLocalCommand('git tag v${newVersion.join('.')} -f');
     runLocalCommand('git push && git push -f --tags');

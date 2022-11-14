@@ -80,7 +80,6 @@ msix_config:
   publisher_display_name: Flownio
   publisher: CN=74819260-D638-4972-AE3E-CA996FB6EF34
   identity_name: 24192Flownio.AirDash
-  msix_version: 2.0.141.0
   logo_path: logo.png
   capabilities: internetClient
   store: true

@@ -94,7 +94,7 @@ BEGIN
             VALUE "FileVersion", VERSION_AS_STRING "\0"
             VALUE "InternalName", "AirDash" "\0"
             VALUE "LegalCopyright", "Copyright (C) 2022 flown.io. All rights reserved." "\0"
-            VALUE "OriginalFilename", "app.exe" "\0"
+            VALUE "OriginalFilename", "airdash.exe" "\0"
             VALUE "ProductName", "AirDash" "\0"
             VALUE "ProductVersion", VERSION_AS_STRING "\0"
         END
