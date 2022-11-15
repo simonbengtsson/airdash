@@ -723,52 +723,68 @@ class HomeScreenState extends ConsumerState<HomeScreen>
 
   Map<String, bool> disabledKeys = {};
 
+  Widget buildSelectFileButton() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding:
+              const EdgeInsets.only(left: 16, right: 16, bottom: 8, top: 8),
+          child: Row(
+            children: [
+              TextButton(
+                  onPressed: disabledKeys['selectFileButton'] != null
+                      ? null
+                      : () async {
+                          setState(
+                              () => disabledKeys['selectFileButton'] = true);
+                          selectFile();
+                          await Future<void>.delayed(
+                              Duration(milliseconds: isDesktop() ? 2000 : 500));
+                          setState(
+                              () => disabledKeys.remove('selectFileButton'));
+                        },
+                  child: Row(
+                    children: const [
+                      Icon(Icons.add),
+                      SizedBox(width: 10),
+                      Text('Select File',
+                          style: TextStyle(overflow: TextOverflow.ellipsis)),
+                    ],
+                  )),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
   Widget buildSelectFileArea() {
-    var payload = selectedPayloads.tryGet(0);
+    Widget content = buildSelectFileButton();
+    if (selectedPayloads.isEmpty) {
+      content = buildSelectFileButton();
+    } else if (selectedPayloads.length == 1) {
+      var payload = selectedPayloads.tryGet(0);
+      if (payload is UrlPayload) {
+        content = buildSelectedUrlTile(payload.httpUrl);
+      } else if (payload is FilePayload) {
+        content = buildSelectedFileTile(payload.file);
+      } else {
+        content = buildSelectFileButton();
+        print('Invalid payload type');
+      }
+    } else if (selectedPayloads.length > 1) {
+      content = buildMultipleSelectedFilesTile(selectedPayloads);
+    }
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
-            padding: const EdgeInsets.only(top: 16, bottom: 8),
-            child: buildSectionTitle('File to send')),
-        if (payload == null)
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Padding(
-                padding: const EdgeInsets.only(
-                    left: 16, right: 16, bottom: 8, top: 8),
-                child: Row(
-                  children: [
-                    TextButton(
-                        onPressed: disabledKeys['selectFileButton'] != null
-                            ? null
-                            : () async {
-                                setState(() =>
-                                    disabledKeys['selectFileButton'] = true);
-                                selectFile();
-                                await Future<void>.delayed(Duration(
-                                    milliseconds: isDesktop() ? 2000 : 500));
-                                setState(() =>
-                                    disabledKeys.remove('selectFileButton'));
-                              },
-                        child: Row(
-                          children: const [
-                            Icon(Icons.add),
-                            SizedBox(width: 10),
-                            Text('Select File',
-                                style:
-                                    TextStyle(overflow: TextOverflow.ellipsis)),
-                          ],
-                        )),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        if (payload is UrlPayload) buildSelectedUrlTile(payload.httpUrl),
-        if (payload is FilePayload) buildSelectedFileTile(payload.file),
+          padding: const EdgeInsets.only(top: 16, bottom: 8),
+          child: buildSectionTitle('File to send'),
+        ),
+        content,
       ],
     );
   }
@@ -781,6 +797,21 @@ class HomeScreenState extends ConsumerState<HomeScreen>
     return ListTile(
       leading: const Icon(Icons.link),
       title: Text(urlString),
+      trailing: IconButton(
+        icon: const Icon(Icons.close),
+        onPressed: () {
+          setState(() {
+            selectedPayloads = [];
+          });
+        },
+      ),
+    );
+  }
+
+  Widget buildMultipleSelectedFilesTile(Iterable<Payload> payloads) {
+    return ListTile(
+      leading: const Icon(Icons.file_copy_outlined),
+      title: Text('${payloads.length} Selected'),
       trailing: IconButton(
         icon: const Icon(Icons.close),
         onPressed: () {
