@@ -16,6 +16,9 @@ class SnapStoreSubmitter {
           'cd "$repoPath" && snapcraft snap --output build/app.snap --use-lxd');
       runVmCommand(
           'cd "$repoPath" && export SNAPCRAFT_STORE_CREDENTIALS=\$(cat .snapcraft_cred) && snapcraft upload --release=stable build/app.snap');
+      var vmSnapPath = '$repoPath/build/app.snap';
+      var localSnapPath = '${Config.localRepoPath}/build/AirDash.snap';
+      linuxVmHelper.fetchVmFile(vmSnapPath, localSnapPath);
     });
   }
 }

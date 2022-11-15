@@ -65,7 +65,7 @@ Future release() async {
   await SnapStoreSubmitter().buildAndSubmit();
 
   runLocalCommand(
-      'gh release create v${version.join('.')} build/AirDash.msix build/AirDash.apk --notes "See what\'s new in the [release notes](https://github.com/simonbengtsson/airdash/blob/master/CHANGELOG.md). The msix and apk files are included as assets below, but the update will soon be available in all supported app stores."');
+      'gh release create v${version.join('.')} build/AirDash.snap build/AirDash.msix build/AirDash.apk --notes "See what\'s new in the [release notes](https://github.com/simonbengtsson/airdash/blob/master/CHANGELOG.md). Some distribution files are included as assets in this release, but the update will soon be available in all supported app stores."');
 
   var endedAt = DateTime.now();
   var endedAtTimeStr = endedAt.toIso8601String().substring(11, 19);
