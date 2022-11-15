@@ -46,7 +46,7 @@ class FileManager {
 
   Future<File> moveFile(File source, File target) async {
     try {
-      return source.rename(target.path);
+      return await source.rename(target.path);
     } catch (error) {
       var newFile = await source.copy(target.path);
       await source.delete();
