@@ -19,6 +19,21 @@ apps:
     extensions: [flutter-stable]
     plugs:
       - network
+      - audio-playback
+      - audio-record
+      - home
+      - network-manager
+      - personal-files
+      - system-observe
+      - screen-inhibit-control
+      - screencast-legacy
+      - pulseaudio
+      - network-status
+      - network-observe
+      - network-bind
+      - network-control
+      - network-manager-observe
+      - desktop
     slots:
       - dbus-airdash
 
