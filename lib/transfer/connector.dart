@@ -223,7 +223,9 @@ class Connector {
       var peer = await Peer.create(
           config: config, dataChannelConfig: dcConfig, verbose: true);
       signal = peer.signal;
-      await Wakelock.enable();
+      if (!Platform.isLinux) {
+        await Wakelock.enable();
+      }
       var messageSender =
           MessageSender(localDevice, remoteId, transferId, signaling);
       peer.onSignal = (info) {
@@ -260,7 +262,9 @@ class Connector {
         connectionTypes = await getConnectionTypes(receiver.peer.connection);
         logger('RECEIVER: Finished with $connectionTypes');
       }
-      await Wakelock.disable();
+      if (!Platform.isLinux) {
+        await Wakelock.disable();
+      }
       await receiver?.peer.connection.close();
       activeTransferId = null;
       signaling.receivedMessages = <String, dynamic>{};
