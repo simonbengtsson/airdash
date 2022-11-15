@@ -270,12 +270,12 @@ class AnalyticsManager {
         }
       }
 
-      var json = jsonEncode(requests);
-      prefs.setString('pendingMixpanelRequests', json);
-
       logger(
           'ANALYTICS: Logged event "${request['event']}" (sent: ${Config.sendErrorAndAnalyticsLogs})');
     }
+
+    var json = jsonEncode(requests);
+    prefs.setString('pendingMixpanelRequests', json);
   }
 
   void queueRequest(Map body) async {
