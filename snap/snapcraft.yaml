@@ -1,6 +1,7 @@
 name: airdash
 base: core18
 version: '2.0.142'
+icon: snap/gui/airdash.png
 summary: Not used
 description: Not used
 
