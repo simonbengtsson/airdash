@@ -38,7 +38,13 @@ apps:
       - dbus-airdash
 
 parts:
+  zenity:
+    plugin: nil
+    stage-packages:
+      - zenity
   airdash-part:
+    after:
+      - zenity
     source: .
     plugin: flutter
     flutter-target: lib/main.dart
