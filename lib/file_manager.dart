@@ -30,7 +30,7 @@ class FileManager {
         var file = File('${downloadsDir.path}/$newFilename');
         var exists = await file.exists();
         if (!exists) {
-          var moved = await tmpFile.rename(file.path);
+          var moved = await moveFile(tmpFile, file);
           logger("RECEIVER: File received and copied to: ${moved.path}");
           return moved;
         } else {
@@ -41,6 +41,16 @@ class FileManager {
     } catch (error, stack) {
       ErrorLogger.logStackError('moveToDownloadsFailed', error, stack);
       return tmpFile;
+    }
+  }
+
+  Future<File> moveFile(File source, File target) async {
+    try {
+      return source.rename(target.path);
+    } catch (error) {
+      var newFile = await source.copy(target.path);
+      await source.delete();
+      return newFile;
     }
   }
 
