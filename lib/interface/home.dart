@@ -815,10 +815,11 @@ class HomeScreenState extends ConsumerState<HomeScreen>
     String filePath = file.path;
     final box = context.findRenderObject() as RenderBox?;
     if (box != null) {
-      await Share.shareFiles([filePath],
-          text: filename,
-          subject: filename,
-          sharePositionOrigin: box.localToGlobal(Offset.zero) & box.size);
+      await Share.shareXFiles(
+        [XFile(filePath)],
+        subject: filename,
+        sharePositionOrigin: box.localToGlobal(Offset.zero) & box.size,
+      );
     }
     var props = await fileProperties(file);
     AnalyticsEvent.fileActionTaken.log(<String, dynamic>{
