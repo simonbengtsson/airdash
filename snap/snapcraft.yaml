@@ -23,7 +23,6 @@ apps:
       - audio-record
       - home
       - network-manager
-      - personal-files
       - system-observe
       - screen-inhibit-control
       - screencast-legacy
