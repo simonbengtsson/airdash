@@ -9,6 +9,8 @@ class Config {
         ..removeLast())
       .join('/');
 
+  static final snapcraftLoginCredentials = _env('SNAPCRAFT_LOGIN_CREDENTIALS');
+
   static final windowsApiClientId = _env('WINDOWS_API_CLIENT_ID');
   static final windowsApiClientSecret = _env('WINDOWS_API_CLIENT_SECRET');
   static final windowsApiTenantId = _env('WINDOWS_API_TENANT_ID');
