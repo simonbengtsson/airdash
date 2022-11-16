@@ -38,6 +38,7 @@ dependencies:
     #path: ./libs/simple_peer
   flutter_riverpod: ^1.0.4
   mixpanel_analytics: ^2.1.1
+  dbus: ^0.7.8
 
 dev_dependencies:
   integration_test:
