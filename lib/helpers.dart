@@ -128,7 +128,7 @@ Future addUsedFile(File file) async {
   var tmpFiles = prefs.getStringList('temporary_files') ?? [];
   if (!tmpFiles.contains(file.path)) tmpFiles.add(file.path);
   prefs.setStringList('temporary_files', tmpFiles);
-  print('HOME: Used file added ${file.path}');
+  print('HELPER: Used file added ${file.path}');
 }
 
 int secondsSince(DateTime date) {

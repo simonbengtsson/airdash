@@ -39,6 +39,7 @@ class FileManager {
         }
       }
     } catch (error, stack) {
+      logger("ERROR: $error");
       ErrorLogger.logStackError('moveToDownloadsFailed', error, stack);
       return tmpFile;
     }
@@ -51,19 +52,19 @@ class FileManager {
       var newFile = await source.copy(target.path);
       await source.delete();
       return newFile;
-    }
+  }
   }
 
   Future cleanUsedFiles(List<Payload> selectedPayloads, File? receivedFile,
       String? receivingStatus) async {
     if (pendingClean) return;
-    print('HOME: Starting cleaning used files...');
+    print('FILE_MANAGER: Starting cleaning used files...');
     pendingClean = true;
 
     if (receivingStatus != null) {
       // Needs to cancel to avoid deleting temporary files
       // Could be improved by checking specific active transfers
-      print('HOME: Canceling file clean due to active transfer');
+      print('FILE_MANAGER: Canceling file clean due to active transfer');
       return;
     }
 
@@ -78,7 +79,7 @@ class FileManager {
       var selectedPaths =
           selectedPayloads.whereType<FilePayload>().map((it) => it.file.path);
       if (receivedFile?.path == path || selectedPaths.contains(path)) {
-        print('HOME: Skipping delete of active file $path');
+        print('FILE_MANAGER: Skipping delete of active file $path');
         continue;
       }
 
@@ -92,13 +93,13 @@ class FileManager {
           // Only delete files in temporary directory. On desktop and potentially
           // in some mobile uses the files are the original paths
           if (!path.startsWith(tmpDir.path)) {
-            print('HOME: Not in tmp directory $path');
+            print('FILE_MANAGER: Not in tmp directory $path');
             continue;
           }
           await file.delete();
-          print('HOME: Deleted used file $path');
+          print('FILE_MANAGER: Deleted used file $path');
         } else {
-          print('HOME: Used file did not exists $path');
+          print('FILE_MANAGER: Used file did not exists $path');
         }
       } catch (error, stack) {
         ErrorLogger.logStackError('usedFileDeletionError', error, stack);

@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 
 void logger(String message) {
@@ -9,9 +8,7 @@ class Logger {
   static Map<String, Function(Log)> logListeners = {};
 
   static void log(String tag, String message) {
-    if (kDebugMode) {
-      print('logger: $message');
-    }
+    print('logger: $message');
     var log = Log(DateTime.now(), message, tag);
     for (var listener in logListeners.values) {
       listener(log);
