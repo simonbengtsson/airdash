@@ -633,6 +633,11 @@ class HomeScreenState extends ConsumerState<HomeScreen>
           await fileManager.openParentFolder(file);
         }
       }
+      var props = await fileProperties(file);
+      AnalyticsEvent.fileActionTaken.log(<String, dynamic>{
+        'Action': 'Open',
+        ...props,
+      });
     } catch (error, stack) {
       ErrorLogger.logError(SevereLogError(
           'openFileAndFolderError', error, stack, <String, dynamic>{
@@ -640,11 +645,6 @@ class HomeScreenState extends ConsumerState<HomeScreen>
       }));
       showToast('Could not open file');
     }
-    var props = await fileProperties(file);
-    AnalyticsEvent.fileActionTaken.log(<String, dynamic>{
-      'Action': 'Open',
-      ...props,
-    });
   }
 
   void showToast(String message) {
