@@ -3,10 +3,12 @@ import 'dart:io';
 import 'package:airdash/reporting/analytics_logger.dart';
 import 'package:airdash/reporting/error_logger.dart';
 import 'package:airdash/reporting/logger.dart';
+import 'package:dbus/dbus.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import 'dbus_open_file/dbus_open_file.dart';
 import 'helpers.dart';
 import 'model/payload.dart';
 
@@ -43,6 +45,22 @@ class FileManager {
       ErrorLogger.logStackError('moveToDownloadsFailed', error, stack);
       return tmpFile;
     }
+  }
+
+  Future openLinuxFile(File file) async {
+    var client = DBusClient.session();
+    var openUri = OrgFreedesktopPortalOpenURI(
+      client,
+      'org.freedesktop.portal.Desktop',
+      path: DBusObjectPath('/org/freedesktop/portal/desktop'),
+    );
+    await openUri.callOpenDirectory(
+      'org.freedesktop.portal.Desktop',
+      DBusUnixFd(ResourceHandle.fromFile(
+          await File('/home/simon/Desktop/names.txt').open())),
+      {},
+    );
+    print('Opened linux file');
   }
 
   Future<File> moveFile(File source, File target) async {
