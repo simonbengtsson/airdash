@@ -616,6 +616,10 @@ class HomeScreenState extends ConsumerState<HomeScreen>
               content: Text("No installed app could open this file")));
         }
       } else {
+        if (Platform.isLinux) {
+          showToast(
+              "Could not open file. See received files in your Downloads folder");
+        }
         // Spaces not supported on macos but works when encoded
         var encodedPath = Uri.encodeFull(path);
         var url = Uri.parse('file:$encodedPath');
@@ -691,6 +695,10 @@ class HomeScreenState extends ConsumerState<HomeScreen>
                 onPressed: () async {
                   if (isDesktop()) {
                     await fileManager.openParentFolder(file);
+                    if (Platform.isLinux) {
+                      showToast(
+                          "Could not open file. See received files in your Downloads folder");
+                    }
                   } else {
                     await openShareSheet(file, context);
                   }
