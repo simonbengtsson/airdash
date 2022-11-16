@@ -26,7 +26,19 @@ Future main(List<String> args) async {
     await WindowsAppBuilder().build();
     await MicrosoftStoreSubmitter().submit();
   } else if (script == 'play') {
+    var startedAt = DateTime.now();
+    var startedTimeStr = startedAt.toIso8601String().substring(11, 19);
+    print('$startedTimeStr Starting build...');
+    var version = VersionEditor().readCurrentVersion();
+
+    version = VersionEditor().bumpPatchVersion();
+
     await SnapStoreSubmitter().buildAndSubmit();
+
+    var endedAt = DateTime.now();
+    var endedAtTimeStr = endedAt.toIso8601String().substring(11, 19);
+    print(
+        '$endedAtTimeStr Done! Took ${(endedAt.difference(startedAt).inSeconds / 60).toStringAsFixed(1)} min');
   } else {
     print('Invalid script: $script');
   }
