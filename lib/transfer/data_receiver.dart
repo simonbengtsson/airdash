@@ -14,6 +14,7 @@ import 'data_message.dart';
 class Receiver {
   Peer peer;
   FileTransferState? currentState;
+  List<File> transferredFiles = [];
   Function(double progress, int totalSize, int file, int fileCount)?
       statusUpdateCallback;
   SingleCompleter<Payload> waitForPayload = SingleCompleter();
@@ -93,11 +94,10 @@ class Receiver {
         var payload = UrlPayload(Uri.parse(url));
         waitForPayload.complete(payload);
       } else {
-        state.transferredFiles.add(tmpFile);
+        transferredFiles.add(tmpFile);
         if (message.currentFileIndex + 1 == message.totalFileCount) {
-          var payload = FilePayload(state.transferredFiles);
+          var payload = FilePayload(transferredFiles);
           waitForPayload.complete(payload);
-          print('finished');
         }
       }
     } else {
@@ -207,8 +207,6 @@ class FileTransferState {
 
   String filename;
   Map<String, dynamic> meta;
-
-  List<File> transferredFiles = [];
 
   File? _tmpFile;
   Future<File> tmpFile() async {
