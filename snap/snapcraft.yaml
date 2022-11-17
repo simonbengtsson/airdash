@@ -1,9 +1,9 @@
-name: airdash
+name: Airdash
 base: core18
 version: '2.0.143'
 icon: snap/gui/airdash.png
-summary: Not used
-description: Not used
+summary: Transfer photos and files anywhere
+description: Send picture from android to mac? Large file over 2gb from pc to pc? AirDash handles it all securely and free.
 
 grade: stable
 confinement: strict
