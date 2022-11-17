@@ -52,8 +52,8 @@ class HomeScreenState extends ConsumerState<HomeScreen>
 
   List<Device> devices = [];
 
-  File? receivedFile;
-  List<Payload> selectedPayloads = [];
+  List<File> receivedFiles = [];
+  Payload? selectedPayload;
   String? sendingStatus;
   String? receivingStatus;
 
@@ -87,9 +87,9 @@ class HomeScreenState extends ConsumerState<HomeScreen>
     return DropTarget(
       onDragDone: (detail) async {
         logger('DROP: Files dropped ${detail.files.length}');
-        var payloads =
-            detail.files.map((it) => FilePayload(File(it.path))).toList();
-        await setPayload(payloads, 'dropped');
+        var payload =
+            FilePayload(detail.files.map((it) => File(it.path)).toList());
+        await setPayload(payload, 'dropped');
       },
       onDragEntered: (detail) {
         showDropOverlay();
@@ -111,7 +111,8 @@ class HomeScreenState extends ConsumerState<HomeScreen>
                     children: <Widget>[
                       if (receivingStatus != null)
                         buildReceivingStatusBox(receivingStatus!),
-                      if (receivedFile != null) buildFilesCard(receivedFile!),
+                      if (receivedFiles.isNotEmpty)
+                        buildRecentlyReceivedFilesCard(receivedFiles),
                       buildSelectFileArea(),
                       buildReceiverButtons(devices),
                       Padding(
@@ -173,42 +174,47 @@ class HomeScreenState extends ConsumerState<HomeScreen>
         .setDevice(valueStore.getSelectedDevice());
 
     await connector!.observe((payload, error, statusUpdate) async {
+      if (error != null) {
+        if (error is AppException) {
+          showSnackBar(error.userError);
+        } else {
+          showSnackBar('Could not receive file. Try again.');
+        }
+        setReceivedFile([], null);
+        return;
+      }
+
       if (payload is UrlPayload) {
         await launchUrl(payload.httpUrl, mode: LaunchMode.externalApplication);
         showSnackBar('URL opened');
-        setReceivedFile(null, null);
+        setReceivedFile([], null);
         return;
       }
+
       File? tmpFile;
       if (payload is FilePayload) {
-        tmpFile = payload.file;
+        tmpFile = payload.files.first;
       }
-      String? newReceivingStatus;
       if (tmpFile != null) {
         try {
           // Only files created by app can be opened on macos without getting
           // permission errors or permission dialog.
           tmpFile = await fileManager.safeCopyToDownloads(tmpFile);
           showSnackBar('File received');
+          setReceivedFile([tmpFile], null);
         } catch (error, stack) {
           ErrorLogger.logStackError('downloadsCopyError', error, stack);
           showSnackBar('File could not be saved');
-        }
-      } else if (error != null) {
-        if (error is AppException) {
-          showSnackBar(error.userError);
-        } else {
-          showSnackBar('Could not receive file. Try again.');
+          setReceivedFile(tmpFile == null ? [] : [tmpFile], null);
         }
       } else {
-        newReceivingStatus = statusUpdate;
+        setReceivedFile([], statusUpdate);
       }
-      setReceivedFile(tmpFile, newReceivingStatus);
     });
 
     connector!.startPing();
 
-    fileManager.cleanUsedFiles(selectedPayloads, receivedFile, receivingStatus);
+    fileManager.cleanUsedFiles(selectedPayload, receivedFiles, receivingStatus);
 
     try {
       await Analytics.updateProfile(localDevice.id);
@@ -319,11 +325,11 @@ class HomeScreenState extends ConsumerState<HomeScreen>
         return;
       }
       if (payload is FilePayload) {
-        logger('HOME: Payload intent ${payload.file.path}');
+        logger('HOME: Payload intent ${payload.files.length}');
       } else if (payload is UrlPayload) {
         print('HOME: Url intent, ${payload.httpUrl.toString()}');
       }
-      await setPayload([payload], 'intent');
+      await setPayload(payload, 'intent');
     });
   }
 
@@ -341,7 +347,7 @@ class HomeScreenState extends ConsumerState<HomeScreen>
         var file = File('${dir.path}/airdash.flown.io.testfile.txt');
         if (await file.exists()) {
           setState(() {
-            selectedPayloads = [FilePayload(file)];
+            selectedPayload = FilePayload([file]);
           });
         }
       } catch (error) {
@@ -350,31 +356,30 @@ class HomeScreenState extends ConsumerState<HomeScreen>
     }
   }
 
-  Future sendPayload(Device receiver, List<Payload> payloads) async {
-    var payload = payloads.tryGet(0);
-    if (payload == null) {
-      print('HOME: No payload');
-      return;
-    }
-    if (payload is FilePayload && !(await payload.file.exists())) {
-      showToast('File not found. Try again.');
-      setState(() {
-        selectedPayloads = [];
-      });
-      return;
-    }
-    if (payloads.length > 1) {
-      print('HOME: Multiple payloads, selecting first');
+  Future sendPayload(Device receiver, Payload payload) async {
+    if (payload is FilePayload) {
+      for (var file in payload.files) {
+        if (!(await file.exists())) {
+          showToast('File not found. Try again.');
+          setState(() {
+            selectedPayload = null;
+          });
+          return;
+        }
+      }
     }
     setState(() {
       sendingStatus = 'Connecting...';
     });
     try {
-      var fractionDigits = await getFractionDigits(payload);
+      var fractionDigits = 0;
+      if (payload is FilePayload) {
+        fractionDigits = await getFractionDigits(payload.files.first);
+      }
       String? lastProgressStr;
       int lastDone = 0;
       var lastTime = DateTime.now();
-      await connector!.sendFile(receiver, payloads, (done, total) {
+      await connector!.sendFile(receiver, payload, (done, total) {
         var progress = done / total;
         var progressStr = (progress * 100).toStringAsFixed(fractionDigits);
         var speedStr = '';
@@ -393,7 +398,7 @@ class HomeScreenState extends ConsumerState<HomeScreen>
       showSnackBar('File sent');
       setState(() {
         sendingStatus = null;
-        selectedPayloads = [];
+        selectedPayload = null;
       });
     } catch (error, stack) {
       logger('SENDER: Send file error "$error"');
@@ -417,23 +422,18 @@ class HomeScreenState extends ConsumerState<HomeScreen>
     }
   }
 
-  Future<int> getFractionDigits(Payload payload) async {
-    var payloadSize = 100;
-    if (payload is FilePayload) {
-      payloadSize = await payload.file.length();
-    }
+  Future<int> getFractionDigits(File file) async {
+    var payloadSize = await file.length();
     var payloadMbSize = payloadSize / 1000000;
     return payloadMbSize > 1000 ? 1 : 0;
   }
 
-  void setReceivedFile(File? file, String? status) {
+  void setReceivedFile(List<File> files, String? status) {
     setState(() {
-      receivedFile = file;
+      receivedFiles = files;
       receivingStatus = status;
     });
-    if (file != null) {
-      addUsedFile(file);
-    }
+    addUsedFile(files);
   }
 
   Future<void> openPairReceiverDialog(
@@ -479,14 +479,14 @@ class HomeScreenState extends ConsumerState<HomeScreen>
 
   Widget renderSendButton() {
     Device? selectedDevice = ref.watch(selectedDeviceProvider);
-    var disabled = selectedPayloads.isEmpty ||
+    var disabled = selectedPayload == null ||
         selectedDevice == null ||
         sendingStatus != null;
     return OutlinedButton(
       onPressed: disabled
           ? null
           : () {
-              sendPayload(selectedDevice, selectedPayloads);
+              sendPayload(selectedDevice, selectedPayload!);
             },
       child: Text(
         sendingStatus ?? "Send",
@@ -558,10 +558,10 @@ class HomeScreenState extends ConsumerState<HomeScreen>
       allowMultiple: false,
     );
     if (result != null && result.files.isNotEmpty) {
-      var file = File(result.files.first.path!);
+      var files = result.files.map((it) => File(it.path!)).toList();
       var param = type == FileType.media ? 'media' : 'fileManager';
-      await setPayload([FilePayload(file)], param);
-      logger('HOME: File selected ${file.path}');
+      await setPayload(FilePayload(files), param);
+      logger('HOME: File selected ${files.length}');
     }
     isPickingFile = false;
     if (isDesktop()) {
@@ -569,15 +569,15 @@ class HomeScreenState extends ConsumerState<HomeScreen>
     }
   }
 
-  Future setPayload(List<Payload> payloads, String source) async {
-    for (var payload in payloads) {
-      if (payload is FilePayload) {
+  Future setPayload(Payload payload, String source) async {
+    if (payload is FilePayload) {
+      for (var file in payload.files) {
         try {
-          var length = await payload.file.length();
+          var length = await file.length();
           if (length <= 0) {
             throw Exception('Invalid file length $length');
           }
-          addUsedFile(payload.file);
+          addUsedFile([file]);
         } catch (error, stack) {
           ErrorLogger.logStackError('payloadSelectError', error, stack);
           showToast('Could not read selected file');
@@ -587,24 +587,24 @@ class HomeScreenState extends ConsumerState<HomeScreen>
     }
     AnalyticsEvent.payloadSelected.log(<String, dynamic>{
       'Source': source,
-      ...await payloadProperties(payloads),
+      ...await payloadProperties(payload),
     });
     setState(() {
-      selectedPayloads = payloads;
+      selectedPayload = payload;
     });
   }
 
-  Future openFile(File file) async {
+  Future openFile(List<File> files) async {
     try {
-      String path = file.path;
       if (Platform.isIOS) {
-        logger('MAIN: Will open: $path');
         // Encode path to support filenames with spaces
-        var encodedPath = Uri.encodeFull(path);
+        var paths = files.map((it) => Uri.encodeFull(it.path)).toList();
+        logger('MAIN: Will open: ${paths.first}');
         await communicatorChannel
-            .invokeMethod<void>('openFile', {'url': encodedPath});
+            .invokeMethod<void>('openFile', {'urls': paths});
       } else if (Platform.isAndroid) {
-        var launchUrl = file.path;
+        var firstFile = files.first;
+        var launchUrl = firstFile.path;
         logger('MAIN: Will open: $launchUrl');
         try {
           await communicatorChannel
@@ -620,24 +620,30 @@ class HomeScreenState extends ConsumerState<HomeScreen>
           showToast(
               "Could not open file. See received files in your Downloads folder");
         }
-        // Spaces not supported on macos but works when encoded
-        var encodedPath = Uri.encodeFull(path);
-        var url = Uri.parse('file:$encodedPath');
-        logger('MAIN: Will open: ${url.path}');
-        try {
-          if (!await launchUrl(url)) {
-            throw Exception('launchUrlErrorFalse');
+        if (files.length > 1) {
+          var firstFile = files.first;
+          await fileManager.openFolder(firstFile.path);
+        } else {
+          // Spaces not supported on macos but works when encoded
+          var firstFile = files.first;
+          var encodedPath = Uri.encodeFull(firstFile.path);
+          var url = Uri.parse('file:$encodedPath');
+          logger('MAIN: Will open: ${url.path}');
+          try {
+            if (!await launchUrl(url)) {
+              throw Exception('launchUrlErrorFalse');
+            }
+          } catch (error, stack) {
+            ErrorLogger.logError(
+                LogError('launchFileUrlError', error, stack, <String, String>{
+              'encodedPath': encodedPath,
+              'rawPath': firstFile.path,
+            }));
+            await fileManager.openFolder(firstFile.path);
           }
-        } catch (error, stack) {
-          ErrorLogger.logError(
-              LogError('launchFileUrlError', error, stack, <String, String>{
-            'encodedPath': encodedPath,
-            'rawPath': path,
-          }));
-          await fileManager.openParentFolder(file);
         }
       }
-      var props = await fileProperties(file);
+      var props = await fileProperties(files);
       AnalyticsEvent.fileActionTaken.log(<String, dynamic>{
         'Action': 'Open',
         ...props,
@@ -645,7 +651,8 @@ class HomeScreenState extends ConsumerState<HomeScreen>
     } catch (error, stack) {
       ErrorLogger.logError(SevereLogError(
           'openFileAndFolderError', error, stack, <String, dynamic>{
-        'path': file.path,
+        'path': files.tryGet(0)?.path ?? 'none',
+        'count': files.length,
       }));
       showToast('Could not open file');
     }
@@ -658,7 +665,7 @@ class HomeScreenState extends ConsumerState<HomeScreen>
     ScaffoldMessenger.of(context).showSnackBar(bar);
   }
 
-  Widget buildFilesCard(File file) {
+  Widget buildRecentlyReceivedFilesCard(List<File> files) {
     return Padding(
       padding: const EdgeInsets.only(top: 16, bottom: 8, left: 16, right: 16),
       child: Container(
@@ -679,9 +686,9 @@ class HomeScreenState extends ConsumerState<HomeScreen>
                   IconButton(
                     icon: const Icon(Icons.close),
                     onPressed: () {
-                      setReceivedFile(null, null);
+                      setReceivedFile([], null);
                       fileManager.cleanUsedFiles(
-                          selectedPayloads, receivedFile, receivingStatus);
+                          selectedPayload, receivedFiles, receivingStatus);
                     },
                   ),
                 ],
@@ -689,29 +696,31 @@ class HomeScreenState extends ConsumerState<HomeScreen>
             ),
             ListTile(
               onTap: () {
-                openFile(file);
+                openFile(files);
               },
               trailing: IconButton(
                 onPressed: () async {
                   if (isDesktop()) {
-                    await fileManager.openParentFolder(file);
+                    await fileManager.openFolder(files.first.path);
                     if (Platform.isLinux) {
                       showToast(
                           "Could not open file. See received files in your Downloads folder");
                     }
                   } else {
-                    await openShareSheet(file, context);
+                    await openShareSheet(files, context);
                   }
                 },
                 icon: Icon(isDesktop()
                     ? Icons.folder_open
                     : (Platform.isIOS ? Icons.ios_share : Icons.share)),
               ),
-              leading: Image.file(file, height: 40, fit: BoxFit.contain,
+              leading: Image.file(files.first, height: 40, fit: BoxFit.contain,
                   errorBuilder: (ctx, err, stack) {
                 return const Icon(Icons.file_copy_outlined);
               }),
-              title: Text(getFilename(file)),
+              title: files.length > 1
+                  ? Text('${files.length} Received')
+                  : Text(getFilename(files.first)),
             ),
             const SizedBox(height: 8),
           ],
@@ -768,21 +777,18 @@ class HomeScreenState extends ConsumerState<HomeScreen>
   }
 
   Widget buildSelectFileArea() {
+    var payload = selectedPayload;
     Widget content = buildSelectFileButton();
-    if (selectedPayloads.isEmpty) {
+    if (payload == null || payload is FilePayload && payload.files.isEmpty) {
       content = buildSelectFileButton();
-    } else if (selectedPayloads.length == 1) {
-      var payload = selectedPayloads.tryGet(0);
-      if (payload is UrlPayload) {
-        content = buildSelectedUrlTile(payload.httpUrl);
-      } else if (payload is FilePayload) {
-        content = buildSelectedFileTile(payload.file);
+    } else if (payload is UrlPayload) {
+      content = buildSelectedUrlTile(payload.httpUrl);
+    } else if (payload is FilePayload) {
+      if (payload.files.length == 1) {
+        content = buildSelectedFileTile(payload.files);
       } else {
-        content = buildSelectFileButton();
-        print('Invalid payload type');
+        content = buildMultipleSelectedFilesTile(payload);
       }
-    } else if (selectedPayloads.length > 1) {
-      content = buildMultipleSelectedFilesTile(selectedPayloads);
     }
 
     return Column(
@@ -809,29 +815,30 @@ class HomeScreenState extends ConsumerState<HomeScreen>
         icon: const Icon(Icons.close),
         onPressed: () {
           setState(() {
-            selectedPayloads = [];
+            selectedPayload = null;
           });
         },
       ),
     );
   }
 
-  Widget buildMultipleSelectedFilesTile(Iterable<Payload> payloads) {
+  Widget buildMultipleSelectedFilesTile(FilePayload payload) {
     return ListTile(
       leading: const Icon(Icons.file_copy_outlined),
-      title: Text('${payloads.length} Selected'),
+      title: Text('${payload.files.length} Selected'),
       trailing: IconButton(
         icon: const Icon(Icons.close),
         onPressed: () {
           setState(() {
-            selectedPayloads = [];
+            selectedPayload = null;
           });
         },
       ),
     );
   }
 
-  Widget buildSelectedFileTile(File file) {
+  Widget buildSelectedFileTile(List<File> files) {
+    var file = files.first;
     return ListTile(
       leading: Image.file(file, height: 40, fit: BoxFit.contain,
           errorBuilder: (ctx, err, stack) {
@@ -842,25 +849,22 @@ class HomeScreenState extends ConsumerState<HomeScreen>
         icon: const Icon(Icons.close),
         onPressed: () {
           setState(() {
-            selectedPayloads = [];
+            selectedPayload = null;
           });
         },
       ),
     );
   }
 
-  Future openShareSheet(File file, BuildContext context) async {
-    String filename = getFilename(file);
-    String filePath = file.path;
+  Future openShareSheet(List<File> files, BuildContext context) async {
     final box = context.findRenderObject() as RenderBox?;
     if (box != null) {
       await Share.shareXFiles(
-        [XFile(filePath)],
-        subject: filename,
+        files.map((it) => XFile(it.path)).toList(),
         sharePositionOrigin: box.localToGlobal(Offset.zero) & box.size,
       );
     }
-    var props = await fileProperties(file);
+    var props = await fileProperties(files);
     AnalyticsEvent.fileActionTaken.log(<String, dynamic>{
       'Action': 'Share',
       ...props,
@@ -1017,13 +1021,50 @@ class HomeScreenState extends ConsumerState<HomeScreen>
               leading: Icon(device.icon),
               title: Text('${device.name}${kDebugMode ? '' : ''}'),
               subtitle: Text(device.displayId),
-              trailing: IconButton(
-                  onPressed: currentDevice == null
-                      ? null
-                      : () {
-                          openSettingsDialog(currentDevice!);
-                        },
-                  icon: const Icon(Icons.settings)),
+              trailing: PopupMenuButton<String>(
+                onSelected: (String item) async {
+                  if (item == 'licenses') {
+                    PackageInfo packageInfo = await PackageInfo.fromPlatform();
+                    var version = packageInfo.version;
+                    showLicensePage(
+                      context: context,
+                      applicationName: 'AirDash',
+                      applicationVersion: 'v$version',
+                    );
+                  } else if (item == 'changeDeviceName') {
+                    openSettingsDialog(currentDevice!);
+                  } else if (item == 'openDownloads') {
+                    try {
+                      var downloadsDir = await getDownloadsDirectory();
+                      await fileManager.openFolder(downloadsDir!.path);
+                    } catch (error, stack) {
+                      ErrorLogger.logStackError(
+                          'couldNotOpenDownloads', error, stack);
+                    }
+                    if (Platform.isLinux) {
+                      showToast(
+                          "Could not open file. See received files in your Downloads folder");
+                    }
+                  } else {
+                    print('Invalid item selected');
+                  }
+                },
+                itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
+                  if (isDesktop())
+                    const PopupMenuItem<String>(
+                      value: 'openDownloads',
+                      child: Text('Received Files'),
+                    ),
+                  const PopupMenuItem<String>(
+                    value: 'changeDeviceName',
+                    child: Text('Change Device Name'),
+                  ),
+                  const PopupMenuItem<String>(
+                    value: 'licenses',
+                    child: Text('Licenses'),
+                  ),
+                ],
+              ),
             ),
           ],
         ),
@@ -1035,7 +1076,6 @@ class HomeScreenState extends ConsumerState<HomeScreen>
     showDialog<void>(
       context: context,
       builder: (_) => AlertDialog(
-          title: const Text('Settings'),
           content: TextFormField(
             decoration: const InputDecoration(
               label: Text('This Device Name'),
@@ -1049,18 +1089,6 @@ class HomeScreenState extends ConsumerState<HomeScreen>
             },
           ),
           actions: [
-            TextButton(
-              child: const Text('Licenses'),
-              onPressed: () async {
-                PackageInfo packageInfo = await PackageInfo.fromPlatform();
-                var version = packageInfo.version;
-                showLicensePage(
-                  context: context,
-                  applicationName: 'AirDash',
-                  applicationVersion: 'v$version',
-                );
-              },
-            ),
             TextButton(
               child: const Text('Done'),
               onPressed: () {

@@ -15,9 +15,24 @@ class MainFlutterWindow: NSWindow {
         channel.setMethodCallHandler { call, result in
             let args = call.arguments as? [String: Any]
             if call.method == "openFinder" {
-                let url = URL(fileURLWithPath: args!["url"] as! String)
-                // This can be used if not wanting to opening the file, and instead open finder
-                NSWorkspace.shared.activateFileViewerSelecting([url])
+                let filePath = args!["url"] as! String
+                let url = URL(fileURLWithPath: filePath)
+                
+                let isDirectory = (try? url.resourceValues(forKeys: [.isDirectoryKey]))?.isDirectory == true
+                let downloadsDir = FileManager.default.urls(for: .downloadsDirectory, in: .userDomainMask)
+                let isDownloadsDir = downloadsDir.first?.path == filePath
+                // Downloads directory is an alias so isDirectory says false for it
+                if isDirectory || isDownloadsDir {
+                    // This temporary file is a hack for opening the contents of the folder instead of selecting it
+                    let tmpFilePath = url.path + "/.tmp_airdash"
+                    FileManager.default.createFile(atPath: tmpFilePath, contents: nil, attributes: nil)
+                    let tmpFile = URL(fileURLWithPath: tmpFilePath)
+                    NSWorkspace.shared.activateFileViewerSelecting([tmpFile])
+                    try? FileManager.default.removeItem(at: tmpFile)
+                } else {
+                    NSWorkspace.shared.activateFileViewerSelecting([url])
+                }
+                print("Opened finder with \(isDirectory) \(url.path)")
                 result(true)
             } else {
                 result(FlutterMethodNotImplemented)
@@ -28,7 +43,7 @@ class MainFlutterWindow: NSWindow {
         
         super.awakeFromNib()
     }
-    
+
     override public func order(_ place: NSWindow.OrderingMode, relativeTo otherWin: Int) {
         super.order(place, relativeTo: otherWin)
         hiddenWindowAtLaunch()

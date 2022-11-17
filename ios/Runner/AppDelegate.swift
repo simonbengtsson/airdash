@@ -38,8 +38,8 @@ import QuickLook
                 UIApplication.shared.endBackgroundTask(self.backgroundTaskIdentifier!)
                 result(true)
             } else if call.method == "openFile" {
-                if let args = call.arguments as? [String: Any], let url = args["url"] as? String {
-                    self.openRawUrls([url], self.window!.rootViewController!, result)
+                if let args = call.arguments as? [String: Any], let urls = args["urls"] as? [String] {
+                    self.openRawUrls(urls, self.window!.rootViewController!, result)
                 } else {
                     result(FlutterError(code: "BAD_ARGS", message: "Wrong argument type", details: nil))
                 }

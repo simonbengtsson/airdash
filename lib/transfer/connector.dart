@@ -50,14 +50,12 @@ class Connector {
 
   Function(int)? onPingResponse;
 
-  Future sendFile(Device receiver, List<Payload> payloads,
+  Future sendFile(Device receiver, Payload payload,
       Function(int, int) statusCallback) async {
-    var payload = payloads.first;
-
     File file;
     Map<String, String> meta;
     if (payload is FilePayload) {
-      file = payload.file;
+      file = payload.files.first;
       meta = {'type': 'file'};
     } else if (payload is UrlPayload) {
       file = await getEmptyFile('url.txt');
@@ -82,7 +80,7 @@ class Connector {
     var transferId = generateId(28);
     activeTransferId = transferId;
 
-    var payloadProps = await payloadProperties(payloads);
+    var payloadProps = await payloadProperties(payload);
     AnalyticsEvent.sendingStarted.log(<String, dynamic>{
       'Transfer ID': transferId,
       ...remoteDeviceProperties(receiver),
@@ -277,8 +275,7 @@ class Connector {
         'Connection Types': connectionTypes,
         if (receiveError != null) ...errorProps(receiveError),
         if (sender != null) ...remoteDeviceProperties(sender),
-        if (receivePayload != null)
-          ...await payloadProperties([receivePayload]),
+        if (receivePayload != null) ...await payloadProperties(receivePayload),
       });
     }
   }

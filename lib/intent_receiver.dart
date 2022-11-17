@@ -18,29 +18,31 @@ class IntentReceiver {
     if (Platform.isIOS) {
       const eventChannel = EventChannel('io.flown.airdash/event_communicator');
       eventChannel.receiveBroadcastStream().listen((dynamic event) async {
-        var urls = List<String>.from(event as List);
-        var url = urls.tryGet(0);
-        if (url == null) return;
-
-        if (url.startsWith('http')) {
-          var parsed = Uri.parse(url);
-          callback(UrlPayload(parsed), null);
-        } else {
-          if (url.startsWith('file://')) {
-            url = url.replaceFirst('file://', '');
-          }
-          var decoded = Uri.decodeFull(url);
-          var file = File(decoded);
-
-          if (await file.exists()) {
-            callback(FilePayload(file), null);
+        List<File> files = [];
+        for (String url in event) {
+          if (url.startsWith('http')) {
+            var parsed = Uri.parse(url);
+            callback(UrlPayload(parsed), null);
+            return;
           } else {
-            callback(null, 'Could not read the provided file');
-            ErrorLogger.logSimpleError(
-                'fileIntentFileNotFoundError', <String, String>{
-              'path': file.path,
-            });
+            if (url.startsWith('file://')) {
+              url = url.replaceFirst('file://', '');
+            }
+            var decoded = Uri.decodeFull(url);
+            var file = File(decoded);
+
+            if (await file.exists()) {
+              files.add(file);
+            } else {
+              callback(null, 'Could not read the provided file');
+              ErrorLogger.logSimpleError(
+                  'fileIntentFileNotFoundError', <String, String>{
+                'path': file.path,
+              });
+              return;
+            }
           }
+          callback(FilePayload(files), null);
         }
       }, onError: (Object error, StackTrace stack) {
         callback(null, 'Could not handle the provided file');
@@ -56,17 +58,20 @@ class IntentReceiver {
           .listen((List<SharedMediaFile> list) async {
         logger('INTENT: Handle intent ${list.length}');
         if (list.isNotEmpty) {
-          var file = File(list.first.path);
-          logger('MAIN: Handle intent file ${file.path}');
-          if (await file.exists()) {
-            callback(FilePayload(file), null);
-          } else {
-            ErrorLogger.logSimpleError(
-                'intentReceiverFileNotFound', <String, String>{
-              'path': file.path,
-            });
-            callback(null, 'Could not read the provided file');
+          var files = list.map((it) => File(it.path)).toList();
+          for (var file in files) {
+            if (await file.exists()) {
+              ErrorLogger.logSimpleError(
+                  'intentReceiverFileNotFound', <String, dynamic>{
+                'firstPath': files.first.path,
+                'count': files.length,
+              });
+              callback(null, 'Could not read the provided file');
+              return;
+            }
           }
+          callback(FilePayload(files), null);
+          logger('MAIN: Handle intent file ${files.length}');
         }
       }, onError: (Object error, StackTrace stack) {
         ErrorLogger.logStackError('intentReceiverError', error, stack);
@@ -77,9 +82,9 @@ class IntentReceiver {
           .then((List<SharedMediaFile> list) async {
         logger('MAIN: Init intent ${list.length}');
         if (list.isNotEmpty) {
-          var file = File(list.first.path);
-          logger('MAIN: Init intent file ${file.path}');
-          callback(FilePayload(file), null);
+          var files = list.map((it) => File(it.path)).toList();
+          logger('MAIN: Init intent files ${files.length}');
+          callback(FilePayload(files), null);
         }
       });
 
@@ -98,7 +103,7 @@ class IntentReceiver {
     } else {
       var file = await getEmptyFile('text.txt');
       await file.writeAsString(text);
-      callback(FilePayload(file), null);
+      callback(FilePayload([file]), null);
     }
   }
 }

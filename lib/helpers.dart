@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:math';
 
+import 'package:airdash/reporting/error_logger.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -65,8 +66,7 @@ Map<String, String> errorProps(Object error) {
   };
 }
 
-Future<Map<String, dynamic>> payloadProperties(List<Payload> payloads) async {
-  var payload = payloads.firstOrNull;
+Future<Map<String, dynamic>> payloadProperties(Payload payload) async {
   if (payload is UrlPayload) {
     return <String, String>{
       'Type': 'url',
@@ -75,10 +75,12 @@ Future<Map<String, dynamic>> payloadProperties(List<Payload> payloads) async {
   } else if (payload is FilePayload) {
     return <String, dynamic>{
       'Type': 'file',
-      ...await fileProperties(payload.file),
+      ...await fileProperties(payload.files),
     };
   } else {
-    return <String, String>{'Type': 'unknown'};
+    return <String, dynamic>{
+      'Type': 'unknown',
+    };
   }
 }
 
@@ -91,7 +93,12 @@ Map<String, dynamic> remoteDeviceProperties(Device remote) {
   };
 }
 
-Future<Map<String, dynamic>> fileProperties(File file) async {
+Future<Map<String, dynamic>> fileProperties(List<File> files) async {
+  var file = files.firstOrNull;
+  if (file == null) {
+    ErrorLogger.logSimpleError('noFilesForProps');
+    return <String, dynamic>{};
+  }
   int fileSize = -1;
   try {
     fileSize = await file.length();
@@ -101,6 +108,7 @@ Future<Map<String, dynamic>> fileProperties(File file) async {
   }
   String filename = file.uri.pathSegments.last;
   return <String, dynamic>{
+    'File Count': files.length,
     'File Size': fileSize,
     'File Size MB': fileSize / 1000000,
     'File Name': filename,
@@ -123,12 +131,14 @@ String getFilename(File file) {
   return file.uri.pathSegments.last;
 }
 
-Future addUsedFile(File file) async {
+Future addUsedFile(List<File> files) async {
   var prefs = await SharedPreferences.getInstance();
   var tmpFiles = prefs.getStringList('temporary_files') ?? [];
-  if (!tmpFiles.contains(file.path)) tmpFiles.add(file.path);
-  prefs.setStringList('temporary_files', tmpFiles);
-  print('HELPER: Used file added ${file.path}');
+  for (var file in files) {
+    if (!tmpFiles.contains(file.path)) tmpFiles.add(file.path);
+    prefs.setStringList('temporary_files', tmpFiles);
+  }
+  print('HELPER: Used files added ${files.length}');
 }
 
 int secondsSince(DateTime date) {

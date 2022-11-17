@@ -92,7 +92,7 @@ class Receiver {
       if (url != null) {
         payload = UrlPayload(Uri.parse(url));
       } else {
-        payload = FilePayload(tmpFile);
+        payload = FilePayload([tmpFile]);
       }
       waitForPayload.complete(payload);
     } else {
@@ -207,7 +207,7 @@ class FileTransferState {
   Future<File> tmpFile() async {
     if (_tmpFile == null) {
       _tmpFile = await getEmptyFile(filename);
-      addUsedFile(_tmpFile!);
+      addUsedFile([_tmpFile!]);
     }
     return _tmpFile!;
   }

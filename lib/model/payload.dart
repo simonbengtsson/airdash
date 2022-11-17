@@ -2,14 +2,14 @@ import 'dart:io';
 
 abstract class Payload {}
 
+class IPayload {
+  String? httpUrl;
+}
+
 class FilePayload extends Payload {
-  File file;
+  List<File> files = [];
 
-  String get filename {
-    return file.uri.pathSegments.last;
-  }
-
-  FilePayload(this.file);
+  FilePayload(this.files);
 }
 
 class UrlPayload extends Payload {

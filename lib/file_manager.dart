@@ -1,6 +1,5 @@
 import 'dart:io';
 
-import 'package:airdash/reporting/analytics_logger.dart';
 import 'package:airdash/reporting/error_logger.dart';
 import 'package:airdash/reporting/logger.dart';
 import 'package:dbus/dbus.dart';
@@ -70,10 +69,10 @@ class FileManager {
       var newFile = await source.copy(target.path);
       await source.delete();
       return newFile;
-  }
+    }
   }
 
-  Future cleanUsedFiles(List<Payload> selectedPayloads, File? receivedFile,
+  Future cleanUsedFiles(Payload? selectedPayload, List<File> receivedFiles,
       String? receivingStatus) async {
     if (pendingClean) return;
     print('FILE_MANAGER: Starting cleaning used files...');
@@ -94,9 +93,11 @@ class FileManager {
     var prefs = await SharedPreferences.getInstance();
     var tmpFiles = prefs.getStringList('temporary_files') ?? [];
     for (var path in tmpFiles.toList()) {
-      var selectedPaths =
-          selectedPayloads.whereType<FilePayload>().map((it) => it.file.path);
-      if (receivedFile?.path == path || selectedPaths.contains(path)) {
+      var selectedPaths = selectedPayload is FilePayload
+          ? selectedPayload.files.map((it) => it.path)
+          : <String>[];
+      if (receivedFiles.map((it) => it.path).contains(path) ||
+          selectedPaths.contains(path)) {
         print('FILE_MANAGER: Skipping delete of active file $path');
         continue;
       }
@@ -126,30 +127,23 @@ class FileManager {
     pendingClean = false;
   }
 
-  Future openFinder(File file) async {
-    if (!Platform.isMacOS) throw Exception('Not supported');
-
-    String path = file.path;
-    logger('MAIN: Will open folder at: $path');
-    await communicatorChannel.invokeMethod<void>('openFinder', {'url': path});
-
-    var props = await fileProperties(file);
-    AnalyticsEvent.fileActionTaken.log(<String, dynamic>{
-      'Action': 'File Manager',
-      ...props,
-    });
-  }
-
-  Future openParentFolder(File file) async {
+  Future openFolder(String filePath) async {
     if (Platform.isMacOS) {
-      await openFinder(file);
+      await _openFinder(filePath);
     } else {
-      var folderPath = file.parent.path;
-      var encodedFolderPath = Uri.encodeFull(folderPath);
+      var encodedFolderPath = Uri.encodeFull(filePath);
       var folderUrl = Uri.parse('file:$encodedFolderPath');
       if (!await launchUrl(folderUrl)) {
         throw Exception('launchFolderUrlFalse');
       }
     }
+  }
+
+  Future _openFinder(String filePath) async {
+    if (!Platform.isMacOS) throw Exception('Not supported');
+
+    logger('MAIN: Will open folder at: $filePath');
+    await communicatorChannel
+        .invokeMethod<void>('openFinder', {'url': filePath});
   }
 }
