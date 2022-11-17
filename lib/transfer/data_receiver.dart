@@ -14,7 +14,8 @@ import 'data_message.dart';
 class Receiver {
   Peer peer;
   FileTransferState? currentState;
-  Function(double progress, int totalSize)? statusUpdateCallback;
+  Function(double progress, int totalSize, int file, int fileCount)?
+      statusUpdateCallback;
   SingleCompleter<Payload> waitForPayload = SingleCompleter();
 
   Function? notifier;
@@ -28,7 +29,7 @@ class Receiver {
     return Receiver(peer);
   }
 
-  Future<Payload> waitForFinish(Function(double, int) callback) {
+  Future<Payload> waitForFinish(Function(double, int, int, int) callback) {
     statusUpdateCallback = callback;
     return waitForPayload.future;
   }
@@ -78,7 +79,7 @@ class Receiver {
     });
     await peer.sendText(json);
     statusUpdateCallback?.call(
-        writtenLength / message.fileSize, message.fileSize);
+        writtenLength / message.fileSize, message.fileSize, 0, 1);
     state.pendingMessages.remove(nextChunk);
 
     state.lastHandledMessage = message;

@@ -236,12 +236,14 @@ class Connector {
       await peer.signal(SignalingInfo('offer', offer));
       await receiver.connect();
       String? lastProgressStr;
-      var payload = await receiver.waitForFinish((progress, totalSize) {
-        var payloadMbSize = totalSize / 1000000;
+      var payload = await receiver.waitForFinish(
+          (fileProgress, totalFileSize, currentFile, totalFiles) {
+        var payloadMbSize = totalFileSize / 1000000;
         var fractionDigits = payloadMbSize > 1000 ? 1 : 0;
-        var progressStr = (progress * 100).toStringAsFixed(fractionDigits);
+        var progressStr = (fileProgress * 100).toStringAsFixed(fractionDigits);
         if (lastProgressStr != progressStr) {
-          var message = 'Receiving $progressStr%...';
+          var message =
+              'Receiving $progressStr% (${currentFile + 1}/$totalFiles)...';
           callback(null, null, message);
           lastProgressStr = progressStr;
         }
