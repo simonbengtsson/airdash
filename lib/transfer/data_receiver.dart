@@ -78,8 +78,8 @@ class Receiver {
       "acknowledgeFile": fileCompleted,
     });
     await peer.sendText(json);
-    statusUpdateCallback?.call(
-        writtenLength / message.fileSize, message.fileSize, 0, 1);
+    statusUpdateCallback?.call(writtenLength / message.fileSize,
+        message.fileSize, message.currentFileIndex, message.totalFileCount);
     state.pendingMessages.remove(nextChunk);
 
     state.lastHandledMessage = message;
@@ -88,14 +88,18 @@ class Receiver {
     if (fileCompleted) {
       logger("RECEIVER: File received: ${message.filename}");
       currentState = null;
-      Payload payload;
       var url = state.meta['url'] as String?;
       if (url != null) {
-        payload = UrlPayload(Uri.parse(url));
+        var payload = UrlPayload(Uri.parse(url));
+        waitForPayload.complete(payload);
       } else {
-        payload = FilePayload([tmpFile]);
+        state.transferredFiles.add(tmpFile);
+        if (message.currentFileIndex + 1 == message.totalFileCount) {
+          var payload = FilePayload(state.transferredFiles);
+          waitForPayload.complete(payload);
+          print('finished');
+        }
       }
-      waitForPayload.complete(payload);
     } else {
       // Start over in case new messages were received during processing
       processMessage();
@@ -203,6 +207,8 @@ class FileTransferState {
 
   String filename;
   Map<String, dynamic> meta;
+
+  List<File> transferredFiles = [];
 
   File? _tmpFile;
   Future<File> tmpFile() async {
