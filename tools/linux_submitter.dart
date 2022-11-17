@@ -12,7 +12,8 @@ class SnapStoreSubmitter {
       runVmCommand(
           'cd "$repoPath" && rm -f build/stdout.txt && git reset --hard && git pull -r');
       runVmCommand('cd "$repoPath" && snapcraft clean --use-lxd');
-      runVmCommand('cd "$repoPath" && flutter build linux --release');
+      runVmCommand(
+          'cd "$repoPath" && /home/simon/tools/flutter/bin/flutter build linux --release');
       runVmCommand(
           'cd "$repoPath" && snapcraft snap --output build/app.snap --use-lxd');
       runVmCommand(
