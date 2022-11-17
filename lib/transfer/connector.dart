@@ -206,11 +206,13 @@ class Connector {
 
     if (sender == null) {
       ErrorLogger.logSimpleError('Receiving file from unknown sender');
+      callback(null, 'Unknown sender. Receive blocked', '');
+      return;
     }
 
     AnalyticsEvent.receivingStarted.log(<String, dynamic>{
       'Transfer ID': transferId,
-      if (sender != null) ...remoteDeviceProperties(sender),
+      ...remoteDeviceProperties(sender),
     });
 
     Payload? receivePayload;
@@ -274,7 +276,7 @@ class Connector {
         'Transfer ID': transferId,
         'Connection Types': connectionTypes,
         if (receiveError != null) ...errorProps(receiveError),
-        if (sender != null) ...remoteDeviceProperties(sender),
+        ...remoteDeviceProperties(sender),
         if (receivePayload != null) ...await payloadProperties(receivePayload),
       });
     }
