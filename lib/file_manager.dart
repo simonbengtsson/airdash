@@ -73,12 +73,12 @@ class FileManager {
   }
 
   Future cleanUsedFiles(Payload? selectedPayload, List<File> receivedFiles,
-      String? receivingStatus) async {
+      bool isTransferActive) async {
     if (pendingClean) return;
     print('FILE_MANAGER: Starting cleaning used files...');
     pendingClean = true;
 
-    if (receivingStatus != null) {
+    if (isTransferActive) {
       // Needs to cancel to avoid deleting temporary files
       // Could be improved by checking specific active transfers
       print('FILE_MANAGER: Canceling file clean due to active transfer');

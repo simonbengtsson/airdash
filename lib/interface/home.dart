@@ -174,47 +174,44 @@ class HomeScreenState extends ConsumerState<HomeScreen>
         .setDevice(valueStore.getSelectedDevice());
 
     await connector!.observe((payload, error, statusUpdate) async {
-      if (error != null) {
-        if (error is AppException) {
-          showSnackBar(error.userError);
+      if (payload == null) {
+        if (error != null) {
+          if (error is AppException) {
+            showSnackBar(error.userError);
+          } else {
+            showSnackBar('Could not receive file. Try again.');
+          }
+          setState(() {
+            receivingStatus = null;
+          });
         } else {
-          showSnackBar('Could not receive file. Try again.');
+          setState(() {
+            receivingStatus = statusUpdate;
+          });
         }
-        setReceivedFile([], null);
-        return;
-      }
-
-      if (payload is UrlPayload) {
+      } else if (payload is UrlPayload) {
         await launchUrl(payload.httpUrl, mode: LaunchMode.externalApplication);
         showSnackBar('URL opened');
-        setReceivedFile([], null);
-        return;
-      }
-
-      File? tmpFile;
-      if (payload is FilePayload) {
-        tmpFile = payload.files.first;
-      }
-      if (tmpFile != null) {
+      } else if (payload is FilePayload) {
+        var tmpFile = payload.files.first;
         try {
           // Only files created by app can be opened on macos without getting
           // permission errors or permission dialog.
           tmpFile = await fileManager.safeCopyToDownloads(tmpFile);
-          showSnackBar('File received');
-          setReceivedFile([tmpFile], null);
         } catch (error, stack) {
           ErrorLogger.logStackError('downloadsCopyError', error, stack);
-          showSnackBar('File could not be saved');
-          setReceivedFile(tmpFile == null ? [] : [tmpFile], null);
         }
+        setReceivedFile([tmpFile]);
+        showSnackBar('File received');
       } else {
-        setReceivedFile([], statusUpdate);
+        ErrorLogger.logSimpleError('invalidPayloadType');
       }
     });
 
     connector!.startPing();
 
-    fileManager.cleanUsedFiles(selectedPayload, receivedFiles, receivingStatus);
+    var transferActive = receivingStatus != null;
+    fileManager.cleanUsedFiles(selectedPayload, receivedFiles, transferActive);
 
     try {
       await Analytics.updateProfile(localDevice.id);
@@ -428,10 +425,10 @@ class HomeScreenState extends ConsumerState<HomeScreen>
     return payloadMbSize > 1000 ? 1 : 0;
   }
 
-  void setReceivedFile(List<File> files, String? status) {
+  void setReceivedFile(List<File> files) {
     setState(() {
       receivedFiles = files;
-      receivingStatus = status;
+      receivingStatus = null;
     });
     addUsedFile(files);
   }
@@ -686,9 +683,10 @@ class HomeScreenState extends ConsumerState<HomeScreen>
                   IconButton(
                     icon: const Icon(Icons.close),
                     onPressed: () {
-                      setReceivedFile([], null);
+                      var transferActive = receivingStatus != null;
+                      setReceivedFile([]);
                       fileManager.cleanUsedFiles(
-                          selectedPayload, receivedFiles, receivingStatus);
+                          selectedPayload, receivedFiles, transferActive);
                     },
                   ),
                 ],

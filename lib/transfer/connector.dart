@@ -189,7 +189,7 @@ class Connector {
       String remoteId,
       String transferId,
       Map<String, dynamic> offer,
-      Function(Payload? payload, Object? error, String message)
+      Function(Payload? payload, Object? error, String? message)
           callback) async {
     activeTransferId = transferId;
 
@@ -205,7 +205,7 @@ class Connector {
 
     if (sender == null) {
       ErrorLogger.logSimpleError('Receiving file from unknown sender');
-      callback(null, 'Unknown sender. Receive blocked', '');
+      callback(null, 'Unknown sender. Receive blocked', null);
       return;
     }
 
@@ -248,7 +248,7 @@ class Connector {
         }
       });
       receivePayload = payload;
-      callback(payload, null, '');
+      callback(payload, null, null);
     } catch (error, stack) {
       receiveError = error;
       if (error is AppException) {
@@ -256,7 +256,7 @@ class Connector {
       } else {
         ErrorLogger.logStackError('unknownReceiverError', error, stack);
       }
-      callback(null, error, '');
+      callback(null, error, null);
     } finally {
       List<String> connectionTypes = [];
       if (receiver != null) {
@@ -304,7 +304,7 @@ class Connector {
   }
 
   Future observe(
-      Function(Payload? payload, Object? error, String message)
+      Function(Payload? payload, Object? error, String? message)
           callback) async {
     await signaling.observe(localDevice, (message, remoteId) async {
       var json = jsonDecode(message) as Map<String, dynamic>;
