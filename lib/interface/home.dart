@@ -201,7 +201,11 @@ class HomeScreenState extends ConsumerState<HomeScreen>
         } catch (error, stack) {
           ErrorLogger.logStackError('downloadsCopyError', error, stack);
         }
-        setReceivedFile([tmpFile]);
+        setState(() {
+          receivedFiles = [...receivedFiles, tmpFile];
+          receivingStatus = null;
+        });
+        addUsedFile([tmpFile]);
         showSnackBar('File received');
       } else {
         ErrorLogger.logSimpleError('invalidPayloadType');
@@ -423,14 +427,6 @@ class HomeScreenState extends ConsumerState<HomeScreen>
     var payloadSize = await file.length();
     var payloadMbSize = payloadSize / 1000000;
     return payloadMbSize > 1000 ? 1 : 0;
-  }
-
-  void setReceivedFile(List<File> files) {
-    setState(() {
-      receivedFiles = files;
-      receivingStatus = null;
-    });
-    addUsedFile(files);
   }
 
   Future<void> openPairReceiverDialog(
@@ -684,7 +680,10 @@ class HomeScreenState extends ConsumerState<HomeScreen>
                     icon: const Icon(Icons.close),
                     onPressed: () {
                       var transferActive = receivingStatus != null;
-                      setReceivedFile([]);
+                      setState(() {
+                        receivedFiles = [];
+                        receivingStatus = null;
+                      });
                       fileManager.cleanUsedFiles(
                           selectedPayload, receivedFiles, transferActive);
                     },
