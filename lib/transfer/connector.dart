@@ -79,23 +79,29 @@ class Connector {
       logger('SENDER: Start transfer $transferId');
       await googlePing();
 
-      var messageSender =
-          MessageSender(localDevice, receiver.id, transferId, signaling);
-      var peer = await createPeer(messageSender);
-      await devicePing(messageSender);
-
       if (payload is FilePayload) {
-        var file = payload.files.first;
         var meta = {'type': 'file'};
 
-        sender = await DataSender.create(peer, file, meta);
-        await sender.connect();
-        logger('SENDER: Connection established');
-        await sender.sendFile(statusCallback);
+        for (var file in payload.files) {
+          var messageSender =
+              MessageSender(localDevice, receiver.id, transferId, signaling);
+          var peer = await createPeer(messageSender);
+          await devicePing(messageSender);
+
+          sender = await DataSender.create(peer, file, meta);
+          await sender.connect();
+          logger('SENDER: Connection established');
+          await sender.sendFile(statusCallback);
+        }
       } else if (payload is UrlPayload) {
         var file = await getEmptyFile('url.txt');
         await file.writeAsString(payload.httpUrl.toString());
         var meta = {'type': 'url', 'url': payload.httpUrl.toString()};
+
+        var messageSender =
+            MessageSender(localDevice, receiver.id, transferId, signaling);
+        var peer = await createPeer(messageSender);
+        await devicePing(messageSender);
 
         sender = await DataSender.create(peer, file, meta);
         await sender.connect();
