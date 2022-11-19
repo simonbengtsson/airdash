@@ -389,7 +389,6 @@ class HomeScreenState extends ConsumerState<HomeScreen>
           var diff = DateTime.now().difference(lastTime);
           var diffBytes = done - lastDone;
           speedStr = ' (${formatDataSpeed(diffBytes, diff)})';
-          print('PROGRESS FILES: $fileIndex $totalFiles');
           var fileIndexStr =
               totalFiles > 1 ? ' ${fileIndex + 1}/$totalFiles' : '';
           setState(() {
@@ -552,7 +551,7 @@ class HomeScreenState extends ConsumerState<HomeScreen>
       withData: false,
       allowCompression: false,
       withReadStream: true,
-      allowMultiple: false,
+      allowMultiple: true,
     );
     if (result != null && result.files.isNotEmpty) {
       var files = result.files.map((it) => File(it.path!)).toList();
