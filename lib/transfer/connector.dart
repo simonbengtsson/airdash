@@ -52,19 +52,6 @@ class Connector {
 
   Future sendPayload(Device receiver, Payload payload,
       Function(int, int) statusCallback) async {
-    File file;
-    Map<String, String> meta;
-    if (payload is FilePayload) {
-      file = payload.files.first;
-      meta = {'type': 'file'};
-    } else if (payload is UrlPayload) {
-      file = await getEmptyFile('url.txt');
-      await file.writeAsString(payload.httpUrl.toString());
-      meta = {'type': 'url', 'url': payload.httpUrl.toString()};
-    } else {
-      throw Exception('Invalid payload type');
-    }
-
     logger('SENDER: Start sending to receiver "${receiver.id}"');
     var startTime = DateTime.now();
 
@@ -90,42 +77,33 @@ class Connector {
         await Wakelock.enable();
       }
       logger('SENDER: Start transfer $transferId');
-
-      var config = await getIceServerConfig();
-      var peer = await Peer.create(
-          initiator: true,
-          config: config,
-          dataChannelConfig: dcConfig,
-          verbose: true);
-      signal = peer.signal;
+      await googlePing();
 
       var messageSender =
           MessageSender(localDevice, receiver.id, transferId, signaling);
-      peer.onSignal = (info) {
-        var payload = info.payload as Map<String, dynamic>;
-        messageSender.sendMessage(info.type, payload);
-      };
-      sender = await DataSender.create(peer, file, meta);
-      await googlePing();
-      var completer = SingleCompleter<String>();
-      messageSender.sendMessage('ping', <String, dynamic>{});
-      onPingResponse = (remoteVersion) {
-        if (remoteVersion == MessageSender.communicationVersion) {
-          completer.complete('done');
-        } else {
-          var error = AppException('senderVersionMismatch',
-              'Transfer failed. Update to the latest app version on both the sending and receiving devices.');
-          completer.completeError(error);
-        }
-      };
-      await completer.future.timeout(const Duration(seconds: 5), onTimeout: () {
-        throw AppException('deviceFirebasePingTimeout',
-            'Could not reach the receiving device. Ensure it is connected to the internet and has AirDash open.');
-      });
-      logger('SENDER: Device ping completed');
-      await sender.connect();
-      logger('SENDER: Connection established');
-      await sender.sendFile(statusCallback);
+      var peer = await createPeer(messageSender);
+      await devicePing(messageSender);
+
+      if (payload is FilePayload) {
+        var file = payload.files.first;
+        var meta = {'type': 'file'};
+
+        sender = await DataSender.create(peer, file, meta);
+        await sender.connect();
+        logger('SENDER: Connection established');
+        await sender.sendFile(statusCallback);
+      } else if (payload is UrlPayload) {
+        var file = await getEmptyFile('url.txt');
+        await file.writeAsString(payload.httpUrl.toString());
+        var meta = {'type': 'url', 'url': payload.httpUrl.toString()};
+
+        sender = await DataSender.create(peer, file, meta);
+        await sender.connect();
+        logger('SENDER: Connection established');
+        await sender.sendFile(statusCallback);
+      } else {
+        throw Exception('Invalid payload type');
+      }
     } catch (error) {
       sendError = error;
       rethrow;
@@ -158,6 +136,40 @@ class Connector {
         ...payloadProps,
       });
     }
+  }
+
+  Future<Peer> createPeer(MessageSender messageSender) async {
+    var config = await getIceServerConfig();
+    var peer = await Peer.create(
+        initiator: true,
+        config: config,
+        dataChannelConfig: dcConfig,
+        verbose: true);
+    signal = peer.signal;
+
+    peer.onSignal = (info) {
+      messageSender.sendMessage(info.type, info.payload);
+    };
+    return peer;
+  }
+
+  Future devicePing(MessageSender messageSender) async {
+    var completer = SingleCompleter<String>();
+    messageSender.sendMessage('ping', <String, dynamic>{});
+    onPingResponse = (remoteVersion) {
+      if (remoteVersion == MessageSender.communicationVersion) {
+        completer.complete('done');
+      } else {
+        var error = AppException('senderVersionMismatch',
+            'Transfer failed. Update to the latest app version on both the sending and receiving devices.');
+        completer.completeError(error);
+      }
+    };
+    await completer.future.timeout(const Duration(seconds: 5), onTimeout: () {
+      throw AppException('deviceFirebasePingTimeout',
+          'Could not reach the receiving device. Ensure it is connected to the internet and has AirDash open.');
+    });
+    logger('SENDER: Device ping completed');
   }
 
   Future saveDeviceInfo(Device device) async {
@@ -418,12 +430,12 @@ class MessageSender {
 
   MessageSender(this.sender, this.remoteId, this.transferId, this.signaling);
 
-  Future sendMessage(String type, Map<String, dynamic> payload) async {
+  Future sendMessage(String type, dynamic payload) async {
     var json = jsonEncode({
       'version': communicationVersion,
       'transferId': transferId,
       'type': type,
-      'payload': payload,
+      'payload': payload as Map<String, dynamic>,
       'sender': sender.encode(),
     });
     return await signaling.sendMessage(sender.id, remoteId, json);
