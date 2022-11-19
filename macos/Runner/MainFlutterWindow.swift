@@ -12,6 +12,8 @@ class MainFlutterWindow: NSWindow {
         let messenger = flutterViewController.engine.binaryMessenger
         let channel = FlutterMethodChannel(name: "io.flown.airdash/communicator", binaryMessenger: messenger)
         
+        var fileLocationUrl: URL?
+        
         channel.setMethodCallHandler { call, result in
             let args = call.arguments as? [String: Any]
             if call.method == "openFinder" {
@@ -33,6 +35,40 @@ class MainFlutterWindow: NSWindow {
                     NSWorkspace.shared.activateFileViewerSelecting([url])
                 }
                 print("Opened finder with \(isDirectory) \(url.path)")
+                result(true)
+            } else if call.method == "saveFileLocationBookmark" {
+                if let filePath = args!["url"] as? String, !filePath.isEmpty {
+                    let url = URL(fileURLWithPath: filePath)
+                    print("Bookmarking url: \(url.path)")
+                    
+                    let data = try! url.bookmarkData(options: [.withSecurityScope])
+                    UserDefaults.standard.set(data, forKey: "fileLocationBookmark")
+                } else {
+                    UserDefaults.standard.removeObject(forKey: "fileLocationBookmark")
+                }
+                result(true)
+            } else if call.method == "getFileLocation" {
+                if let url = fileLocationUrl {
+                    result(url.path)
+                    return
+                }
+                if let bookmarkData = UserDefaults.standard.data(forKey: "fileLocationBookmark") {
+                    var isStale = false
+                    if let url = try? URL(resolvingBookmarkData: bookmarkData, options:[.withSecurityScope], bookmarkDataIsStale: &isStale), !isStale {
+                        fileLocationUrl = url
+                        let success = url.startAccessingSecurityScopedResource()
+                        if success {
+                            print("Bookmarked url \(success) \(url.path)")
+                            result(url.path)
+                            return
+                        }
+                    }
+                }
+                print("Nothing bookmarked or error retrieving bookmark")
+                result(nil)
+            } else if call.method == "endFileLocationAccess" {
+                fileLocationUrl?.stopAccessingSecurityScopedResource()
+                fileLocationUrl = nil
                 result(true)
             } else {
                 result(FlutterMethodNotImplemented)

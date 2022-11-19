@@ -23,7 +23,13 @@ class ValueStore {
   }
 
   Future<Directory?> getFileLocation() async {
-    var custom = prefs.getString('customFileLocation');
+    String? custom;
+    if (Platform.isMacOS) {
+      custom =
+          await communicatorChannel.invokeMethod<String>('getFileLocation');
+    } else {
+      custom = prefs.getString('customFileLocation');
+    }
     if (custom == null) {
       var downloadsDir = await getDownloadsDirectory();
       return downloadsDir;
@@ -33,6 +39,11 @@ class ValueStore {
   }
 
   Future setFileLocation(String? locationPath) async {
+    if (Platform.isMacOS) {
+      await communicatorChannel.invokeMethod<void>(
+          'saveFileLocationBookmark', {'url': locationPath});
+      return;
+    }
     if (locationPath != null && locationPath.isNotEmpty) {
       await prefs.setString('customFileLocation', locationPath);
     } else {

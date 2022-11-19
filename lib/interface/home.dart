@@ -681,7 +681,7 @@ class HomeScreenState extends ConsumerState<HomeScreen>
                   const Spacer(),
                   IconButton(
                     icon: const Icon(Icons.close),
-                    onPressed: () {
+                    onPressed: () async {
                       var transferActive = receivingStatus != null;
                       setState(() {
                         receivedFiles = [];
@@ -689,6 +689,10 @@ class HomeScreenState extends ConsumerState<HomeScreen>
                       });
                       fileManager.cleanUsedFiles(
                           selectedPayload, receivedFiles, transferActive);
+                      if (Platform.isMacOS) {
+                        await communicatorChannel
+                            .invokeMethod<void>('endFileLocationAccess');
+                      }
                     },
                   ),
                 ],
@@ -1039,6 +1043,10 @@ class HomeScreenState extends ConsumerState<HomeScreen>
                       var valueStore = ValueStore(prefs);
                       var downloadsDir = await valueStore.getFileLocation();
                       await fileManager.openFolder(downloadsDir!.path);
+                      if (Platform.isMacOS) {
+                        await communicatorChannel
+                            .invokeMethod<void>('endFileLocationAccess');
+                      }
                     } catch (error, stack) {
                       ErrorLogger.logStackError(
                           'couldNotOpenDownloads', error, stack);
@@ -1059,7 +1067,7 @@ class HomeScreenState extends ConsumerState<HomeScreen>
                       value: 'openDownloads',
                       child: Text('Received Files'),
                     ),
-                  if (Platform.isWindows || Platform.isLinux)
+                  if (isDesktop())
                     const PopupMenuItem<String>(
                       value: 'changeFileLocation',
                       child: Text('Change File Location'),
@@ -1085,6 +1093,9 @@ class HomeScreenState extends ConsumerState<HomeScreen>
     var prefs = await SharedPreferences.getInstance();
     var valueStore = ValueStore(prefs);
     var fileLocationPath = await valueStore.getFileLocation();
+    if (Platform.isMacOS) {
+      await communicatorChannel.invokeMethod<void>('endFileLocationAccess');
+    }
     showDialog<void>(
       context: context,
       builder: (_) => AlertDialog(
