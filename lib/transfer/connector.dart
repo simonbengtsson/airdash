@@ -51,7 +51,7 @@ class Connector {
   Function(int)? onPingResponse;
 
   Future sendPayload(Device receiver, Payload payload,
-      Function(int, int) statusCallback) async {
+      Function(int, int, int, int) statusCallback) async {
     logger('SENDER: Start sending to receiver "${receiver.id}"');
     var startTime = DateTime.now();
 
@@ -82,13 +82,15 @@ class Connector {
       if (payload is FilePayload) {
         var meta = {'type': 'file'};
 
-        for (var file in payload.files) {
+        for (var i = 0; i < payload.files.length; i++) {
+          var file = payload.files[i];
           var messageSender =
               MessageSender(localDevice, receiver.id, transferId, signaling);
           var peer = await createPeer(messageSender);
           await devicePing(messageSender);
 
-          sender = await DataSender.create(peer, file, meta);
+          sender = await DataSender.create(
+              peer, file, meta, i, payload.files.length);
           await sender.connect();
           logger('SENDER: Connection established');
           await sender.sendFile(statusCallback);
@@ -103,7 +105,7 @@ class Connector {
         var peer = await createPeer(messageSender);
         await devicePing(messageSender);
 
-        sender = await DataSender.create(peer, file, meta);
+        sender = await DataSender.create(peer, file, meta, 0, 1);
         await sender.connect();
         logger('SENDER: Connection established');
         await sender.sendFile(statusCallback);
@@ -253,14 +255,12 @@ class Connector {
       await peer.signal(SignalingInfo('offer', offer));
       await receiver.connect();
       String? lastProgressStr;
-      var payload = await receiver.waitForFinish(
-          (fileProgress, totalFileSize, currentFile, totalFiles) {
+      var payload = await receiver.waitForFinish((fileProgress, totalFileSize) {
         var payloadMbSize = totalFileSize / 1000000;
         var fractionDigits = payloadMbSize > 1000 ? 1 : 0;
         var progressStr = (fileProgress * 100).toStringAsFixed(fractionDigits);
         if (lastProgressStr != progressStr) {
-          var message =
-              'Receiving $progressStr% (${currentFile + 1}/$totalFiles)...';
+          var message = 'Receiving $progressStr%...';
           callback(null, null, message);
           lastProgressStr = progressStr;
         }

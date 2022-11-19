@@ -380,7 +380,8 @@ class HomeScreenState extends ConsumerState<HomeScreen>
       String? lastProgressStr;
       int lastDone = 0;
       var lastTime = DateTime.now();
-      await connector!.sendPayload(receiver, payload, (done, total) {
+      await connector!.sendPayload(receiver, payload,
+          (done, total, fileIndex, totalFiles) {
         var progress = done / total;
         var progressStr = (progress * 100).toStringAsFixed(fractionDigits);
         var speedStr = '';
@@ -388,8 +389,11 @@ class HomeScreenState extends ConsumerState<HomeScreen>
           var diff = DateTime.now().difference(lastTime);
           var diffBytes = done - lastDone;
           speedStr = ' (${formatDataSpeed(diffBytes, diff)})';
+          print('PROGRESS FILES: $fileIndex $totalFiles');
+          var fileIndexStr =
+              totalFiles > 1 ? ' ${fileIndex + 1}/$totalFiles' : '';
           setState(() {
-            sendingStatus = 'Sending $progressStr%$speedStr';
+            sendingStatus = 'Sending $progressStr%$fileIndexStr$speedStr';
           });
           lastDone = done;
           lastTime = DateTime.now();

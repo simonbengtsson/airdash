@@ -15,8 +15,7 @@ class Receiver {
   Peer peer;
   FileTransferState? currentState;
   List<File> transferredFiles = [];
-  Function(double progress, int totalSize, int file, int fileCount)?
-      statusUpdateCallback;
+  Function(double progress, int totalSize)? statusUpdateCallback;
   SingleCompleter<Payload> waitForPayload = SingleCompleter();
 
   Function? notifier;
@@ -30,7 +29,7 @@ class Receiver {
     return Receiver(peer);
   }
 
-  Future<Payload> waitForFinish(Function(double, int, int, int) callback) {
+  Future<Payload> waitForFinish(Function(double, int) callback) {
     statusUpdateCallback = callback;
     return waitForPayload.future;
   }
@@ -79,8 +78,8 @@ class Receiver {
       "acknowledgeFile": fileCompleted,
     });
     await peer.sendText(json);
-    statusUpdateCallback?.call(writtenLength / message.fileSize,
-        message.fileSize, message.currentFileIndex, message.totalFileCount);
+    statusUpdateCallback?.call(
+        writtenLength / message.fileSize, message.fileSize);
     state.pendingMessages.remove(nextChunk);
 
     state.lastHandledMessage = message;
@@ -94,11 +93,8 @@ class Receiver {
         var payload = UrlPayload(Uri.parse(url));
         waitForPayload.complete(payload);
       } else {
-        transferredFiles.add(tmpFile);
-        if (message.currentFileIndex + 1 == message.totalFileCount) {
-          var payload = FilePayload(transferredFiles);
-          waitForPayload.complete(payload);
-        }
+        var payload = FilePayload([tmpFile]);
+        waitForPayload.complete(payload);
       }
     } else {
       // Start over in case new messages were received during processing

@@ -33,11 +33,12 @@ class DataSender {
 
   DataSender(this.peer, this.senderState);
 
-  static Future<DataSender> create(
-      Peer peer, File file, Map<String, String> meta) async {
+  static Future<DataSender> create(Peer peer, File file,
+      Map<String, String> meta, int fileIndex, int totalFileCount) async {
     logger('SENDER: Create connection');
 
-    var sendingState = await FileSendingState.create(file, meta);
+    var sendingState =
+        await FileSendingState.create(file, meta, fileIndex, totalFileCount);
     return DataSender(peer, sendingState);
   }
 
@@ -118,11 +119,11 @@ class DataSender {
     }
   }
 
-  Function(int, int)? statusCallback;
+  Function(int, int, int, int)? statusCallback;
 
   SingleCompleter<bool>? messageTimeoutCompleter;
 
-  Future sendFile(Function(int, int) statusCallback) async {
+  Future sendFile(Function(int, int, int, int) statusCallback) async {
     this.statusCallback = statusCallback;
     logger('SENDER: Sending first chunk...');
     sendNext();
@@ -247,7 +248,8 @@ class DataSender {
 
     if (statusCallback != null &&
         !senderState.completer.completer.isCompleted) {
-      statusCallback!(finishedChunk, senderState.fileSize);
+      statusCallback!(finishedChunk, senderState.fileSize,
+          senderState.fileIndex, senderState.totalFileCount);
     }
 
     if (!fileCompleted) {
@@ -266,6 +268,8 @@ class DataSender {
 
 class FileSendingState {
   File file;
+  int fileIndex;
+  int totalFileCount;
   RandomAccessFile raFile;
   Map<String, String> meta;
   int fileSize;
@@ -277,14 +281,15 @@ class FileSendingState {
   var fileSendingComplete = false;
   var sendChunkLock = false;
 
-  FileSendingState(
-      this.file, this.raFile, this.filename, this.fileSize, this.meta);
+  FileSendingState(this.file, this.raFile, this.filename, this.fileSize,
+      this.meta, this.fileIndex, this.totalFileCount);
 
-  static Future<FileSendingState> create(
-      File file, Map<String, String> meta) async {
+  static Future<FileSendingState> create(File file, Map<String, String> meta,
+      int fileIndex, int totalFileCount) async {
     var name = file.uri.pathSegments.last;
     var size = await file.length();
     var raFile = await file.open();
-    return FileSendingState(file, raFile, name, size, meta);
+    return FileSendingState(
+        file, raFile, name, size, meta, fileIndex, totalFileCount);
   }
 }

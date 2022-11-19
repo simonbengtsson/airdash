@@ -18,14 +18,6 @@ class Message {
     return header['filename'] as String;
   }
 
-  int get totalFileCount {
-    return header['totalFileCount'] as int? ?? 1;
-  }
-
-  int get currentFileIndex {
-    return header['currentFileIndex'] as int? ?? 0;
-  }
-
   int get fileSize {
     return header['fileSize'] as int;
   }
