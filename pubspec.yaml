@@ -2,7 +2,7 @@ name: airdash
 description: Share files anywhere
 publish_to: 'none'
 
-version: 2.0.144+144
+version: 2.0.145+145
 
 environment:
   sdk: ">=2.17.1 <3.0.0"
