@@ -50,7 +50,7 @@ class Connector {
 
   Function(int)? onPingResponse;
 
-  Future sendFile(Device receiver, Payload payload,
+  Future sendPayload(Device receiver, Payload payload,
       Function(int, int) statusCallback) async {
     File file;
     Map<String, String> meta;

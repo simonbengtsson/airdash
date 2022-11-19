@@ -380,7 +380,7 @@ class HomeScreenState extends ConsumerState<HomeScreen>
       String? lastProgressStr;
       int lastDone = 0;
       var lastTime = DateTime.now();
-      await connector!.sendFile(receiver, payload, (done, total) {
+      await connector!.sendPayload(receiver, payload, (done, total) {
         var progress = done / total;
         var progressStr = (progress * 100).toStringAsFixed(fractionDigits);
         var speedStr = '';
