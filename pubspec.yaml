@@ -27,7 +27,7 @@ dependencies:
   url_launcher: ^6.1.2
   package_info_plus: ^3.0.1
   device_info_plus: ^8.0.0
-  desktop_drop: ^0.3.3
+  desktop_drop: ^0.4.0
   quick_look: ^0.0.4
   window_manager: ^0.2.5
   mime: ^1.0.2

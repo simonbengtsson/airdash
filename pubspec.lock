@@ -140,7 +140,7 @@ packages:
       name: desktop_drop
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.3.3"
+    version: "0.4.0"
   device_info_plus:
     dependency: "direct main"
     description:
@@ -585,14 +585,14 @@ packages:
       name: sentry
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "6.15.1"
+    version: "6.16.0"
   sentry_flutter:
     dependency: "direct main"
     description:
       name: sentry_flutter
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "6.15.1"
+    version: "6.16.0"
   share_plus:
     dependency: "direct main"
     description:
