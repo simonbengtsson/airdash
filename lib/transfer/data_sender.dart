@@ -242,7 +242,7 @@ class DataSender {
     }
     senderState.acknowledgedChunk = finishedChunk;
     inFlightMessageCount -= 1;
-    logger('decreaed inFlightMessageCount $inFlightMessageCount');
+    logger('SENDER: Decreased inFlightMessageCount $inFlightMessageCount');
     print(
         'SENDER: Received ack for chunk: $finishedChunk Completed: $fileCompleted');
 
