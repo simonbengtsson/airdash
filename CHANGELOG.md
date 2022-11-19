@@ -1,10 +1,11 @@
 # Changelog
 
 ### Unreleased
+- [new] Add ability to change save location on mac
 
 ### v2.0.146 19 November 2022
 - [new] Enable sending of multiple files
-- [new] Add ability to change save location on windows and mac
+- [new] Add ability to change save location on windows and linux
 - [new] Add option to open received files folder on windows, mac and linux
 
 ### v2.0.142 15 November 2022
