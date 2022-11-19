@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:device_info_plus/device_info_plus.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../helpers.dart';
@@ -19,6 +20,24 @@ class ValueStore {
       await prefs.setString('deviceId', deviceId);
     }
     return deviceId;
+  }
+
+  Future<Directory?> getFileLocation() async {
+    var custom = prefs.getString('customFileLocation');
+    if (custom == null) {
+      var downloadsDir = await getDownloadsDirectory();
+      return downloadsDir;
+    } else {
+      return Directory(custom);
+    }
+  }
+
+  Future setFileLocation(String? locationPath) async {
+    if (locationPath != null && locationPath.isNotEmpty) {
+      await prefs.setString('customFileLocation', locationPath);
+    } else {
+      await prefs.remove('customFileLocation');
+    }
   }
 
   Future<bool> setDeviceName(String name) {

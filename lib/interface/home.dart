@@ -197,7 +197,7 @@ class HomeScreenState extends ConsumerState<HomeScreen>
         try {
           // Only files created by app can be opened on macos without getting
           // permission errors or permission dialog.
-          tmpFile = await fileManager.safeCopyToDownloads(tmpFile);
+          tmpFile = await fileManager.safeCopyToFileLocation(tmpFile);
         } catch (error, stack) {
           ErrorLogger.logStackError('downloadsCopyError', error, stack);
         }
@@ -1035,7 +1035,9 @@ class HomeScreenState extends ConsumerState<HomeScreen>
                     openSettingsDialog(currentDevice!);
                   } else if (item == 'openDownloads') {
                     try {
-                      var downloadsDir = await getDownloadsDirectory();
+                      var prefs = await SharedPreferences.getInstance();
+                      var valueStore = ValueStore(prefs);
+                      var downloadsDir = await valueStore.getFileLocation();
                       await fileManager.openFolder(downloadsDir!.path);
                     } catch (error, stack) {
                       ErrorLogger.logStackError(
@@ -1045,6 +1047,8 @@ class HomeScreenState extends ConsumerState<HomeScreen>
                       showToast(
                           "Could not open file. See received files in your Downloads folder");
                     }
+                  } else if (item == 'changeFileLocation') {
+                    openFileLocationDialog();
                   } else {
                     print('Invalid item selected');
                   }
@@ -1054,6 +1058,11 @@ class HomeScreenState extends ConsumerState<HomeScreen>
                     const PopupMenuItem<String>(
                       value: 'openDownloads',
                       child: Text('Received Files'),
+                    ),
+                  if (Platform.isWindows)
+                    const PopupMenuItem<String>(
+                      value: 'changeFileLocation',
+                      child: Text('Change File Location'),
                     ),
                   const PopupMenuItem<String>(
                     value: 'changeDeviceName',
@@ -1068,6 +1077,43 @@ class HomeScreenState extends ConsumerState<HomeScreen>
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  void openFileLocationDialog() async {
+    var prefs = await SharedPreferences.getInstance();
+    var valueStore = ValueStore(prefs);
+    var fileLocationPath = await valueStore.getFileLocation();
+    showDialog<void>(
+      context: context,
+      builder: (_) => AlertDialog(
+        content: Column(children: [
+          Text(fileLocationPath?.path ?? '-'),
+          OutlinedButton(
+              onPressed: () async {
+                var directoryPath = await FilePicker.platform.getDirectoryPath(
+                  lockParentWindow: true,
+                  initialDirectory: fileLocationPath?.path,
+                );
+                if (directoryPath != null) {
+                  await valueStore.setFileLocation(directoryPath);
+                  print('Selected $directoryPath');
+                  if (mounted) {
+                    Navigator.pop(context);
+                  }
+                }
+              },
+              child: const Text('Select Location')),
+        ]),
+        actions: [
+          TextButton(
+            child: const Text('Done'),
+            onPressed: () {
+              Navigator.pop(context);
+            },
+          ),
+        ],
       ),
     );
   }

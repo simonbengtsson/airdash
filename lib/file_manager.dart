@@ -10,16 +10,18 @@ import 'package:url_launcher/url_launcher.dart';
 import 'dbus_open_file/dbus_open_file.dart';
 import 'helpers.dart';
 import 'model/payload.dart';
+import 'model/value_store.dart';
 
 class FileManager {
   var pendingClean = false;
 
-  Future<File> safeCopyToDownloads(File tmpFile) async {
+  Future<File> safeCopyToFileLocation(File tmpFile) async {
     if (!isDesktop()) {
       return tmpFile;
     }
     try {
-      var downloadsDir = await getDownloadsDirectory();
+      var prefs = await SharedPreferences.getInstance();
+      var downloadsDir = await ValueStore(prefs).getFileLocation();
       if (downloadsDir == null) {
         return tmpFile;
       }
