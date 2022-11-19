@@ -35,7 +35,7 @@ class ErrorLogger {
   static Map<String, int> loggedCount = {};
 
   static Future _logError(LogError error, int? errorCount) async {
-    print('LOG_ERROR: ${error.type}');
+    print('LOG_ERROR: ${error.type} ${error.error}');
     if (errorCount != null) {
       var current = loggedCount[error.type] ?? 0;
       // Ignore all these errors for now

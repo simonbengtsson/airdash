@@ -65,8 +65,7 @@ class Connector {
       throw Exception('Invalid payload type');
     }
 
-    logger('SENDER: Start sending file to receiver "${receiver.id}"');
-    logger('SENDER: File ${file.path}');
+    logger('SENDER: Start sending to receiver "${receiver.id}"');
     var startTime = DateTime.now();
 
     if (Platform.isIOS) {

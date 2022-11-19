@@ -1,7 +1,8 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:io';
+import 'dart:io' hide BytesBuilder;
 import 'dart:math';
+import 'dart:typed_data';
 
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:simple_peer/simple_peer.dart';

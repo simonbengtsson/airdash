@@ -30,7 +30,8 @@ class SentryManager {
       type = throwable.type;
       // No need to print this here due to already printed
     } else {
-      print('SENTRY: Native error logged ${throwable.runtimeType.toString()}');
+      print(
+          'SENTRY: Native error logged ${throwable.runtimeType.toString()} ${throwable}');
     }
 
     // Don't post errors that happened during analytics calls
