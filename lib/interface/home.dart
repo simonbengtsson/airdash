@@ -1059,7 +1059,7 @@ class HomeScreenState extends ConsumerState<HomeScreen>
                       value: 'openDownloads',
                       child: Text('Received Files'),
                     ),
-                  if (Platform.isWindows)
+                  if (Platform.isWindows || Platform.isLinux)
                     const PopupMenuItem<String>(
                       value: 'changeFileLocation',
                       child: Text('Change File Location'),
