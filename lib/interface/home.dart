@@ -1056,6 +1056,7 @@ class HomeScreenState extends ConsumerState<HomeScreen>
                   } else if (item == 'changeFileLocation') {
                     openFileLocationDialog(context, valueStore);
                   } else if (item == 'toggleTrayMode') {
+                    await valueStore.toggleTrayModeEnabled();
                     await AppWindowManager().setupWindow();
                   } else {
                     print('Invalid item selected');

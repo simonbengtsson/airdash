@@ -19,8 +19,6 @@ class AppWindowManager {
     await windowManager.ensureInitialized();
     await windowManager.waitUntilReadyToShow();
 
-    await windowManager.hide();
-
     var prefs = await SharedPreferences.getInstance();
     var enabled = ValueStore(prefs).isTrayModeEnabled();
 
@@ -63,7 +61,6 @@ class AppWindowManager {
 
     await Future<void>.delayed(Duration(milliseconds: 500));
     var bounds = await trayManager.getBounds();
-    print(bounds);
     await windowManager.setPosition(bounds!.topLeft);
 
     logger('MAIN: Finished setting up tray ${items.length}');
