@@ -2,16 +2,36 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:device_info_plus/device_info_plus.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../helpers.dart';
+import '../transfer/connector.dart';
 import 'device.dart';
 
 class ValueStore {
   SharedPreferences prefs;
 
   ValueStore(this.prefs);
+
+  Future persistState(Connector? connector, Device currentDevice,
+      List<Device> devices, WidgetRef ref) async {
+    var prefs = await SharedPreferences.getInstance();
+    await prefs.setStringList(
+        'receivers', devices.map((r) => jsonEncode(r.encode())).toList());
+    Device? selectedDevice =
+        ref.read(selectedDeviceProvider.notifier).getDevice();
+    if (selectedDevice != null) {
+      await prefs.setString('selectedReceivingDeviceId', selectedDevice.id);
+    } else {
+      await prefs.remove('selectedReceivingDeviceId');
+    }
+    if (currentDevice != null) {
+      await prefs.setString('deviceName', currentDevice.name);
+    }
+    connector?.localDevice = currentDevice;
+  }
 
   Future<String> getDeviceId() async {
     var deviceId = prefs.getString('deviceId') ?? '';

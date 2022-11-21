@@ -433,8 +433,7 @@ class HomeScreenState extends ConsumerState<HomeScreen>
     return payloadMbSize > 1000 ? 1 : 0;
   }
 
-  Future<void> openPairReceiverDialog(
-      Device device, BuildContext context) async {
+  Future<void> openPairingDialog(Device device, BuildContext context) async {
     AnalyticsEvent.pairingDialogShown.log();
     return showDialog(
         context: context,
@@ -453,25 +452,10 @@ class HomeScreenState extends ConsumerState<HomeScreen>
                   'Device OS': receiver.platform ?? '',
                   'User ID': receiver.userId ?? '',
                 });
-                await persistState();
+                await valueStore.persistState(
+                    connector, currentDevice!, devices, ref);
               });
         });
-  }
-
-  Future persistState() async {
-    var prefs = await SharedPreferences.getInstance();
-    await prefs.setStringList(
-        'receivers', devices.map((r) => jsonEncode(r.encode())).toList());
-    var selectedDevice = ref.read(selectedDeviceProvider.notifier).getDevice();
-    if (selectedDevice != null) {
-      await prefs.setString('selectedReceivingDeviceId', selectedDevice.id);
-    } else {
-      await prefs.remove('selectedReceivingDeviceId');
-    }
-    if (currentDevice != null) {
-      await prefs.setString('deviceName', currentDevice!.name);
-    }
-    connector?.localDevice = currentDevice!;
   }
 
   Widget renderSendButton() {
@@ -898,7 +882,7 @@ class HomeScreenState extends ConsumerState<HomeScreen>
     );
   }
 
-  void deleteDevice(Device device) {
+  Future<void> deleteDevice(Device device) async {
     AnalyticsEvent.receiverDeleted.log(<String, String>{
       'Device ID': device.id,
       'Device Name': device.name,
@@ -907,8 +891,8 @@ class HomeScreenState extends ConsumerState<HomeScreen>
     setState(() {
       devices = devices.where((r) => r.id != device.id).toList();
       ref.read(selectedDeviceProvider.notifier).setDevice(devices.firstOrNull);
-      persistState();
     });
+    await valueStore.persistState(connector, currentDevice!, devices, ref);
   }
 
   Widget buildSectionTitle(String text) {
@@ -954,12 +938,13 @@ class HomeScreenState extends ConsumerState<HomeScreen>
                     );
                   });
             },
-            onTap: () {
+            onTap: () async {
               ref.read(selectedDeviceProvider.notifier).setDevice(it);
               AnalyticsEvent.receiverSelected.log(<String, dynamic>{
                 ...remoteDeviceProperties(it),
               });
-              persistState();
+              await valueStore.persistState(
+                  connector, currentDevice!, devices, ref);
             },
             selected: selected,
             trailing: selected ? const Icon(Icons.check) : null,
@@ -980,7 +965,7 @@ class HomeScreenState extends ConsumerState<HomeScreen>
                       ? null
                       : () async {
                           setState(() => disabledKeys['pairNewDevice'] = true);
-                          openPairReceiverDialog(currentDevice!, context);
+                          openPairingDialog(currentDevice!, context);
                           await Future<void>.delayed(
                               const Duration(milliseconds: 200));
                           setState(() => disabledKeys.remove('pairNewDevice'));
@@ -1140,10 +1125,11 @@ class HomeScreenState extends ConsumerState<HomeScreen>
             ),
             initialValue: currentDevice.name,
             onChanged: (text) async {
+              var newDevice = currentDevice.withName(text);
               setState(() {
-                this.currentDevice = currentDevice.withName(text);
+                this.currentDevice = newDevice;
               });
-              await persistState();
+              await valueStore.persistState(connector, newDevice, devices, ref);
             },
           ),
           actions: [
