@@ -34,6 +34,7 @@ import '../reporting/logger.dart';
 import '../transfer/connector.dart';
 import '../transfer/signaling.dart';
 import './window_manager.dart';
+import 'file_location_dialog.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -1033,7 +1034,7 @@ class HomeScreenState extends ConsumerState<HomeScreen>
                       applicationVersion: 'v$version',
                     );
                   } else if (item == 'changeDeviceName') {
-                    openSettingsDialog(currentDevice!);
+                    openChangeDeviceNameDialog(currentDevice!);
                   } else if (item == 'openDownloads') {
                     try {
                       var prefs = await SharedPreferences.getInstance();
@@ -1053,9 +1054,8 @@ class HomeScreenState extends ConsumerState<HomeScreen>
                           "Could not open file. See received files in your Downloads folder");
                     }
                   } else if (item == 'changeFileLocation') {
-                    openFileLocationDialog();
+                    openFileLocationDialog(context, valueStore);
                   } else if (item == 'toggleTrayMode') {
-                    var enabled = await valueStore.toggleTrayModeEnabled();
                     await AppWindowManager().setupWindow();
                   } else {
                     print('Invalid item selected');
@@ -1094,52 +1094,13 @@ class HomeScreenState extends ConsumerState<HomeScreen>
     );
   }
 
-  void openFileLocationDialog() async {
-    var prefs = await SharedPreferences.getInstance();
-    var valueStore = ValueStore(prefs);
-    var fileLocationPath = await valueStore.getFileLocation();
-    if (Platform.isMacOS) {
-      await communicatorChannel.invokeMethod<void>('endFileLocationAccess');
-    }
-    showDialog<void>(
-      context: context,
-      builder: (_) => AlertDialog(
-        content: Column(children: [
-          Text(fileLocationPath?.path ?? '-'),
-          OutlinedButton(
-              onPressed: () async {
-                var directoryPath = await FilePicker.platform.getDirectoryPath(
-                  lockParentWindow: true,
-                  initialDirectory: fileLocationPath?.path,
-                );
-                if (directoryPath != null) {
-                  await valueStore.setFileLocation(directoryPath);
-                  print('Selected $directoryPath');
-                  if (mounted) {
-                    Navigator.pop(context);
-                  }
-                }
-              },
-              child: const Text('Select Location')),
-        ]),
-        actions: [
-          TextButton(
-            child: const Text('Done'),
-            onPressed: () {
-              Navigator.pop(context);
-            },
-          ),
-        ],
-      ),
-    );
-  }
-
-  void openSettingsDialog(Device currentDevice) {
+  void openChangeDeviceNameDialog(Device currentDevice) {
     showDialog<void>(
       context: context,
       builder: (_) => AlertDialog(
           content: TextFormField(
             decoration: const InputDecoration(
+              suffixIcon: Icon(Icons.add),
               label: Text('This Device Name'),
             ),
             initialValue: currentDevice.name,
