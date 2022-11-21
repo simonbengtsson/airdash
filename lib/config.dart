@@ -8,7 +8,6 @@ class Config {
   static final firebaseApiKey = _getEnv('__APP__FIREBASE_API_KEY');
   static final firebaseProjectId = _getEnv('__APP__FIREBASE_PROJECT_ID');
 
-  static const enableDesktopTray = false;
   static const sendErrorAndAnalyticsLogs = !kDebugMode;
 
   static String _getEnv(String key) {

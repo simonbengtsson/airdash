@@ -33,6 +33,7 @@ import '../reporting/error_logger.dart';
 import '../reporting/logger.dart';
 import '../transfer/connector.dart';
 import '../transfer/signaling.dart';
+import './window_manager.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -276,14 +277,14 @@ class HomeScreenState extends ConsumerState<HomeScreen>
 
   @override
   void onWindowBlur() {
-    if (!isPickingFile && Platform.isMacOS && Config.enableDesktopTray) {
+    if (!isPickingFile && Platform.isMacOS && valueStore.isTrayModeEnabled()) {
       windowManager.close();
     }
   }
 
   @override
   void onWindowClose() {
-    if (!Config.enableDesktopTray) {
+    if (!valueStore.isTrayModeEnabled()) {
       exit(1);
     }
   }
@@ -1043,6 +1044,9 @@ class HomeScreenState extends ConsumerState<HomeScreen>
                     }
                   } else if (item == 'changeFileLocation') {
                     openFileLocationDialog();
+                  } else if (item == 'toggleTrayMode') {
+                    var enabled = await valueStore.toggleTrayModeEnabled();
+                    await AppWindowManager().setupWindow();
                   } else {
                     print('Invalid item selected');
                   }
@@ -1062,6 +1066,11 @@ class HomeScreenState extends ConsumerState<HomeScreen>
                     value: 'changeDeviceName',
                     child: Text('Change Device Name'),
                   ),
+                  if (Platform.isMacOS)
+                    const PopupMenuItem<String>(
+                      value: 'toggleTrayMode',
+                      child: Text('Toggle Tray Mode'),
+                    ),
                   const PopupMenuItem<String>(
                     value: 'licenses',
                     child: Text('Licenses'),

@@ -33,6 +33,16 @@ class ValueStore {
     connector?.localDevice = currentDevice;
   }
 
+  bool isTrayModeEnabled() {
+    return prefs.getBool('isTrayModeEnabled') ?? false;
+  }
+
+  Future<bool> toggleTrayModeEnabled() async {
+    var enabled = !isTrayModeEnabled();
+    await prefs.setBool('isTrayModeEnabled', enabled);
+    return enabled;
+  }
+
   Future<String> getDeviceId() async {
     var deviceId = prefs.getString('deviceId') ?? '';
     if (deviceId.length < 5) {

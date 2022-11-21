@@ -13,7 +13,7 @@ void main() async {
       await SentryManager.setup(options);
     },
     appRunner: () {
-      WindowManager().setupWindow();
+      AppWindowManager().setupWindow();
       return runApp(const ProviderScope(child: App()));
     },
   );
