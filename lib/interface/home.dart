@@ -950,7 +950,12 @@ class HomeScreenState extends ConsumerState<HomeScreen>
             selected: selected,
             trailing: selected ? const Icon(Icons.check) : null,
             selectedTileColor: Colors.grey[100],
-            leading: Icon(it.icon),
+            leading: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(it.icon),
+              ],
+            ),
             title: Text(it.name),
             subtitle: Text(it.displayId),
           );
@@ -1009,7 +1014,12 @@ class HomeScreenState extends ConsumerState<HomeScreen>
                   style: Theme.of(context).textTheme.bodySmall),
             ),
             ListTile(
-              leading: Icon(device.icon),
+              leading: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(device.icon),
+                ],
+              ),
               title: Text('${device.name}${kDebugMode ? '' : ''}'),
               subtitle: Text(device.displayId),
               trailing: PopupMenuButton<String>(
