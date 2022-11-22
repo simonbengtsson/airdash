@@ -3,7 +3,8 @@
 ### Unreleased
 - [new] Add ability to change save location on mac
 - [new] Improve file location dialog ui
-- [new] Add an experimental option to run the mac app as a menu bar app
+- [new] Add an experimental option to run the app in the menu bar on macos
+- [new] Add an experimental option to auto start mac app (macos 13+ only)
 
 ### v2.0.146 19 November 2022
 - [new] Enable sending of multiple files

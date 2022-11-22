@@ -52,6 +52,7 @@ class HomeScreenState extends ConsumerState<HomeScreen>
   late final ValueStore valueStore;
 
   Device? currentDevice;
+  bool isAutoStartEnabled = false;
 
   List<Device> devices = [];
 
@@ -153,6 +154,8 @@ class HomeScreenState extends ConsumerState<HomeScreen>
 
   Future start() async {
     var prefs = await SharedPreferences.getInstance();
+    await updateAutoStartStatus();
+
     valueStore = ValueStore(prefs);
 
     if (isMobile()) {
@@ -239,6 +242,19 @@ class HomeScreenState extends ConsumerState<HomeScreen>
         .start();
   }
 */
+
+  Future updateAutoStartStatus() async {
+    if (Platform.isMacOS) {
+      try {
+        isAutoStartEnabled = await communicatorChannel
+                .invokeMethod<bool>("getAutoStartStatus") ??
+            false;
+      } catch (error) {
+        print('Failed registering for auto start');
+        print(error);
+      }
+    }
+  }
 
   void showTransferFailedToast(String message) {
     var bar = SnackBar(
@@ -1058,6 +1074,19 @@ class HomeScreenState extends ConsumerState<HomeScreen>
                   } else if (item == 'toggleTrayMode') {
                     await valueStore.toggleTrayModeEnabled();
                     await AppWindowManager().setupWindow();
+                  } else if (item == 'toggleAutoStart') {
+                    try {
+                      await communicatorChannel
+                          .invokeMethod<bool>('toggleAutoStart');
+                      await updateAutoStartStatus();
+                      setState(() {});
+                      print("Toggled auto start status");
+                    } catch (error, stack) {
+                      print('Could not toggle auto start');
+                      var details =
+                          FlutterErrorDetails(exception: error, stack: stack);
+                      FlutterError.presentError(details);
+                    }
                   } else {
                     print('Invalid item selected');
                   }
@@ -1081,6 +1110,12 @@ class HomeScreenState extends ConsumerState<HomeScreen>
                     const PopupMenuItem<String>(
                       value: 'toggleTrayMode',
                       child: Text('Toggle Tray Mode'),
+                    ),
+                  if (Platform.isMacOS)
+                    PopupMenuItem<String>(
+                      value: 'toggleAutoStart',
+                      child: Text(
+                          '${isAutoStartEnabled ? 'Disable' : 'Enable'} Auto Start'),
                     ),
                   const PopupMenuItem<String>(
                     value: 'licenses',

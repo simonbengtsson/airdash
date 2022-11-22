@@ -35,13 +35,14 @@ class AppWindowManager {
       await trayManager.destroy();
       await windowManager.setTitleBarStyle(TitleBarStyle.normal,
           windowButtonVisibility: true);
+      await windowManager.show();
     } else {
       await windowManager.setTitleBarStyle(TitleBarStyle.hidden,
           windowButtonVisibility: false);
       await _setupTray();
+      await windowManager.hide();
     }
 
-    await windowManager.show();
     print('Window shown');
   }
 
@@ -59,7 +60,7 @@ class AppWindowManager {
     await trayManager.setContextMenu(Menu(items: items));
     await trayManager.setToolTip('AirDash');
 
-    await Future<void>.delayed(Duration(milliseconds: 500));
+    await Future<void>.delayed(const Duration(milliseconds: 500));
     var bounds = await trayManager.getBounds();
     await windowManager.setPosition(bounds!.topLeft);
 

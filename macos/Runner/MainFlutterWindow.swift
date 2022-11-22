@@ -1,4 +1,5 @@
 import Cocoa
+import ServiceManagement
 import FlutterMacOS
 import window_manager
 
@@ -70,6 +71,33 @@ class MainFlutterWindow: NSWindow {
                 fileLocationUrl?.stopAccessingSecurityScopedResource()
                 fileLocationUrl = nil
                 result(true)
+            } else if call.method == "toggleAutoStart"  {
+                if #available(macOS 13.0, *) {
+                    let isEnabled = SMAppService.mainApp.status == .enabled
+                    do {
+                        if isEnabled {
+                            try SMAppService.mainApp.unregister()
+                            print("Unregistered auto start")
+                        } else {
+                            try SMAppService.mainApp.register()
+                            print("Regiestered auto start")
+                        }
+                        result(true)
+                    } catch {
+                        let errorMessage = "Failed to update auto start \(isEnabled) \(error.localizedDescription)"
+                        print(errorMessage)
+                        result(self.createSimpleFlutterError(errorMessage))
+                    }
+                } else {
+                    result(self.createSimpleFlutterError("Only supported on macOS 13"))
+                }
+            } else if call.method == "getAutoStartStatus" {
+                if #available(macOS 13.0, *) {
+                    let isEnabled = SMAppService.mainApp.status == .enabled
+                    result(isEnabled)
+                } else {
+                    result(self.createSimpleFlutterError("Only supported on macOS 13"))
+                }
             } else {
                 result(FlutterMethodNotImplemented)
             }
@@ -78,6 +106,10 @@ class MainFlutterWindow: NSWindow {
         RegisterGeneratedPlugins(registry: flutterViewController)
         
         super.awakeFromNib()
+    }
+    
+    func createSimpleFlutterError(_ message: String) -> FlutterError {
+        return FlutterError(code: "CALL_ERROR", message: message, details: nil)
     }
 
     override public func order(_ place: NSWindow.OrderingMode, relativeTo otherWin: Int) {
