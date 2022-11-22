@@ -4,7 +4,7 @@ import 'command_runner.dart';
 import 'tools_config.dart';
 
 class VersionEditor {
-  List<int> bumpPatchVersion() {
+  List<int> bumpPatchVersion({bool shouldCommit = true}) {
     var pubspecFile = File(Config.localPubspecPath);
     var snapcraftFile = File(Config.localSnapcraftPath);
     var oldVersion = readCurrentVersion();
@@ -17,11 +17,13 @@ class VersionEditor {
         'version: ${oldVersion.join('.')}+${oldVersion[2]}',
         'version: ${newVersion.join('.')}+${newVersion[2]}');
 
-    runLocalCommand('git reset');
-    runLocalCommand('git add ${pubspecFile.path} ${snapcraftFile.path}');
-    runLocalCommand('git commit -m v${newVersion.join('.')}');
-    runLocalCommand('git tag v${newVersion.join('.')} -f');
-    runLocalCommand('git push && git push -f --tags');
+    if (shouldCommit) {
+      runLocalCommand('git reset');
+      runLocalCommand('git add ${pubspecFile.path} ${snapcraftFile.path}');
+      runLocalCommand('git commit -m v${newVersion.join('.')}');
+      runLocalCommand('git tag v${newVersion.join('.')} -f');
+      runLocalCommand('git push && git push -f --tags');
+    }
 
     print(newVersion.join('.'));
 
