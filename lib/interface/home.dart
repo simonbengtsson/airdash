@@ -198,6 +198,9 @@ class HomeScreenState extends ConsumerState<HomeScreen>
       } else if (payload is UrlPayload) {
         await launchUrl(payload.httpUrl, mode: LaunchMode.externalApplication);
         showSnackBar('URL opened');
+        setState(() {
+          receivingStatus = null;
+        });
       } else if (payload is FilePayload) {
         var tmpFile = payload.files.first;
         try {
