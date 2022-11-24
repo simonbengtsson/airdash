@@ -11,6 +11,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:grpc/grpc.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+import 'package:pasteboard/pasteboard.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -145,7 +146,6 @@ class HomeScreenState extends ConsumerState<HomeScreen>
   Future init() async {
     try {
       await start().timeout(const Duration(seconds: 10));
-      selectDebugFile();
     } catch (error, stack) {
       ErrorLogger.logStackError('startError', error, stack);
       showSnackBar('Could not connect. Check your internet connection.');
@@ -232,6 +232,7 @@ class HomeScreenState extends ConsumerState<HomeScreen>
     } catch (error, stack) {
       ErrorLogger.logStackError('infoUpdateError', error, stack);
     }
+    selectPasteboard();
 
     //startBluetooth();
   }
@@ -315,6 +316,7 @@ class HomeScreenState extends ConsumerState<HomeScreen>
       await windowManager.close();
     } else {
       await windowManager.show();
+      selectPasteboard();
     }
     print('tray icon mouse down');
   }
@@ -363,19 +365,26 @@ class HomeScreenState extends ConsumerState<HomeScreen>
     }
   }
 
-  void selectDebugFile() async {
-    if (kDebugMode && Platform.isMacOS) {
-      try {
-        var dir = await getApplicationDocumentsDirectory();
-        var file = File('${dir.path}/airdash.flown.io.testfile.txt');
-        if (await file.exists()) {
-          setState(() {
-            selectedPayload = FilePayload([file]);
-          });
-        }
-      } catch (error) {
-        logger('Could not set test file $error');
+  void selectPasteboard() async {
+    try {
+      final filePaths = await Pasteboard.files();
+      final text = await Pasteboard.text ?? '';
+      var isUrl = Uri.tryParse(text)?.hasAbsolutePath ?? false;
+      if (filePaths.isNotEmpty) {
+        var files = filePaths.map((it) => File(it)).toList();
+        setState(() {
+          selectedPayload = FilePayload(files);
+        });
+        print('Selected pasteboard files ${filePaths}');
+      } else if (isUrl) {
+        var url = Uri.parse(text);
+        setState(() {
+          selectedPayload = UrlPayload(url);
+        });
+        print('Selected url payload ${url.path}');
       }
+    } catch (error, stack) {
+      ErrorLogger.logStackError('couldNotSelectPasteboard', error, stack);
     }
   }
 
