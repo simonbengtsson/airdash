@@ -290,7 +290,8 @@ class HomeScreenState extends ConsumerState<HomeScreen>
 
   @override
   void onWindowFocus() {
-    // Make sure to call setState once (window manager)
+    selectPasteboard();
+    print('Window was focused...');
   }
 
   @override
@@ -298,8 +299,8 @@ class HomeScreenState extends ConsumerState<HomeScreen>
 
   @override
   void onWindowBlur() {
-    if (!isPickingFile && Platform.isMacOS && valueStore.isTrayModeEnabled()) {
-      windowManager.close();
+    if (!isPickingFile && valueStore.isTrayModeEnabled()) {
+      //windowManager.close();
     }
   }
 
@@ -316,7 +317,6 @@ class HomeScreenState extends ConsumerState<HomeScreen>
       await windowManager.close();
     } else {
       await windowManager.show();
-      selectPasteboard();
     }
     print('tray icon mouse down');
   }
