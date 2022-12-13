@@ -30,7 +30,9 @@ Transfer photos and files to any device.
 - Sentry (app monitoring and error tracking)
 
 ### Run project
-- Create a .env file by copying the .env.sample file
+- Create a firebase project (https://console.firebase.google.com)
+- Create a .env file by duplicating the .env.sample file
+- Replace the firebase project id and web API key in the .env file with the ones for your project (firebase console -> project settings)
 - Run dart tools/scripts.dart app_env to get a env.dart file
 - Run app using editor or `flutter run`
 

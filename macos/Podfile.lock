@@ -15,11 +15,11 @@ PODS:
     - FlutterMacOS
   - screen_retriever (0.0.1):
     - FlutterMacOS
-  - Sentry/HybridSDK (7.31.1)
+  - Sentry/HybridSDK (7.31.3)
   - sentry_flutter (0.0.1):
     - Flutter
     - FlutterMacOS
-    - Sentry/HybridSDK (= 7.31.1)
+    - Sentry/HybridSDK (= 7.31.3)
   - share_plus (0.0.1):
     - FlutterMacOS
   - shared_preferences_macos (0.0.1):
@@ -97,8 +97,8 @@ SPEC CHECKSUMS:
   pasteboard: 9b69dba6fedbb04866be632205d532fe2f6b1d99
   path_provider_macos: 3c0c3b4b0d4a76d2bf989a913c2de869c5641a19
   screen_retriever: 59634572a57080243dd1bf715e55b6c54f241a38
-  Sentry: f04f9823ec51fcded88e5c6769142e30dd7dbe95
-  sentry_flutter: 17bfc61990c61086c152dfa5379a9fed653a7d7c
+  Sentry: 08884c523575ec0f6690d94ed3ccb0246a1600bf
+  sentry_flutter: 91ebe7757a166b34ff432a0d550d22cd010d44d2
   share_plus: 76dd39142738f7a68dd57b05093b5e8193f220f7
   shared_preferences_macos: a64dc611287ed6cbe28fd1297898db1336975727
   tray_manager: 9064e219c56d75c476e46b9a21182087930baf90

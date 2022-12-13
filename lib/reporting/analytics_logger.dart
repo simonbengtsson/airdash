@@ -188,10 +188,16 @@ class AnalyticsManager {
 
   Future updateMixpanelProfile(
       String userId, Map<String, dynamic> props) async {
+    var mixPanelToken = Config.mixpanelProjectToken;
+    if (mixPanelToken == null) {
+      print('ANALYTICS: Would have updated profile $userId');
+      return;
+    }
+
     props = _unifyProps(props, '_profile_');
 
     var body = {
-      '\$token': Config.mixpanelProjectToken,
+      '\$token': mixPanelToken,
       '\$distinct_id': FirebaseAuth.instance.userId,
       '\$set': props,
     };
@@ -212,12 +218,18 @@ class AnalyticsManager {
   }
 
   Future logEvent(String eventName, Map<String, dynamic> props) async {
+    var mixPanelToken = Config.mixpanelProjectToken;
+    if (mixPanelToken == null) {
+      print('ANALYTICS: Would have logged $eventName');
+      return;
+    }
+
     var userProps = await getUserProperties();
     props = _unifyProps(<String, dynamic>{...props, ...userProps}, eventName);
 
     var eventProps = <String, dynamic>{
       'time': DateTime.now().millisecondsSinceEpoch,
-      'token': Config.mixpanelProjectToken,
+      'token': mixPanelToken,
       'distinct_id': FirebaseAuth.instance.userId,
       ...props,
     };
