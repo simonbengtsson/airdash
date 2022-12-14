@@ -614,17 +614,24 @@ class HomeScreenState extends ConsumerState<HomeScreen>
         await communicatorChannel
             .invokeMethod<void>('openFile', {'urls': paths});
       } else if (Platform.isAndroid) {
-        var firstFile = files.first;
-        var launchUrl = firstFile.path;
-        logger('MAIN: Will open: $launchUrl');
-        try {
-          await communicatorChannel
-              .invokeMethod<void>('openFile', {'url': launchUrl});
-        } catch (error, stack) {
-          ErrorLogger.logStackError(
-              'noInstalledAppCouldOpenFile', error, stack);
-          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-              content: Text("No installed app could open this file")));
+        if (files.length == 1) {
+          var firstFile = files.first;
+          var launchUrl = firstFile.path;
+          logger('MAIN: Will open: $launchUrl');
+          try {
+            await communicatorChannel
+                .invokeMethod<void>('openFile', {'url': launchUrl});
+          } catch (error, stack) {
+            ErrorLogger.logStackError(
+                'noInstalledAppCouldOpenFile', error, stack);
+            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                content: Text("No installed app could open this file")));
+          }
+        } else {
+          // Seems there is no way to preview multiple files on android
+          // so openeing share sheet instead to let user decide what they
+          // want to do.
+          await openShareSheet(files, context);
         }
       } else {
         if (Platform.isLinux) {
