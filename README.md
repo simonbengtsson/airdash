@@ -30,11 +30,14 @@ Transfer photos and files to any device.
 - Sentry (app monitoring and error tracking)
 
 ### Run project
-- Create a firebase project (https://console.firebase.google.com)
+- Create a firebase project (https://console.firebase.google.com) and enable firestore and anonymous authentication
 - Create a .env file by duplicating the .env.sample file
 - Replace the firebase project id and web API key in the .env file with the ones for your project (firebase console -> project settings)
 - Run dart tools/scripts.dart app_env to get a env.dart file
+- Deploy pairing backend function by `cd functions && npm i && npx firebase deploy --only pairing`
 - Run app using editor or `flutter run`
+
+By default a google stun server is used to connect peers. The simplest way to enable turn servers as well is to use https://www.twilio.com/stun-turn. Create functions/.env file similar to the functions/.env-sample file and deploy the updateTwilioToken backend function.
 
 ### Contribute
 Contributions are very much welcome on everything from bug reports to feature development. If you
