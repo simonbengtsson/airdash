@@ -1,7 +1,6 @@
 {
   "name": "functions",
-  "scripts": {
-  },
+  "scripts": {},
   "engines": {
     "node": "16"
   },
@@ -13,6 +12,7 @@
     "node-fetch": "^3.2.3"
   },
   "devDependencies": {
+    "firebase-tools": "^11.19.0"
   },
   "private": true
 }
