@@ -280,7 +280,8 @@ class Connector {
       if (receiver != null) {
         connectionTypes = await getConnectionTypes(receiver.peer.connection);
         logger('RECEIVER: Finished with $connectionTypes');
-        await receiver.peer.connection.close();
+        // Crashed when enabled but should be fixed
+        //await receiver.peer.connection.close();
       }
       if (!Platform.isLinux && !Platform.isWindows) {
         await Wakelock.disable();
