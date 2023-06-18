@@ -3,9 +3,9 @@ PODS:
     - FlutterMacOS
   - device_info_plus (0.0.1):
     - FlutterMacOS
-  - flutter_webrtc (0.9.13):
+  - flutter_webrtc (0.9.31):
     - FlutterMacOS
-    - WebRTC-SDK (= 104.5112.06)
+    - WebRTC-SDK (= 104.5112.17)
   - FlutterMacOS (1.0.0)
   - package_info_plus (0.0.1):
     - FlutterMacOS
@@ -32,7 +32,7 @@ PODS:
     - FlutterMacOS
   - wakelock_macos (0.0.1):
     - FlutterMacOS
-  - WebRTC-SDK (104.5112.06)
+  - WebRTC-SDK (104.5112.17)
   - window_manager (0.2.0):
     - FlutterMacOS
 
@@ -43,11 +43,11 @@ DEPENDENCIES:
   - FlutterMacOS (from `Flutter/ephemeral`)
   - package_info_plus (from `Flutter/ephemeral/.symlinks/plugins/package_info_plus/macos`)
   - pasteboard (from `Flutter/ephemeral/.symlinks/plugins/pasteboard/macos`)
-  - path_provider_foundation (from `Flutter/ephemeral/.symlinks/plugins/path_provider_foundation/macos`)
+  - path_provider_foundation (from `Flutter/ephemeral/.symlinks/plugins/path_provider_foundation/darwin`)
   - screen_retriever (from `Flutter/ephemeral/.symlinks/plugins/screen_retriever/macos`)
   - sentry_flutter (from `Flutter/ephemeral/.symlinks/plugins/sentry_flutter/macos`)
   - share_plus (from `Flutter/ephemeral/.symlinks/plugins/share_plus/macos`)
-  - shared_preferences_foundation (from `Flutter/ephemeral/.symlinks/plugins/shared_preferences_foundation/macos`)
+  - shared_preferences_foundation (from `Flutter/ephemeral/.symlinks/plugins/shared_preferences_foundation/darwin`)
   - tray_manager (from `Flutter/ephemeral/.symlinks/plugins/tray_manager/macos`)
   - url_launcher_macos (from `Flutter/ephemeral/.symlinks/plugins/url_launcher_macos/macos`)
   - wakelock_macos (from `Flutter/ephemeral/.symlinks/plugins/wakelock_macos/macos`)
@@ -72,7 +72,7 @@ EXTERNAL SOURCES:
   pasteboard:
     :path: Flutter/ephemeral/.symlinks/plugins/pasteboard/macos
   path_provider_foundation:
-    :path: Flutter/ephemeral/.symlinks/plugins/path_provider_foundation/macos
+    :path: Flutter/ephemeral/.symlinks/plugins/path_provider_foundation/darwin
   screen_retriever:
     :path: Flutter/ephemeral/.symlinks/plugins/screen_retriever/macos
   sentry_flutter:
@@ -80,7 +80,7 @@ EXTERNAL SOURCES:
   share_plus:
     :path: Flutter/ephemeral/.symlinks/plugins/share_plus/macos
   shared_preferences_foundation:
-    :path: Flutter/ephemeral/.symlinks/plugins/shared_preferences_foundation/macos
+    :path: Flutter/ephemeral/.symlinks/plugins/shared_preferences_foundation/darwin
   tray_manager:
     :path: Flutter/ephemeral/.symlinks/plugins/tray_manager/macos
   url_launcher_macos:
@@ -93,22 +93,22 @@ EXTERNAL SOURCES:
 SPEC CHECKSUMS:
   desktop_drop: 69eeff437544aa619c8db7f4481b3a65f7696898
   device_info_plus: 5401765fde0b8d062a2f8eb65510fb17e77cf07f
-  flutter_webrtc: 4bb537cadddcfb5e5b24c96cbd6ff56f064b8faf
+  flutter_webrtc: 9903b25f3648e335a40952058b14225e7b0df88d
   FlutterMacOS: 8f6f14fa908a6fb3fba0cd85dbd81ec4b251fb24
   package_info_plus: 02d7a575e80f194102bef286361c6c326e4c29ce
   pasteboard: 9b69dba6fedbb04866be632205d532fe2f6b1d99
-  path_provider_foundation: 37748e03f12783f9de2cb2c4eadfaa25fe6d4852
+  path_provider_foundation: eaf5b3e458fc0e5fbb9940fb09980e853fe058b8
   screen_retriever: 59634572a57080243dd1bf715e55b6c54f241a38
   Sentry: 4c9babff9034785067c896fd580b1f7de44da020
-  sentry_flutter: b10ae7a5ddcbc7f04648eeb2672b5747230172f1
+  sentry_flutter: 1346a880b24c0240807b53b10cf50ddad40f504e
   share_plus: 76dd39142738f7a68dd57b05093b5e8193f220f7
-  shared_preferences_foundation: 297b3ebca31b34ec92be11acd7fb0ba932c822ca
+  shared_preferences_foundation: e2dae3258e06f44cc55f49d42024fd8dd03c590c
   tray_manager: 9064e219c56d75c476e46b9a21182087930baf90
-  url_launcher_macos: c04e4fa86382d4f94f6b38f14625708be3ae52e2
+  url_launcher_macos: 5335912b679c073563f29d89d33d10d459f95451
   wakelock_macos: bc3f2a9bd8d2e6c89fee1e1822e7ddac3bd004a9
-  WebRTC-SDK: 85ee61404eb5698cf23a69a27008271db07159fc
+  WebRTC-SDK: 082ae4893212534a779ca233f19a9df8efd5f3bd
   window_manager: 3a1844359a6295ab1e47659b1a777e36773cd6e8
 
 PODFILE CHECKSUM: 963639d5148db2f75442340858b9034c09ed58df
 
-COCOAPODS: 1.11.3
+COCOAPODS: 1.12.1
