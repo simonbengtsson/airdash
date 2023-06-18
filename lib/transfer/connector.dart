@@ -73,7 +73,7 @@ class Connector {
       ...payloadProps,
     });
     try {
-      if (!Platform.isLinux) {
+      if (!Platform.isLinux && !Platform.isWindows) {
         await Wakelock.enable();
       }
       logger('SENDER: Start transfer $transferId');
@@ -116,7 +116,7 @@ class Connector {
       sendError = error;
       rethrow;
     } finally {
-      if (!Platform.isLinux) {
+      if (!Platform.isLinux && !Platform.isWindows) {
         await Wakelock.disable();
       }
       List<String> connectionTypes = [];
@@ -242,7 +242,7 @@ class Connector {
       var peer = await Peer.create(
           config: config, dataChannelConfig: dcConfig, verbose: true);
       signal = peer.signal;
-      if (!Platform.isLinux) {
+      if (!Platform.isLinux && !Platform.isWindows) {
         await Wakelock.enable();
       }
       var messageSender =
@@ -282,7 +282,7 @@ class Connector {
         logger('RECEIVER: Finished with $connectionTypes');
         await receiver.peer.connection.close();
       }
-      if (!Platform.isLinux) {
+      if (!Platform.isLinux && !Platform.isWindows) {
         await Wakelock.disable();
       }
       activeTransferId = null;

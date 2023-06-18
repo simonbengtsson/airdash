@@ -1,6 +1,6 @@
 name: airdash
 description: Share files anywhere
-publish_to: 'none'
+publish_to: "none"
 
 version: 2.0.150+150
 
@@ -14,9 +14,9 @@ dependencies:
   cupertino_icons: ^1.0.2
   flutter_webrtc: ^0.9.19
   http: ^0.13.4
-  file_picker: ^5.2.5
+  file_picker: ^5.3.0
   path_provider: ^2.0.12
-  share_plus: ^6.2.0
+  share_plus: ^7.0.2
   shared_preferences: ^2.0.15
   receive_sharing_intent: ^1.4.5
   # Using fork to avoid avoid noisy print
@@ -25,17 +25,18 @@ dependencies:
       url: https://github.com/erikhellq/firedart
       ref: patch-1
   url_launcher: ^6.1.8
-  package_info_plus: ^3.0.1
-  device_info_plus: ^8.0.0
+  package_info_plus: ^4.0.2
+  device_info_plus: ^9.0.2
   desktop_drop: ^0.4.0
   quick_look: ^0.0.4
   tray_manager: ^0.2.0
   window_manager: ^0.3.0
   mime: ^1.0.4
-  sentry_flutter: ^6.7.0
+  sentry_flutter: ^7.7.0
   grpc: ^3.0.2
   wakelock: ^0.6.1+2
-  simple_peer: ^0.0.10
+  simple_peer:
+    ^0.0.10
     #path: ./libs/simple_peer
   flutter_riverpod: ^1.0.4
   mixpanel_analytics: ^2.1.1
@@ -54,6 +55,9 @@ dev_dependencies:
   test: ^1.21.1
   msix: ^3.6.2
 
+dependency_overrides:
+  win32: ^4.0.0
+
 flutter:
   uses-material-design: true
   assets:
@@ -69,18 +73,18 @@ msix_config:
   store: true
 
 icons_launcher:
-  image_path: 'assets/app_icon_rect.png'
+  image_path: "assets/app_icon_rect.png"
   platforms:
     android:
       enable: true
-      image_path: 'assets/app_icon_round.png'
-      adaptive_background_image: 'assets/app_icon_background.png'
-      adaptive_foreground_image: 'assets/app_icon_foreground.png'
+      image_path: "assets/app_icon_round.png"
+      adaptive_background_image: "assets/app_icon_background.png"
+      adaptive_foreground_image: "assets/app_icon_foreground.png"
     ios:
       enable: true
     macos:
       enable: true
-      image_path: 'assets/app_icon_round_with_padding.png'
+      image_path: "assets/app_icon_round_with_padding.png"
     windows:
       enable: true
-      image_path: 'assets/app_icon_round.png'
+      image_path: "assets/app_icon_round.png"
