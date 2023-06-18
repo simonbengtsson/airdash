@@ -131,7 +131,8 @@ class AppStoreVersionSubmitter {
   Future<void> updateAppVersionLocalizations(String versionId) async {
     var localeResult = await api.send(
         'GET', '/appStoreVersions/$versionId/appStoreVersionLocalizations');
-    for (dynamic locale in List<String>.from(localeResult['data'] as List)) {
+    for (Map<String, dynamic> locale
+        in List<Map<String, dynamic>>.from(localeResult['data'] as List)) {
       String localeId = locale['id'] as String;
       var body = <String, dynamic>{
         'data': {
