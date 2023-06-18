@@ -6,21 +6,18 @@ import 'package:desktop_drop/desktop_drop.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:firedart/firestore/firestore.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart' hide MenuItem;
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:grpc/grpc.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:pasteboard/pasteboard.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tray_manager/tray_manager.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:window_manager/window_manager.dart';
-//import 'package:beacon_broadcast/beacon_broadcast.dart';
 
-import '../config.dart';
 import '../file_manager.dart';
 import '../helpers.dart';
 import '../intent_receiver.dart';
@@ -143,7 +140,7 @@ class HomeScreenState extends ConsumerState<HomeScreen>
     );
   }
 
-  Future init() async {
+  Future<void> init() async {
     try {
       await start().timeout(const Duration(seconds: 10));
     } catch (error, stack) {
@@ -152,7 +149,7 @@ class HomeScreenState extends ConsumerState<HomeScreen>
     }
   }
 
-  Future start() async {
+  Future<void> start() async {
     var prefs = await SharedPreferences.getInstance();
     await updateAutoStartStatus();
 
@@ -247,7 +244,7 @@ class HomeScreenState extends ConsumerState<HomeScreen>
   }
 */
 
-  Future updateAutoStartStatus() async {
+  Future<void> updateAutoStartStatus() async {
     if (Platform.isMacOS) {
       try {
         isAutoStartEnabled = await communicatorChannel
@@ -277,7 +274,7 @@ class HomeScreenState extends ConsumerState<HomeScreen>
     ScaffoldMessenger.of(context).showSnackBar(bar);
   }
 
-  Future updateConnectionConfig() async {
+  Future<void> updateConnectionConfig() async {
     var doc = await Firestore.instance
         .collection('appInfo')
         .document('appInfo')
@@ -343,7 +340,7 @@ class HomeScreenState extends ConsumerState<HomeScreen>
     }
   }
 
-  Future observeIntentFile() async {
+  Future<void> observeIntentFile() async {
     intentReceiver.observe((payload, error) async {
       if (payload == null) {
         showToast(error ?? 'Could not handle payload');
@@ -375,7 +372,7 @@ class HomeScreenState extends ConsumerState<HomeScreen>
         setState(() {
           selectedPayload = FilePayload(files);
         });
-        print('Selected pasteboard files ${filePaths}');
+        print('Selected pasteboard files $filePaths');
       } else if (isUrl) {
         var url = Uri.parse(text);
         setState(() {
@@ -388,7 +385,7 @@ class HomeScreenState extends ConsumerState<HomeScreen>
     }
   }
 
-  Future sendPayload(Device receiver, Payload payload) async {
+  Future<void> sendPayload(Device receiver, Payload payload) async {
     if (payload is FilePayload) {
       for (var file in payload.files) {
         if (!(await file.exists())) {
@@ -557,7 +554,7 @@ class HomeScreenState extends ConsumerState<HomeScreen>
         });
   }
 
-  Future openFilePicker(FileType type) async {
+  Future<void> openFilePicker(FileType type) async {
     isPickingFile = true;
     var result = await FilePicker.platform.pickFiles(
       dialogTitle: 'Pick File',
@@ -580,7 +577,7 @@ class HomeScreenState extends ConsumerState<HomeScreen>
     }
   }
 
-  Future setPayload(Payload payload, String source) async {
+  Future<void> setPayload(Payload payload, String source) async {
     if (payload is FilePayload) {
       for (var file in payload.files) {
         try {
@@ -605,7 +602,7 @@ class HomeScreenState extends ConsumerState<HomeScreen>
     });
   }
 
-  Future openFile(List<File> files) async {
+  Future<void> openFile(List<File> files) async {
     try {
       if (Platform.isIOS) {
         // Encode path to support filenames with spaces
@@ -787,8 +784,8 @@ class HomeScreenState extends ConsumerState<HomeScreen>
                           setState(
                               () => disabledKeys.remove('selectFileButton'));
                         },
-                  child: Row(
-                    children: const [
+                  child: const Row(
+                    children: [
                       Icon(Icons.add),
                       SizedBox(width: 10),
                       Text('Select File',
@@ -882,7 +879,7 @@ class HomeScreenState extends ConsumerState<HomeScreen>
     );
   }
 
-  Future openShareSheet(List<File> files, BuildContext context) async {
+  Future<void> openShareSheet(List<File> files, BuildContext context) async {
     final box = context.findRenderObject() as RenderBox?;
     if (box != null) {
       await Share.shareXFiles(
@@ -1012,8 +1009,8 @@ class HomeScreenState extends ConsumerState<HomeScreen>
                               const Duration(milliseconds: 200));
                           setState(() => disabledKeys.remove('pairNewDevice'));
                         },
-                  child: Row(
-                    children: const [
+                  child: const Row(
+                    children: [
                       Icon(Icons.add),
                       SizedBox(width: 10),
                       Text('Pair New Device',
@@ -1063,11 +1060,13 @@ class HomeScreenState extends ConsumerState<HomeScreen>
                   if (item == 'licenses') {
                     PackageInfo packageInfo = await PackageInfo.fromPlatform();
                     var version = packageInfo.version;
-                    showLicensePage(
-                      context: context,
-                      applicationName: 'AirDash',
-                      applicationVersion: 'v$version',
-                    );
+                    if (mounted) {
+                      showLicensePage(
+                        context: context,
+                        applicationName: 'AirDash',
+                        applicationVersion: 'v$version',
+                      );
+                    }
                   } else if (item == 'changeDeviceName') {
                     openChangeDeviceNameDialog(currentDevice!);
                   } else if (item == 'openDownloads') {

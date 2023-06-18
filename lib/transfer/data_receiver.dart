@@ -34,7 +34,7 @@ class Receiver {
     return waitForPayload.future;
   }
 
-  Future processMessage() async {
+  Future<void> processMessage() async {
     var state = currentState!;
 
     if (state.processingMessage) {
@@ -104,7 +104,7 @@ class Receiver {
         'RECEIVER: Sent ack for chunk ${message.chunkStart}-${message.chunkStart + message.chunk.length}. Completed: $fileCompleted');
   }
 
-  Future connect() async {
+  Future<void> connect() async {
     var firstMessageCompleter = SingleCompleter<String>();
     // Use a higher timeout than sender so that errors are originated from
     // sender if possible
@@ -184,7 +184,7 @@ class Receiver {
     await firstMessage;
   }
 
-  Future handleDataMessage(List<int> bytes) async {
+  handleDataMessage(List<int> bytes) async {
     print('Handling data message');
     var message = Message.parse(bytes);
     if (currentState == null) {

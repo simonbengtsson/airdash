@@ -11,7 +11,7 @@ class MicrosoftStoreSubmitter {
   var api = MicrosoftPartnerCenterApi();
   var applicationId = Config.windowsApiAppId;
 
-  Future submit() async {
+  submit() async {
     var status = await getAppStatus();
     if (status['pendingApplicationSubmission'] != null) {
       var submissionId = status['pendingApplicationSubmission']['id'] as String;
@@ -34,23 +34,23 @@ class MicrosoftStoreSubmitter {
     print('Submission finished');
   }
 
-  Future<Map> getAppStatus() async {
+  getAppStatus() async {
     var map = await api.send('GET', '/my/applications/$applicationId');
     return map;
   }
 
-  Future deleteSubmission(String submissionId) async {
+  deleteSubmission(String submissionId) async {
     var path = '/my/applications/$applicationId/submissions/$submissionId';
     await api.send('DELETE', path);
   }
 
-  Future<Map> addSubmission() async {
+  Future<Map<String, dynamic>> addSubmission() async {
     var path = '/my/applications/$applicationId/submissions';
     var res = await api.send('POST', path);
     return res;
   }
 
-  Future waitForProcessing(String submissionId) async {
+  waitForProcessing(String submissionId) async {
     var startedAt = DateTime.now();
     while (true) {
       var status = await getSubmissionStatus(submissionId);
@@ -70,35 +70,37 @@ class MicrosoftStoreSubmitter {
         'Done! Took ${(endedAt.difference(startedAt).inSeconds / 60).toStringAsFixed(1)} min');
   }
 
-  Future<Map> getSubmissionStatus(String submissionId) async {
+  Future<Map<String, dynamic>> getSubmissionStatus(String submissionId) async {
     var path =
         '/my/applications/$applicationId/submissions/$submissionId/status';
     var res = await api.send('GET', path);
     return res;
   }
 
-  Future<Map> getCurrentSubmissionStatus() async {
+  Future<Map<String, dynamic>> getCurrentSubmissionStatus() async {
     var status = await getAppStatus();
     var submissionId = status['pendingApplicationSubmission']['id'] as String;
     return getSubmissionStatus(submissionId);
   }
 
-  Future getSubmission(String submissionId) async {
+  getSubmission(String submissionId) async {
     var path = '/my/applications/$applicationId/submissions/$submissionId';
     return api.send('GET', path);
   }
 
-  Future submitSubmission(String submissionId) async {
+  submitSubmission(String submissionId) async {
     var path =
         '/my/applications/$applicationId/submissions/$submissionId/commit';
     await api.send('POST', path);
   }
 
-  Future updateSubmissionPackages(Map submission, List<int> version) async {
+  updateSubmissionPackages(
+      Map<String, dynamic> submission, List<int> version) async {
     var path =
         '/my/applications/$applicationId/submissions/${submission['id']}';
     var packages = submission['applicationPackages'] as Iterable?;
-    var applicationPackages = List<Map>.from(packages ?? <Map>[]);
+    var applicationPackages =
+        List<Map<String, dynamic>>.from(packages ?? <Map<String, dynamic>>[]);
     for (var package in applicationPackages) {
       package['fileStatus'] = 'PendingDelete';
     }
@@ -111,7 +113,7 @@ class MicrosoftStoreSubmitter {
     return api.send('PUT', path, body: jsonEncode(submission));
   }
 
-  Future uploadPackage(
+  Future<void> uploadPackage(
       String submissionId, String url, List<int> version) async {
     var zipFile = File('build/upload.zip');
     runLocalCommand(
@@ -137,7 +139,7 @@ class MicrosoftStoreSubmitter {
 class MicrosoftPartnerCenterApi {
   var baseUrl = 'https://manage.devcenter.microsoft.com/v1.0';
 
-  Future<Map> send(String method, String path,
+  Future<Map<String, dynamic>> send(String method, String path,
       {String? body, int retries = 3}) async {
     var url = Uri.parse('$baseUrl$path');
     var accessToken = await _getAccessToken();
@@ -156,9 +158,9 @@ class MicrosoftPartnerCenterApi {
 
     if (res.statusCode >= 200 && res.statusCode < 300) {
       if (resBody.isNotEmpty) {
-        return jsonDecode(resBody) as Map;
+        return jsonDecode(resBody) as Map<String, dynamic>;
       } else {
-        return <dynamic, dynamic>{};
+        return {};
       }
     } else {
       print(resBody);

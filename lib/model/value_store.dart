@@ -15,7 +15,7 @@ class ValueStore {
 
   ValueStore(this.prefs);
 
-  Future persistState(Connector? connector, Device currentDevice,
+  Future<void> persistState(Connector? connector, Device currentDevice,
       List<Device> devices, WidgetRef ref) async {
     var prefs = await SharedPreferences.getInstance();
     await prefs.setStringList(
@@ -27,9 +27,7 @@ class ValueStore {
     } else {
       await prefs.remove('selectedReceivingDeviceId');
     }
-    if (currentDevice != null) {
-      await prefs.setString('deviceName', currentDevice.name);
-    }
+    await prefs.setString('deviceName', currentDevice.name);
     connector?.localDevice = currentDevice;
   }
 
@@ -68,7 +66,7 @@ class ValueStore {
     }
   }
 
-  Future setFileLocation(String? locationPath) async {
+  Future<void> setFileLocation(String? locationPath) async {
     if (Platform.isMacOS) {
       await communicatorChannel.invokeMethod<void>(
           'saveFileLocationBookmark', {'url': locationPath});

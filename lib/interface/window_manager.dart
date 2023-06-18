@@ -1,17 +1,16 @@
 import 'dart:io';
 
-import 'package:flutter/material.dart' hide MenuItem;
+import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tray_manager/tray_manager.dart';
 import 'package:window_manager/window_manager.dart';
 
-import '../config.dart';
 import '../helpers.dart';
 import '../model/value_store.dart';
 import '../reporting/logger.dart';
 
 class AppWindowManager {
-  Future setupWindow() async {
+  Future<void> setupWindow() async {
     if (!isDesktop()) {
       return;
     }
@@ -46,7 +45,7 @@ class AppWindowManager {
     print('Window shown');
   }
 
-  Future _setupTray() async {
+  Future<void> _setupTray() async {
     await trayManager.setIcon(
       Platform.isWindows ? 'assets/tray_icon.ico' : 'assets/tray_icon.png',
       isTemplate: true,

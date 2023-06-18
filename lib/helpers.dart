@@ -131,7 +131,7 @@ String getFilename(File file) {
   return file.uri.pathSegments.last;
 }
 
-Future addUsedFile(List<File> files) async {
+Future<void> addUsedFile(List<File> files) async {
   var prefs = await SharedPreferences.getInstance();
   var tmpFiles = prefs.getStringList('temporary_files') ?? [];
   for (var file in files) {
@@ -209,7 +209,7 @@ class SingleCompleter<T> {
   }
 }
 
-Future sendPing(Signaling signaling, Device localDevice) async {
+Future<void> sendPing(Signaling signaling, Device localDevice) async {
   try {
     var transferId = generateId(28);
     var messageSender =

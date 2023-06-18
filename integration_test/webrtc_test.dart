@@ -60,7 +60,7 @@ class AutoNegotiatedTester {
   RTCPeerConnection? local;
   RTCPeerConnection? remote;
 
-  Future testConnection() async {
+  Future<void> testConnection() async {
     local = await createPeerConnection(activeConfig, loopbackConstraints);
     print('Created local connection');
     var dcInit = RTCDataChannelInit();
@@ -154,7 +154,7 @@ class ManuallyNegotiatedChannel {
   RTCPeerConnection? local;
   RTCPeerConnection? remote;
 
-  Future testConnection() async {
+  Future<void> testConnection() async {
     local = await createPeerConnection(activeConfig, loopbackConstraints);
     print('Created local connection');
     var dcInit = RTCDataChannelInit();

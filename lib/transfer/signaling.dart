@@ -15,11 +15,11 @@ class Signaling {
   List<String> sentErrors = [];
 
   Timer? observerTimer;
-  StreamSubscription? _messagesStream;
+  StreamSubscription<dynamic>? _messagesStream;
 
   var receivedMessages = <String, dynamic>{};
 
-  Future observe(Device localDevice,
+  Future<void> observe(Device localDevice,
       Function(String message, String senderId) onMessage) async {
     restartListen(localDevice, onMessage);
   }
@@ -109,7 +109,7 @@ class Signaling {
     });
   }
 
-  Future _handleDocs(List<Document> docs, Function onMessage) async {
+  Future<void> _handleDocs(List<Document> docs, Function onMessage) async {
     for (var doc in docs) {
       if (receivedMessages[doc.id] != null) {
         continue;

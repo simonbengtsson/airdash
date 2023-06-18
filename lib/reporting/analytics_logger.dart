@@ -85,7 +85,7 @@ class Analytics {
     });
   }
 
-  static Future updateProfile(String deviceId) async {
+  static Future<void> updateProfile(String deviceId) async {
     var prefs = await SharedPreferences.getInstance();
     ValueStore(prefs).updateStartValues();
 
@@ -134,6 +134,9 @@ class AnalyticsManager {
   }
 
   Future<Map<String, dynamic>> getUserProperties() async {
+    // ignore: deprecated_member_use
+    final flutterWindow = window;
+
     final deviceInfoPlugin = DeviceInfoPlugin();
     final deviceInfo = await deviceInfoPlugin.deviceInfo;
 
@@ -155,7 +158,7 @@ class AnalyticsManager {
         ? 'Apple'
         : info['manufacturer'] as String? ?? '';
 
-    var screenSize = window.physicalSize;
+    var screenSize = flutterWindow.physicalSize;
     var timezoneOffset = DateTime.now().timeZoneOffset.inSeconds;
 
     var firstSeenAt =
@@ -167,15 +170,15 @@ class AnalyticsManager {
     var userProps = {
       'App Open Count': appOpens,
       'Environment': kDebugMode ? 'Development' : 'Production',
-      'Device Country Code': window.locale.countryCode,
-      'Device Language Code': window.locale.languageCode,
+      'Device Country Code': flutterWindow.locale.countryCode,
+      'Device Language Code': flutterWindow.locale.languageCode,
       'Timezone Offset': timezoneOffset,
       'First Seen At': firstSeenAt,
       '\$model': model,
       '\$manufacturer': brand,
       '\$device': deviceName,
-      '\$screen_height': screenSize.height / window.devicePixelRatio,
-      '\$screen_width': screenSize.width / window.devicePixelRatio,
+      '\$screen_height': screenSize.height / flutterWindow.devicePixelRatio,
+      '\$screen_width': screenSize.width / flutterWindow.devicePixelRatio,
       '\$device_id': deviceId,
       '\$app_version_string': packageInfo.version,
       '\$app_build_number': buildNumber,
@@ -186,7 +189,7 @@ class AnalyticsManager {
     return userProps;
   }
 
-  Future updateMixpanelProfile(
+  Future<void> updateMixpanelProfile(
       String userId, Map<String, dynamic> props) async {
     var mixPanelToken = Config.mixpanelProjectToken;
     if (mixPanelToken == null) {
@@ -217,7 +220,7 @@ class AnalyticsManager {
     }
   }
 
-  Future logEvent(String eventName, Map<String, dynamic> props) async {
+  Future<void> logEvent(String eventName, Map<String, dynamic> props) async {
     var mixPanelToken = Config.mixpanelProjectToken;
     if (mixPanelToken == null) {
       print('ANALYTICS: Would have logged $eventName');
@@ -246,11 +249,12 @@ class AnalyticsManager {
     Sentry.addBreadcrumb(crumb);
   }
 
-  Future upload() async {
+  Future<void> upload() async {
     var prefs = await SharedPreferences.getInstance();
 
     var rawRequests = prefs.getString('pendingMixpanelRequests');
-    var requests = List<Map>.from(jsonDecode(rawRequests ?? '[]') as List);
+    var requests = List<Map<String, dynamic>>.from(
+        jsonDecode(rawRequests ?? '[]') as List);
 
     while (requests.isNotEmpty) {
       var request = requests.removeLast();
@@ -290,7 +294,7 @@ class AnalyticsManager {
     prefs.setString('pendingMixpanelRequests', json);
   }
 
-  void queueRequest(Map body) async {
+  void queueRequest(Map<String, dynamic> body) async {
     var prefs = await SharedPreferences.getInstance();
     var rawRequests = prefs.getString('pendingMixpanelRequests');
     var requests = jsonDecode(rawRequests ?? '[]') as List;

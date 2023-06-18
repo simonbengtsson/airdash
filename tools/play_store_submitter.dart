@@ -12,7 +12,7 @@ class PlayStoreSubmitter {
   var baseUrl =
       'https://androidpublisher.googleapis.com/androidpublisher/v3/applications/io.flown.airdash';
 
-  Future play() async {
+  play() async {
     var editId = await createEdit();
     print(editId);
     var res = await send('GET', '/edits/$editId/tracks');
@@ -28,7 +28,7 @@ class PlayStoreSubmitter {
     return send('POST', '/edits/$editId:commit');
   }
 
-  Future uploadBundle(String editId) async {
+  uploadBundle(String editId) async {
     var bytes = File('build/app-release.aab').readAsBytesSync();
     print(bytes.take(10));
     var res = await send(

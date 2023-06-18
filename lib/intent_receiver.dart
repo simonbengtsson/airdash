@@ -10,16 +10,17 @@ import 'reporting/error_logger.dart';
 import 'reporting/logger.dart';
 
 class IntentReceiver {
-  StreamSubscription? intentDataStreamSubscription;
-  StreamSubscription? intentTextStreamSubscription;
+  StreamSubscription<dynamic>? intentDataStreamSubscription;
+  StreamSubscription<dynamic>? intentTextStreamSubscription;
 
-  Future observe(Function(Payload? payload, String? error) callback) async {
+  Future<void> observe(
+      Function(Payload? payload, String? error) callback) async {
     logger('MAIN: Started observing file intent');
     if (Platform.isIOS) {
       const eventChannel = EventChannel('io.flown.airdash/event_communicator');
-      eventChannel.receiveBroadcastStream().listen((dynamic event) async {
+      eventChannel.receiveBroadcastStream().listen((event) async {
         List<File> files = [];
-        for (String url in event) {
+        for (String url in event as List<String>) {
           if (url.startsWith('http')) {
             var parsed = Uri.parse(url);
             callback(UrlPayload(parsed), null);
@@ -95,7 +96,8 @@ class IntentReceiver {
     }
   }
 
-  Future handleText(String? text, Function(Payload?, String?) callback) async {
+  Future<void> handleText(
+      String? text, Function(Payload?, String?) callback) async {
     if (text == null) return;
     var uri = Uri.tryParse(text);
     if (uri != null && uri.scheme.startsWith('http')) {

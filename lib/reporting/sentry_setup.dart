@@ -9,7 +9,7 @@ import '../helpers.dart';
 import 'analytics_logger.dart';
 
 class SentryManager {
-  static Future setup(SentryFlutterOptions options) async {
+  static Future<void> setup(SentryFlutterOptions options) async {
     PackageInfo info = await PackageInfo.fromPlatform();
     options.release = info.version;
     options.environment = kDebugMode ? 'development' : 'production';
@@ -31,7 +31,7 @@ class SentryManager {
       // No need to print this here due to already printed
     } else {
       print(
-          'SENTRY: Native error logged ${throwable.runtimeType.toString()} ${throwable}');
+          'SENTRY: Native error logged ${throwable.runtimeType.toString()} $throwable');
     }
 
     // Don't post errors that happened during analytics calls

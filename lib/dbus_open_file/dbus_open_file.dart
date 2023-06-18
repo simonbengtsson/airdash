@@ -1,6 +1,8 @@
 // This file was generated using the following command and may be overwritten.
 // dart-dbus generate-remote-object lib/dbus_open_file/org.freedesktop.portal.OpenURI.xml
 
+// ignore_for_file: non_constant_identifier_names
+
 import 'package:dbus/dbus.dart';
 
 class OrgFreedesktopPortalOpenURI extends DBusRemoteObject {

@@ -42,7 +42,7 @@ class DataSender {
     return DataSender(peer, sendingState);
   }
 
-  Future updateMaximumMessageSize() async {
+  Future<void> updateMaximumMessageSize() async {
     RTCSessionDescription? local = await peer.connection.getLocalDescription();
     RTCSessionDescription? remote =
         await peer.connection.getRemoteDescription();
@@ -77,7 +77,7 @@ class DataSender {
     return max(remoteMaximumSize, maximumMessageSize);
   }
 
-  Future sendChunk() async {
+  Future<void> sendChunk() async {
     var state = senderState;
     var startByte = await state.raFile.position();
     print("SENDER: Sending chunk: $startByte");
@@ -123,14 +123,14 @@ class DataSender {
 
   SingleCompleter<bool>? messageTimeoutCompleter;
 
-  Future sendFile(Function(int, int, int, int) statusCallback) async {
+  Future<void> sendFile(Function(int, int, int, int) statusCallback) async {
     this.statusCallback = statusCallback;
     logger('SENDER: Sending first chunk...');
     sendNext();
     await senderState.completer.future;
   }
 
-  Future sendNext() async {
+  Future<void> sendNext() async {
     if (senderState.completer.isCompleted) {
       logger('SENDER: Cancelled sending chunk due to completed');
       return;
@@ -186,7 +186,7 @@ class DataSender {
     return true;
   }
 
-  Future connect() async {
+  Future<void> connect() async {
     peer.onBinaryData = (bytes) async {
       try {
         var message = RTCDataChannelMessage.fromBinary(bytes);
@@ -226,7 +226,7 @@ class DataSender {
     logger('SENDER: Peer was connected and data channel ready');
   }
 
-  Future handleChannelMessage(RTCDataChannelMessage message) async {
+  Future<void> handleChannelMessage(RTCDataChannelMessage message) async {
     var json = jsonDecode(message.text) as Map<String, dynamic>;
     var type = json['type'] as String;
     if (type != 'acknowledge') {

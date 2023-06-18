@@ -10,13 +10,13 @@ import 'version_editor.dart';
 class AppStoreVersionSubmitter {
   var api = AppStoreConnectApi();
 
-  Future submit() async {
+  Future<void> submit() async {
     var version = VersionEditor().readCurrentVersion().join('.');
     await submitLatestVersionForReview(version, 'IOS');
     await submitLatestVersionForReview(version, 'MAC_OS');
   }
 
-  Future submitLatestVersionForReview(
+  Future<void> submitLatestVersionForReview(
       String appVersion, String platform) async {
     var build = await waitForBuild(appVersion, platform);
     var pendingVersion = await getPendingVersion(platform);
@@ -29,7 +29,8 @@ class AppStoreVersionSubmitter {
     print('Submitted $platform $appVersion');
   }
 
-  Future<Map> waitForBuild(String appVersion, String platform) async {
+  Future<Map<String, dynamic>> waitForBuild(
+      String appVersion, String platform) async {
     var buildVersion = int.parse(appVersion.split('.')[2]);
     var timeoutAt = DateTime.now().add(const Duration(minutes: 10));
     print('Checking build $buildVersion...');
@@ -51,8 +52,9 @@ class AppStoreVersionSubmitter {
     throw Exception('Could not find build. Timeout reached');
   }
 
-  Future<Map?> fetchBuild(String platform, int buildVersion) async {
-    bool isCorrectPlatform(Map build) {
+  Future<Map<String, dynamic>?> fetchBuild(
+      String platform, int buildVersion) async {
+    bool isCorrectPlatform(Map<String, dynamic> build) {
       // Hack for checking platform. Only mac builds seems to have the
       // lsMinimumSystemVersion set to a none null value
       var isIos = build['attributes']['lsMinimumSystemVersion'] == null;
@@ -60,18 +62,19 @@ class AppStoreVersionSubmitter {
     }
 
     var res = await api.send('GET', '/apps/${Config.appStoreAppId}/builds');
-    var allBuilds = List<Map>.from(res['data'] as Iterable);
+    var allBuilds = List<Map<String, dynamic>>.from(res['data'] as Iterable);
     var builds = allBuilds
         .where((it) => it['attributes']['version'] == '$buildVersion')
         .where((it) => isCorrectPlatform(it));
     return builds.isNotEmpty ? builds.first : null;
   }
 
-  Future<Map> getPendingVersion(String platform) async {
+  Future<Map<String, dynamic>> getPendingVersion(String platform) async {
     var appId = Config.appStoreAppId;
     var result = await api.send(
         'GET', '/apps/$appId/appStoreVersions?filter[platform]=$platform');
-    var allVersions = List<Map>.from(result['data'] as Iterable);
+    var allVersions =
+        List<Map<String, dynamic>>.from(result['data'] as Iterable);
     var pendingVersions = allVersions.where((it) {
       var state = it['attributes']['appStoreState'] as String;
       return ['PREPARE_FOR_SUBMISSION', 'DEVELOPER_REJECTED'].contains(state);
@@ -84,7 +87,7 @@ class AppStoreVersionSubmitter {
     }
   }
 
-  Future<Map> createAppVersion(String platform) async {
+  Future<Map<String, dynamic>> createAppVersion(String platform) async {
     var body = {
       'data': {
         'attributes': {
@@ -100,11 +103,11 @@ class AppStoreVersionSubmitter {
       }
     };
     var result = await api.send('POST', '/appStoreVersions', body);
-    return result['data'] as Map;
+    return result['data'] as Map<String, dynamic>;
   }
 
-  Future updateVersion(
-      Map build, String appVersion, String versionId, String platform) async {
+  Future<void> updateVersion(Map<String, dynamic> build, String appVersion,
+      String versionId, String platform) async {
     var body = {
       'data': {
         'id': versionId,
@@ -125,11 +128,11 @@ class AppStoreVersionSubmitter {
     await api.send('PATCH', '/appStoreVersions/$versionId', body);
   }
 
-  Future updateAppVersionLocalizations(String versionId) async {
+  Future<void> updateAppVersionLocalizations(String versionId) async {
     var localeResult = await api.send(
         'GET', '/appStoreVersions/$versionId/appStoreVersionLocalizations');
-    for (var locale in localeResult['data']) {
-      var localeId = locale['id'] as String;
+    for (dynamic locale in List<String>.from(localeResult['data'] as List)) {
+      String localeId = locale['id'] as String;
       var body = <String, dynamic>{
         'data': {
           'id': localeId,
@@ -143,14 +146,15 @@ class AppStoreVersionSubmitter {
     }
   }
 
-  Future submitPlatformVersion(String platform, String versionId) async {
+  Future<void> submitPlatformVersion(String platform, String versionId) async {
     var appId = Config.appStoreAppId;
     var res = await api.send('GET', '/reviewSubmissions?filter[app]=$appId');
-    var reviewSubmissions = List<Map>.from(res['data'] as List);
+    var reviewSubmissions =
+        List<Map<String, dynamic>>.from(res['data'] as List);
     var pendingSubmissions = reviewSubmissions
         .where((it) => it['attributes']['state'] != 'COMPLETE')
         .toList();
-    var platformPending = List<Map>.from(pendingSubmissions
+    var platformPending = List<Map<String, dynamic>>.from(pendingSubmissions
         .where((it) => it['attributes']['platform'] == platform));
 
     var submission = platformPending.isNotEmpty ? platformPending.first : null;
@@ -176,7 +180,7 @@ class AppStoreVersionSubmitter {
     await api.send('PATCH', '/reviewSubmissions/$submissionId', body);
   }
 
-  Future<Map> createReviewSubmission(String platform) async {
+  Future<Map<String, dynamic>> createReviewSubmission(String platform) async {
     var body = {
       'data': {
         'type': 'reviewSubmissions',
@@ -194,10 +198,10 @@ class AppStoreVersionSubmitter {
       }
     };
     var result = await api.send('POST', '/reviewSubmissions', body);
-    return result['data'] as Map;
+    return result['data'] as Map<String, dynamic>;
   }
 
-  Future createReviewSubmissionItem(
+  Future<Map<String, dynamic>> createReviewSubmissionItem(
       String platform, String versionId, String submissionId) async {
     var body = {
       'data': {
@@ -222,10 +226,10 @@ class AppStoreVersionSubmitter {
     return result;
   }
 
-  Future deleteAllBuilds() async {
+  Future<void> deleteAllBuilds() async {
     var res =
         await api.send('GET', '/apps/${Config.appStoreAppId}/builds?limit=200');
-    var allBuilds = List<Map>.from(res['data'] as Iterable);
+    var allBuilds = List<Map<String, dynamic>>.from(res['data'] as Iterable);
     var activeBuilds =
         allBuilds.where((it) => it['attributes']['expired'] == false);
     print('Active builds: ${activeBuilds.length}');
@@ -235,7 +239,7 @@ class AppStoreVersionSubmitter {
     print('Done!');
   }
 
-  Future expireBuild(String buildId) {
+  Future<void> expireBuild(String buildId) {
     return api.send('PATCH', '/builds/$buildId', <String, dynamic>{
       'data': {
         'id': buildId,
@@ -250,7 +254,7 @@ class AppStoreVersionSubmitter {
 
 class AppStoreConnectApi {
   Future<Map<String, dynamic>> send(String method, String apiPath,
-      [Map? requestBody]) async {
+      [Map<String, dynamic>? requestBody]) async {
     var basePath = 'https://api.appstoreconnect.apple.com/v1';
     var uri = Uri.parse('$basePath$apiPath');
     print('$method ${uri.host}${uri.path}');

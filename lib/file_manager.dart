@@ -48,7 +48,7 @@ class FileManager {
     }
   }
 
-  Future openLinuxFile(File file) async {
+  Future<void> openLinuxFile(File file) async {
     var client = DBusClient.session();
     var openUri = OrgFreedesktopPortalOpenURI(
       client,
@@ -74,8 +74,8 @@ class FileManager {
     }
   }
 
-  Future cleanUsedFiles(Payload? selectedPayload, List<File> receivedFiles,
-      bool isTransferActive) async {
+  Future<void> cleanUsedFiles(Payload? selectedPayload,
+      List<File> receivedFiles, bool isTransferActive) async {
     if (pendingClean) return;
     print('FILE_MANAGER: Starting cleaning used files...');
     pendingClean = true;
@@ -129,7 +129,7 @@ class FileManager {
     pendingClean = false;
   }
 
-  Future openFolder(String filePath) async {
+  Future<void> openFolder(String filePath) async {
     if (Platform.isMacOS) {
       await _openFinder(filePath);
     } else {
@@ -141,7 +141,7 @@ class FileManager {
     }
   }
 
-  Future _openFinder(String filePath) async {
+  Future<void> _openFinder(String filePath) async {
     if (!Platform.isMacOS) throw Exception('Not supported');
 
     logger('MAIN: Will open folder at: $filePath');

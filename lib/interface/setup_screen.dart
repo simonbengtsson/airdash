@@ -54,7 +54,7 @@ class _SetupScreenState extends State<SetupScreen> {
     )));
   }
 
-  Future initFirebase() async {
+  Future<void> initFirebase() async {
     var prefs = await SharedPreferences.getInstance();
     FirebaseAuth.initialize(
         Config.firebaseApiKey, SharedPreferenceStore(prefs));
@@ -62,7 +62,7 @@ class _SetupScreenState extends State<SetupScreen> {
     await trySignIn();
   }
 
-  Future clear() async {
+  Future<void> clear() async {
     try {
       await FirebaseAuth.instance.deleteAccount();
       FirebaseAuth.instance.signOut();
@@ -73,7 +73,7 @@ class _SetupScreenState extends State<SetupScreen> {
     prefs.remove('currentUser');
   }
 
-  Future trySignIn() async {
+  Future<void> trySignIn() async {
     var prefs = await SharedPreferences.getInstance();
     var userState = UserState(prefs);
     normalizeAuthState(prefs, userState);

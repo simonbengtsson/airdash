@@ -11,11 +11,13 @@ void openFileLocationDialog(BuildContext context, ValueStore valueStore) async {
   if (Platform.isMacOS) {
     await communicatorChannel.invokeMethod<void>('endFileLocationAccess');
   }
-  showDialog<void>(
-    context: context,
-    builder: (_) => FileLocationDialog(
-        fileLocationPath: fileLocationPath?.path, valueStore: valueStore),
-  );
+  if (context.mounted) {
+    showDialog<void>(
+      context: context,
+      builder: (_) => FileLocationDialog(
+          fileLocationPath: fileLocationPath?.path, valueStore: valueStore),
+    );
+  }
 }
 
 class FileLocationDialog extends StatefulWidget {

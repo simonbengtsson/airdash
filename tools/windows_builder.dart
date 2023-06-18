@@ -4,7 +4,7 @@ import 'command_runner.dart';
 import 'tools_config.dart';
 
 class WindowsAppBuilder {
-  Future build() async {
+  build() async {
     await setupWindows((Function runWinCommand) async {
       var repoPath = Config.windowsVmRepoPath;
       runWinCommand('cd "$repoPath" && git reset --hard && git pull -r');
@@ -15,7 +15,7 @@ class WindowsAppBuilder {
     });
   }
 
-  Future setupWindows(Function ready) async {
+  setupWindows(Function ready) async {
     print('Running: vmrun start ${Config.localWindowsVmPath} nogui');
     await Process.start('vmrun', ['start', Config.localWindowsVmPath, 'nogui'],
         environment: Config.env);

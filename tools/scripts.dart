@@ -9,7 +9,7 @@ import 'tools_config.dart';
 import 'version_editor.dart';
 import 'windows_builder.dart';
 
-Future main(List<String> args) async {
+Future<void> main(List<String> args) async {
   var script = args.isEmpty ? null : args.first;
   if (script == 'app_env') {
     var appEnvJson = jsonEncode(Config.getAppEnv());
@@ -29,6 +29,7 @@ Future main(List<String> args) async {
     var startedAt = DateTime.now();
     var startedTimeStr = startedAt.toIso8601String().substring(11, 19);
     print('$startedTimeStr Starting build...');
+    // ignore: unused_local_variable
     var version = VersionEditor().readCurrentVersion();
 
     version = VersionEditor().bumpPatchVersion();
@@ -44,7 +45,7 @@ Future main(List<String> args) async {
   }
 }
 
-Future release() async {
+release() async {
   var startedAt = DateTime.now();
   var startedTimeStr = startedAt.toIso8601String().substring(11, 19);
   print('$startedTimeStr Starting build...');

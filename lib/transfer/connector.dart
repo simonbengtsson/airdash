@@ -50,7 +50,7 @@ class Connector {
 
   Function(int)? onPingResponse;
 
-  Future sendPayload(Device receiver, Payload payload,
+  Future<void> sendPayload(Device receiver, Payload payload,
       Function(int, int, int, int) statusCallback) async {
     logger('SENDER: Start sending to receiver "${receiver.id}"');
     var startTime = DateTime.now();
@@ -161,7 +161,7 @@ class Connector {
     return peer;
   }
 
-  Future devicePing(MessageSender messageSender) async {
+  Future<void> devicePing(MessageSender messageSender) async {
     var completer = SingleCompleter<String>();
     messageSender.sendMessage('ping', <String, dynamic>{});
     onPingResponse = (remoteVersion) {
@@ -180,7 +180,7 @@ class Connector {
     logger('SENDER: Device ping completed');
   }
 
-  Future saveDeviceInfo(Device device) async {
+  Future<void> saveDeviceInfo(Device device) async {
     var prefs = await SharedPreferences.getInstance();
     var list = prefs.getStringList('receivers') ?? [];
     var devices = list
@@ -192,7 +192,7 @@ class Connector {
         'receivers', devices.map((r) => jsonEncode(r.encode())).toList());
   }
 
-  Future googlePing() async {
+  Future<void> googlePing() async {
     try {
       await http
           .get(Uri.parse('https://www.google.com'))
@@ -204,7 +204,7 @@ class Connector {
     }
   }
 
-  Future receiveFile(
+  Future<void> receiveFile(
       String localId,
       String remoteId,
       String transferId,
@@ -251,7 +251,7 @@ class Connector {
         messageSender.sendMessage(
             info.type, info.payload as Map<String, dynamic>);
       };
-      var receiver = await Receiver.create(peer);
+      receiver = await Receiver.create(peer);
       await peer.signal(SignalingInfo('offer', offer));
       await receiver.connect();
       String? lastProgressStr;
@@ -280,11 +280,11 @@ class Connector {
       if (receiver != null) {
         connectionTypes = await getConnectionTypes(receiver.peer.connection);
         logger('RECEIVER: Finished with $connectionTypes');
+        await receiver.peer.connection.close();
       }
       if (!Platform.isLinux) {
         await Wakelock.disable();
       }
-      await receiver?.peer.connection.close();
       activeTransferId = null;
       signaling.receivedMessages = <String, dynamic>{};
       logger('RECEIVER: Receiver cleanup finished');
@@ -321,7 +321,7 @@ class Connector {
         .toList();
   }
 
-  Future observe(
+  Future<void> observe(
       Function(Payload? payload, Object? error, String? message)
           callback) async {
     await signaling.observe(localDevice, (message, remoteId) async {
@@ -436,7 +436,7 @@ class MessageSender {
 
   MessageSender(this.sender, this.remoteId, this.transferId, this.signaling);
 
-  Future sendMessage(String type, dynamic payload) async {
+  Future<void> sendMessage(String type, dynamic payload) async {
     var json = jsonEncode({
       'version': communicationVersion,
       'transferId': transferId,
@@ -444,6 +444,6 @@ class MessageSender {
       'payload': payload as Map<String, dynamic>,
       'sender': sender.encode(),
     });
-    return await signaling.sendMessage(sender.id, remoteId, json);
+    await signaling.sendMessage(sender.id, remoteId, json);
   }
 }

@@ -164,7 +164,7 @@ class PairingDialogState extends State<PairingDialog> {
     );
   }
 
-  Future handlePairing() async {
+  Future<void> handlePairing() async {
     AnalyticsEvent.pairingStarted.log();
 
     setState(() {

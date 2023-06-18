@@ -6,7 +6,7 @@ class SnapStoreSubmitter {
   var linuxVmHelper = VirtualMachineHelper(Config.linuxVmUser,
       Config.linuxVmPassword, Config.localLinuxVmPath, '/bin/bash');
 
-  Future buildAndSubmit() async {
+  Future<void> buildAndSubmit() async {
     await linuxVmHelper.runVmCommands((Function runVmCommand) async {
       var repoPath = Config.linuxVmRepoPath;
       runVmCommand(
@@ -34,7 +34,7 @@ class VirtualMachineHelper {
   VirtualMachineHelper(
       this.vmUser, this.vmUserPassword, this.vmPath, this.bashPath);
 
-  Future runVmCommands(Function ready) async {
+  Future<void> runVmCommands(Function ready) async {
     print('Running: vmrun start $vmPath nogui');
     await Process.start('vmrun', ['start', vmPath, 'nogui'],
         environment: Config.env);
@@ -43,7 +43,7 @@ class VirtualMachineHelper {
       _runVmCommand(
           cmdString, Config.linuxVmOutputPath, 'build/stdout.txt', bashPath);
     });
-    runLocalCommand('vmrun suspend ${vmPath}');
+    runLocalCommand('vmrun suspend $vmPath');
   }
 
   void _runVmCommand(String commandStr, String outputPath,
