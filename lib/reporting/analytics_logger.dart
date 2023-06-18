@@ -301,10 +301,15 @@ class AnalyticsManager {
     requests.add(body);
 
     if (requests.length > 100) {
-      ErrorLogger.logSimpleError('tooManyAnalyticsEvents', <String, dynamic>{
-        'count': requests.length,
-      });
-      requests.removeAt(0);
+      var prefs = await SharedPreferences.getInstance();
+      var hasPosted = prefs.getBool('tooManyAnalyticsEventsPosted') ?? false;
+      if (hasPosted) {
+        ErrorLogger.logSimpleError('tooManyAnalyticsEvents', <String, dynamic>{
+          'count': requests.length,
+        });
+        requests.removeAt(0);
+        await prefs.setBool('tooManyAnalyticsEventsPosted', true);
+      }
     }
 
     var json = jsonEncode(requests);
