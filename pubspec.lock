@@ -228,12 +228,11 @@ packages:
   firedart:
     dependency: "direct main"
     description:
-      path: "."
-      ref: master
-      resolved-ref: "7e6c29499c27d2cdba90b5b00a90e7afeb7a09c1"
-      url: "https://github.com/cachapa/firedart"
-    source: git
-    version: "0.9.3+1"
+      name: firedart
+      sha256: fffe961f710b06cc473ed95b5f59d4dd08e8b1b463c11525d7bdbe03cae5d572
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.9.4"
   fixnum:
     dependency: transitive
     description:
