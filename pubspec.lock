@@ -229,11 +229,11 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: remove-noisy-print
-      resolved-ref: "910ddf85d2990ba7781146f8461c35f25ce34389"
-      url: "https://github.com/simonbengtsson/firedart"
+      ref: master
+      resolved-ref: "7e6c29499c27d2cdba90b5b00a90e7afeb7a09c1"
+      url: "https://github.com/cachapa/firedart"
     source: git
-    version: "0.9.3"
+    version: "0.9.3+1"
   fixnum:
     dependency: transitive
     description:
@@ -636,10 +636,10 @@ packages:
     dependency: transitive
     description:
       name: protobuf
-      sha256: "01dd9bd0fa02548bf2ceee13545d4a0ec6046459d847b6b061d8a27237108a08"
+      sha256: "4034a02b7e231e7e60bff30a8ac13a7347abfdac0798595fae0b90a3f0afe759"
       url: "https://pub.dev"
     source: hosted
-    version: "2.1.0"
+    version: "3.0.0"
   pub_semver:
     dependency: transitive
     description:
