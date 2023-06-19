@@ -229,11 +229,11 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: patch-1
-      resolved-ref: eba2501de84368785595480cda00e28c0667d9e0
-      url: "https://github.com/erikhellq/firedart"
+      ref: remove-noisy-print
+      resolved-ref: "910ddf85d2990ba7781146f8461c35f25ce34389"
+      url: "https://github.com/simonbengtsson/firedart"
     source: git
-    version: "0.9.0+1"
+    version: "0.9.3"
   fixnum:
     dependency: transitive
     description:
@@ -1113,10 +1113,10 @@ packages:
     dependency: "direct overridden"
     description:
       name: win32
-      sha256: "5a751eddf9db89b3e5f9d50c20ab8612296e4e8db69009788d6c8b060a84191c"
+      sha256: "7dacfda1edcca378031db9905ad7d7bd56b29fd1a90b0908b71a52a12c41e36b"
       url: "https://pub.dev"
     source: hosted
-    version: "4.1.4"
+    version: "5.0.3"
   win32_registry:
     dependency: transitive
     description:
