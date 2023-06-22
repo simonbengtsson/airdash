@@ -52,6 +52,7 @@ release() async {
   var version = VersionEditor().readCurrentVersion();
 
   version = VersionEditor().bumpPatchVersion();
+  print('Building $version');
 
   runLocalCommand('flutter build macos');
   runLocalCommand(
