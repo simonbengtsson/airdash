@@ -381,7 +381,10 @@ class HomeScreenState extends ConsumerState<HomeScreen>
         print('Selected url payload ${url.path}');
       }
     } catch (error, stack) {
-      ErrorLogger.logStackError('couldNotSelectPasteboard', error, stack);
+      // Plugin currently not supported on android
+      if (!Platform.isAndroid) {
+        ErrorLogger.logStackError('couldNotSelectPasteboard', error, stack);
+      }
     }
   }
 
