@@ -70,15 +70,16 @@ release() async {
   runLocalCommand(
       'fastlane upload_to_play_store --aab ${Config.localAabPath} --package_name io.flown.airdash --json_key ${Config.googlePlayKeyPath}');
 
-  await WindowsAppBuilder().build();
+  //await WindowsAppBuilder().build();
 
   await AppStoreVersionSubmitter().submit();
   await MicrosoftStoreSubmitter().submit();
 
-  await SnapStoreSubmitter().buildAndSubmit();
-
+  //await SnapStoreSubmitter().buildAndSubmit();
   runLocalCommand(
-      'gh release create v${version.join('.')} build/AirDash.snap build/AirDash.msix build/AirDash.apk --notes "See what\'s new in the [release notes](https://github.com/simonbengtsson/airdash/blob/master/CHANGELOG.md). Some distribution files are included as assets in this release, but the update will soon be available in all supported app stores."');
+      'gh release create v${version.join('.')} build/AirDash.apk --notes "See what\'s new in the [release notes](https://github.com/simonbengtsson/airdash/blob/master/CHANGELOG.md). Some distribution files are included as assets in this release, but the update will soon be available in all supported app stores."');
+  // runLocalCommand(
+  //     'gh release create v${version.join('.')} build/AirDash.snap build/AirDash.msix build/AirDash.apk --notes "See what\'s new in the [release notes](https://github.com/simonbengtsson/airdash/blob/master/CHANGELOG.md). Some distribution files are included as assets in this release, but the update will soon be available in all supported app stores."');
 
   var endedAt = DateTime.now();
   var endedAtTimeStr = endedAt.toIso8601String().substring(11, 19);
