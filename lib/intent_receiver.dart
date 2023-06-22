@@ -20,7 +20,7 @@ class IntentReceiver {
       const eventChannel = EventChannel('io.flown.airdash/event_communicator');
       eventChannel.receiveBroadcastStream().listen((event) async {
         List<File> files = [];
-        for (String url in List<String>.from(event as List)) {
+        for (String url in List<String>.from(event as List? ?? [])) {
           if (url.startsWith('http')) {
             var parsed = Uri.parse(url);
             callback(UrlPayload(parsed), null);
