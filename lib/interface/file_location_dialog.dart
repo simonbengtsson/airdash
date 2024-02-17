@@ -62,7 +62,7 @@ class _FileLocationDialogState extends State<FileLocationDialog> {
                     if (directoryPath != null) {
                       await widget.valueStore.setFileLocation(directoryPath);
                       print('Selected $directoryPath');
-                      if (mounted) {
+                      if (context.mounted) {
                         Navigator.pop(context);
                       }
                     }

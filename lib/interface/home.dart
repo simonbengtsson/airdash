@@ -624,8 +624,10 @@ class HomeScreenState extends ConsumerState<HomeScreen>
           } catch (error, stack) {
             ErrorLogger.logStackError(
                 'noInstalledAppCouldOpenFile', error, stack);
-            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                content: Text("No installed app could open this file")));
+            if (mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                  content: Text("No installed app could open this file")));
+            }
           }
         } else {
           // Seems there is no way to preview multiple files on android
