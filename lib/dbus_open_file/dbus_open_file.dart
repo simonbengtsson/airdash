@@ -6,9 +6,9 @@
 import 'package:dbus/dbus.dart';
 
 class OrgFreedesktopPortalOpenURI extends DBusRemoteObject {
-  OrgFreedesktopPortalOpenURI(DBusClient client, String destination,
-      {DBusObjectPath path = const DBusObjectPath.unchecked('/')})
-      : super(client, name: destination, path: path);
+  OrgFreedesktopPortalOpenURI(super.client, String destination,
+      {super.path = const DBusObjectPath.unchecked('/')})
+      : super(name: destination);
 
   /// Gets org.freedesktop.portal.OpenURI.version
   Future<int> getversion() async {

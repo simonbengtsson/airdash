@@ -35,7 +35,7 @@ import './window_manager.dart';
 import 'file_location_dialog.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
-  const HomeScreen({Key? key}) : super(key: key);
+  const HomeScreen({super.key});
 
   @override
   HomeScreenState createState() => HomeScreenState();
@@ -997,7 +997,7 @@ class HomeScreenState extends ConsumerState<HomeScreen>
             title: Text(it.name),
             subtitle: Text(it.displayId),
           );
-        }).toList(),
+        }),
         Padding(
           padding:
               const EdgeInsets.only(left: 16, right: 16, bottom: 16, top: 8),

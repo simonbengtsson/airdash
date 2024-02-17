@@ -25,8 +25,7 @@ class FileLocationDialog extends StatefulWidget {
   final String? fileLocationPath;
 
   const FileLocationDialog(
-      {Key? key, required this.fileLocationPath, required this.valueStore})
-      : super(key: key);
+      {super.key, required this.fileLocationPath, required this.valueStore});
 
   @override
   State<FileLocationDialog> createState() => _FileLocationDialogState();

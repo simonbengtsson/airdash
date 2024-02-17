@@ -15,13 +15,12 @@
 		97C147011CF9000F007C117D /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FF1CF9000F007C117D /* LaunchScreen.storyboard */; };
 		EB9D3B9CCFC6F5A4CA5F6F42 /* Pods_ShareExtension.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FEBD038E50F1C93786E566D3 /* Pods_ShareExtension.framework */; };
 		F487FE98274C50F600B2153E /* ShareViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F487FE97274C50F600B2153E /* ShareViewController.swift */; };
-		F48BF8BE27FA174000407DDC /* ShareExtension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = F487FE95274C50F600B2153E /* ShareExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		F48B3D5B2B812E76005AA56A /* ShareExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = F487FE95274C50F600B2153E /* ShareExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		F4F3681A28635C74006AF53B /* IntentHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4F3681928635C74006AF53B /* IntentHandler.swift */; };
-		F4F3681C2863D508006AF53B /* ShareViewControllerOld.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4F3681B2863D508006AF53B /* ShareViewControllerOld.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
-		F487FE9D274C50F600B2153E /* PBXContainerItemProxy */ = {
+		F48B3D5C2B812E76005AA56A /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 97C146E61CF9000F007C117D /* Project object */;
 			proxyType = 1;
@@ -41,15 +40,15 @@
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		F487FEA0274C50F600B2153E /* Embed App Extensions */ = {
+		F48B3D5E2B812E76005AA56A /* Embed Foundation Extensions */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
 			dstPath = "";
 			dstSubfolderSpec = 13;
 			files = (
-				F48BF8BE27FA174000407DDC /* ShareExtension.appex in Embed App Extensions */,
+				F48B3D5B2B812E76005AA56A /* ShareExtension.appex in Embed Foundation Extensions */,
 			);
-			name = "Embed App Extensions";
+			name = "Embed Foundation Extensions";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXCopyFilesBuildPhase section */
@@ -80,7 +79,6 @@
 		F487FE9C274C50F600B2153E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		F48BF8BF27FA24D200407DDC /* ShareExtension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = ShareExtension.entitlements; sourceTree = "<group>"; };
 		F4F3681928635C74006AF53B /* IntentHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IntentHandler.swift; sourceTree = "<group>"; };
-		F4F3681B2863D508006AF53B /* ShareViewControllerOld.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShareViewControllerOld.swift; sourceTree = "<group>"; };
 		FEBD038E50F1C93786E566D3 /* Pods_ShareExtension.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_ShareExtension.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -179,7 +177,6 @@
 			children = (
 				F48BF8BF27FA24D200407DDC /* ShareExtension.entitlements */,
 				F487FE97274C50F600B2153E /* ShareViewController.swift */,
-				F4F3681B2863D508006AF53B /* ShareViewControllerOld.swift */,
 				F487FE9C274C50F600B2153E /* Info.plist */,
 			);
 			path = ShareExtension;
@@ -198,14 +195,14 @@
 				97C146EB1CF9000F007C117D /* Frameworks */,
 				97C146EC1CF9000F007C117D /* Resources */,
 				9705A1C41CF9048500538489 /* Embed Frameworks */,
+				F48B3D5E2B812E76005AA56A /* Embed Foundation Extensions */,
 				3B06AD1E1E4923F5004D2608 /* Thin Binary */,
 				FEC80638E7323B03F2AA2144 /* [CP] Embed Pods Frameworks */,
-				F487FEA0274C50F600B2153E /* Embed App Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
-				F487FE9E274C50F600B2153E /* PBXTargetDependency */,
+				F48B3D5D2B812E76005AA56A /* PBXTargetDependency */,
 			);
 			name = Runner;
 			productName = Runner;
@@ -398,7 +395,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				F4F3681C2863D508006AF53B /* ShareViewControllerOld.swift in Sources */,
 				F487FE98274C50F600B2153E /* ShareViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -406,10 +402,10 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
-		F487FE9E274C50F600B2153E /* PBXTargetDependency */ = {
+		F48B3D5D2B812E76005AA56A /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = F487FE94274C50F600B2153E /* ShareExtension */;
-			targetProxy = F487FE9D274C50F600B2153E /* PBXContainerItemProxy */;
+			targetProxy = F48B3D5C2B812E76005AA56A /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -486,6 +482,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = "$(FLUTTER_BUILD_NUMBER)";
+				CUSTOM_GROUP_ID = group.io.flown.airdashn.appgroup;
 				DEVELOPMENT_TEAM = V5SYU7LHMG;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = Runner/Info.plist;
@@ -622,6 +619,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = "$(FLUTTER_BUILD_NUMBER)";
+				CUSTOM_GROUP_ID = group.io.flown.airdashn.appgroup;
 				DEVELOPMENT_TEAM = V5SYU7LHMG;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = Runner/Info.plist;
@@ -652,6 +650,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = "$(FLUTTER_BUILD_NUMBER)";
+				CUSTOM_GROUP_ID = group.io.flown.airdashn.appgroup;
 				DEVELOPMENT_TEAM = V5SYU7LHMG;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = Runner/Info.plist;
@@ -684,6 +683,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				CUSTOM_GROUP_ID = group.io.flown.airdashn.appgroup;
 				DEVELOPMENT_TEAM = V5SYU7LHMG;
 				ENABLE_BITCODE = NO;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
@@ -725,6 +725,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				CUSTOM_GROUP_ID = group.io.flown.airdashn.appgroup;
 				DEVELOPMENT_TEAM = V5SYU7LHMG;
 				ENABLE_BITCODE = NO;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
@@ -764,6 +765,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				CUSTOM_GROUP_ID = group.io.flown.airdashn.appgroup;
 				DEVELOPMENT_TEAM = V5SYU7LHMG;
 				ENABLE_BITCODE = NO;
 				GCC_C_LANGUAGE_STANDARD = gnu11;

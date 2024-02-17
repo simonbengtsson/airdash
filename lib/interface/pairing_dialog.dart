@@ -17,8 +17,7 @@ class PairingDialog extends StatefulWidget {
   final Function(Device) onPair;
 
   const PairingDialog(
-      {Key? key, required this.localDevice, required this.onPair})
-      : super(key: key);
+      {super.key, required this.localDevice, required this.onPair});
 
   @override
   State<PairingDialog> createState() => PairingDialogState();

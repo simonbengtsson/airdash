@@ -36,9 +36,9 @@ PODS:
     - DKImagePickerController/PhotoGallery
     - Flutter
   - Flutter (1.0.0)
-  - flutter_webrtc (0.9.31):
+  - flutter_webrtc (0.9.36):
     - Flutter
-    - WebRTC-SDK (= 104.5112.17)
+    - WebRTC-SDK (= 114.5735.08)
   - integration_test (0.0.1):
     - Flutter
   - package_info_plus (0.4.5):
@@ -50,18 +50,18 @@ PODS:
     - FlutterMacOS
   - quick_look (0.0.1):
     - Flutter
-  - receive_sharing_intent (0.0.1):
+  - receive_sharing_intent (1.6.7):
     - Flutter
   - SDWebImage (5.18.11):
     - SDWebImage/Core (= 5.18.11)
   - SDWebImage/Core (5.18.11)
-  - Sentry/HybridSDK (8.7.3):
-    - SentryPrivate (= 8.7.3)
+  - Sentry/HybridSDK (8.20.0):
+    - SentryPrivate (= 8.20.0)
   - sentry_flutter (0.0.1):
     - Flutter
     - FlutterMacOS
-    - Sentry/HybridSDK (= 8.7.3)
-  - SentryPrivate (8.7.3)
+    - Sentry/HybridSDK (= 8.20.0)
+  - SentryPrivate (8.20.0)
   - share_plus (0.0.1):
     - Flutter
   - shared_preferences_foundation (0.0.1):
@@ -72,7 +72,7 @@ PODS:
     - Flutter
   - wakelock (0.0.1):
     - Flutter
-  - WebRTC-SDK (104.5112.17)
+  - WebRTC-SDK (114.5735.08)
 
 DEPENDENCIES:
   - device_info_plus (from `.symlinks/plugins/device_info_plus/ios`)
@@ -134,28 +134,28 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/wakelock/ios"
 
 SPEC CHECKSUMS:
-  device_info_plus: 7545d84d8d1b896cb16a4ff98c19f07ec4b298ea
+  device_info_plus: c6fb39579d0f423935b0c9ce7ee2f44b71b9fce6
   DKImagePickerController: b512c28220a2b8ac7419f21c491fc8534b7601ac
   DKPhotoGallery: fdfad5125a9fdda9cc57df834d49df790dbb4179
-  file_picker: ce3938a0df3cc1ef404671531facef740d03f920
+  file_picker: 15fd9539e4eb735dc54bae8c0534a7a9511a03de
   Flutter: e0871f40cf51350855a761d2e70bf5af5b9b5de7
-  flutter_webrtc: 02c023207f972145a3bc8c7aada86754f264d563
+  flutter_webrtc: 55df3aaa802114dad390191a46c2c8d535751268
   integration_test: 13825b8a9334a850581300559b8839134b124670
-  package_info_plus: fd030dabf36271f146f1f3beacd48f564b0f17f7
+  package_info_plus: 115f4ad11e0698c8c1c5d8a689390df880f47e85
   pasteboard: 982969ebaa7c78af3e6cc7761e8f5e77565d9ce0
-  path_provider_foundation: eaf5b3e458fc0e5fbb9940fb09980e853fe058b8
+  path_provider_foundation: 3784922295ac71e43754bd15e0653ccfd36a147c
   quick_look: 59394001d6b484c13fd5f73b555398d523726c8c
-  receive_sharing_intent: c0d87310754e74c0f9542947e7cbdf3a0335a3b1
+  receive_sharing_intent: 9ca20ae908f83c36ddaaaa8c9bd30ce4700495e8
   SDWebImage: a3ba0b8faac7228c3c8eadd1a55c9c9fe5e16457
-  Sentry: c7a86f43510a7d5678d4de28d78c28ab351d295b
-  sentry_flutter: f2710a4f537e9a7143b02562b8754ccdc8224751
-  SentryPrivate: 2eaabf598a46d4b9b8822aef766df2a84caf2e6f
-  share_plus: 599aa54e4ea31d4b4c0e9c911bcc26c55e791028
-  shared_preferences_foundation: e2dae3258e06f44cc55f49d42024fd8dd03c590c
+  Sentry: a8d7b373b9f9868442b02a0c425192f693103cbf
+  sentry_flutter: 03e7660857a8cdb236e71456a7e8447b65c8a788
+  SentryPrivate: 006b24af16828441f70e2ab6adf241bd0a8ad130
+  share_plus: c3fef564749587fc939ef86ffb283ceac0baf9f5
+  shared_preferences_foundation: b4c3b4cddf1c21f02770737f147a3f5da9d39695
   SwiftyGif: 93a1cc87bf3a51916001cf8f3d63835fb64c819f
-  url_launcher_ios: 08a3dfac5fb39e8759aeb0abbd5d9480f30fc8b4
+  url_launcher_ios: bbd758c6e7f9fd7b5b1d4cde34d2b95fcce5e812
   wakelock: d0fc7c864128eac40eba1617cb5264d9c940b46f
-  WebRTC-SDK: 082ae4893212534a779ca233f19a9df8efd5f3bd
+  WebRTC-SDK: c24d2a6c9f571f2ed42297cb8ffba9557093142b
 
 PODFILE CHECKSUM: 7b8cdbdc22ae435eeac5b91941fe5d96f9f24b54
 

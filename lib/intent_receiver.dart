@@ -51,9 +51,9 @@ class IntentReceiver {
       });
     } else {
       intentTextStreamSubscription =
-          ReceiveSharingIntent.getTextStream().listen((String text) async {
-        print('INTENT: Received text $text');
-        handleText(text, callback);
+          ReceiveSharingIntent.getMediaStream().listen((content) async {
+        print('INTENT: Received text $content');
+        //handleText(text, callback);
       });
       intentDataStreamSubscription = ReceiveSharingIntent.getMediaStream()
           .listen((List<SharedMediaFile> list) async {
@@ -89,9 +89,9 @@ class IntentReceiver {
         }
       });
 
-      ReceiveSharingIntent.getInitialText().then((String? text) async {
-        logger('MAIN: Init text intent $text');
-        await handleText(text, callback);
+      ReceiveSharingIntent.getInitialMedia().then((content) async {
+        logger('MAIN: Init text intent $content');
+        //await handleText(content, callback);
       });
     }
   }
