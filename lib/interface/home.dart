@@ -229,7 +229,7 @@ class HomeScreenState extends ConsumerState<HomeScreen>
     } catch (error, stack) {
       ErrorLogger.logStackError('infoUpdateError', error, stack);
     }
-    selectPasteboard();
+    //selectPasteboard();
 
     //startBluetooth();
   }
@@ -287,7 +287,7 @@ class HomeScreenState extends ConsumerState<HomeScreen>
 
   @override
   void onWindowFocus() {
-    selectPasteboard();
+    //selectPasteboard();
     print('Window was focused...');
   }
 
@@ -362,6 +362,8 @@ class HomeScreenState extends ConsumerState<HomeScreen>
     }
   }
 
+  // Don't auto use pasteboard anymore since
+  // ios present annoying permission dialog
   void selectPasteboard() async {
     try {
       final filePaths = await Pasteboard.files();

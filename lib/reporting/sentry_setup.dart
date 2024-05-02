@@ -17,7 +17,7 @@ class SentryManager {
     options.diagnosticLevel = SentryLevel.info;
     options.dsn = Config.sentryDsn;
     options.tracesSampleRate = 1.0;
-    options.beforeSend = (event, {dynamic hint}) async {
+    options.beforeSend = (event, hint) async {
       return _handleBeforeSend(event);
     };
   }

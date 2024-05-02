@@ -50,12 +50,14 @@ class IntentReceiver {
         ErrorLogger.logStackError('fileIntentError', error, stack);
       });
     } else {
-      intentTextStreamSubscription =
-          ReceiveSharingIntent.getMediaStream().listen((content) async {
+      intentTextStreamSubscription = ReceiveSharingIntent.instance
+          .getMediaStream()
+          .listen((content) async {
         print('INTENT: Received text $content');
         //handleText(text, callback);
       });
-      intentDataStreamSubscription = ReceiveSharingIntent.getMediaStream()
+      intentDataStreamSubscription = ReceiveSharingIntent.instance
+          .getMediaStream()
           .listen((List<SharedMediaFile> list) async {
         logger('INTENT: Handle intent ${list.length}');
         if (list.isNotEmpty) {
@@ -79,7 +81,8 @@ class IntentReceiver {
         callback(null, 'Could not handle the provided file');
       });
 
-      ReceiveSharingIntent.getInitialMedia()
+      ReceiveSharingIntent.instance
+          .getInitialMedia()
           .then((List<SharedMediaFile> list) async {
         logger('MAIN: Init intent ${list.length}');
         if (list.isNotEmpty) {
@@ -89,7 +92,7 @@ class IntentReceiver {
         }
       });
 
-      ReceiveSharingIntent.getInitialMedia().then((content) async {
+      ReceiveSharingIntent.instance.getInitialMedia().then((content) async {
         logger('MAIN: Init text intent $content');
         //await handleText(content, callback);
       });

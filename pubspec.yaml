@@ -2,7 +2,7 @@ name: airdash
 description: Share files anywhere
 publish_to: "none"
 
-version: 2.0.153+153
+version: 2.0.155+155
 
 environment:
   sdk: ">=2.17.1 <3.0.0"
@@ -12,27 +12,27 @@ dependencies:
     sdk: flutter
 
   cupertino_icons: ^1.0.2
-  flutter_webrtc: ^0.9.19
+  flutter_webrtc: ^0.10.0
   http: ^1.2.1
-  file_picker: ^6.1.1
+  file_picker: ^8.0.3
   path_provider: ^2.0.12
-  share_plus: ^7.0.2
+  share_plus: ^9.0.0
   shared_preferences: ^2.0.15
   receive_sharing_intent: ^1.6.0
   firedart: ^0.9.4
   url_launcher: ^6.1.8
-  package_info_plus: ^5.0.1
-  device_info_plus: ^9.0.2
+  package_info_plus: ^8.0.0
+  device_info_plus: ^10.1.0
   desktop_drop: ^0.4.4
   quick_look: ^0.1.0
   tray_manager: ^0.2.0
   window_manager: ^0.3.0
   mime: ^1.0.4
-  sentry_flutter: ^7.7.0
+  sentry_flutter: ^8.1.0
   grpc: ^3.0.2
   wakelock: ^0.6.1+2
   simple_peer:
-    ^0.0.10
+    ^0.1.0
     #path: ./libs/simple_peer
   flutter_riverpod: ^1.0.4
   mixpanel_analytics: ^2.1.1
