@@ -77,8 +77,9 @@ release() async {
   await MicrosoftStoreSubmitter().submit();
 
   //await SnapStoreSubmitter().buildAndSubmit();
+  runLocalCommand('npx appdmg appdmg.json ./build/AirDash.dmg');
   runLocalCommand(
-      'gh release create v${version.join('.')} build/AirDash.apk --notes "See what\'s new in the [release notes](https://github.com/simonbengtsson/airdash/blob/master/CHANGELOG.md). Some distribution files are included as assets in this release, but the update will soon be available in all supported app stores."');
+      'gh release create v${version.join('.')} build/AirDash.dmg build/AirDash.apk --notes "See what\'s new in the [release notes](https://github.com/simonbengtsson/airdash/blob/master/CHANGELOG.md). Some distribution files are included as assets in this release, but the update will soon be available in all supported app stores."');
   // runLocalCommand(
   //     'gh release create v${version.join('.')} build/AirDash.snap build/AirDash.msix build/AirDash.apk --notes "See what\'s new in the [release notes](https://github.com/simonbengtsson/airdash/blob/master/CHANGELOG.md). Some distribution files are included as assets in this release, but the update will soon be available in all supported app stores."');
 
