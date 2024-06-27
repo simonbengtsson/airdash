@@ -10,7 +10,7 @@ class WindowsAppBuilder {
       runWinCommand('cd "$repoPath" && git reset --hard && git pull -r');
       runWinCommand('cd "$repoPath" && flutter pub get');
       runWinCommand('cd "$repoPath" && flutter pub run msix:create');
-      var localMsixPath = '${Config.localRepoPath}/build/AirDash.msix';
+      var localMsixPath = '${Config.localRepoPath}/build/airdash.msix';
       fetchWindowsFile(Config.windowsVmMsixPath, localMsixPath);
     });
   }

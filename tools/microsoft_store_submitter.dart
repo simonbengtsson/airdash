@@ -105,7 +105,7 @@ class MicrosoftStoreSubmitter {
       package['fileStatus'] = 'PendingDelete';
     }
     applicationPackages.add(<String, String>{
-      'fileName': 'AirDash.msix',
+      'fileName': 'airdash.msix',
       'fileStatus': 'PendingUpload',
       'version': '${version.join('.')}.0',
     });
@@ -117,7 +117,7 @@ class MicrosoftStoreSubmitter {
       String submissionId, String url, List<int> version) async {
     var zipFile = File('build/upload.zip');
     runLocalCommand(
-        'zip ${zipFile.path} ${Config.localRepoPath}/build/AirDash.msix -j');
+        'zip ${zipFile.path} ${Config.localRepoPath}/build/airdash.msix -j');
     var msixBytes = await zipFile.readAsBytes();
 
     var headers = {

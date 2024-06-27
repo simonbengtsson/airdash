@@ -58,7 +58,7 @@ release() async {
   runLocalCommand(
       'fastlane run build_mac_app export_team_id:"${Config.appStoreTeamId}" workspace:macos/Runner.xcworkspace output_directory:build');
   runLocalCommand(
-      'xcrun altool --upload-app --type macos -f build/AirDash.pkg --apiKey ${Config.appStoreConnectApiKeyName} --apiIssuer ${Config.appStoreConnectIssuerId}');
+      'xcrun altool --upload-app --type macos -f build/airdash.pkg --apiKey ${Config.appStoreConnectApiKeyName} --apiIssuer ${Config.appStoreConnectIssuerId}');
 
   runLocalCommand('flutter build ipa');
   runLocalCommand(
@@ -67,7 +67,7 @@ release() async {
   runLocalCommand('flutter build appbundle');
   runLocalCommand('flutter build apk');
   runLocalCommand(
-      'cp build/app/outputs/flutter-apk/app-release.apk build/AirDash.apk');
+      'cp build/app/outputs/flutter-apk/app-release.apk build/airdash.apk');
   runLocalCommand(
       'fastlane upload_to_play_store --aab ${Config.localAabPath} --package_name io.flown.airdash --json_key ${Config.googlePlayKeyPath}');
 
@@ -77,11 +77,11 @@ release() async {
   await MicrosoftStoreSubmitter().submit();
 
   //await SnapStoreSubmitter().buildAndSubmit();
-  runLocalCommand('npx appdmg appdmg.json ./build/AirDash.dmg');
+  runLocalCommand('npx appdmg appdmg.json ./build/airdash.dmg');
   runLocalCommand(
-      'gh release create v${version.join('.')} build/AirDash.dmg build/AirDash.apk --notes "See what\'s new in the [release notes](https://github.com/simonbengtsson/airdash/blob/master/CHANGELOG.md). Some distribution files are included as assets in this release, but the update will soon be available in all supported app stores."');
+      'gh release create v${version.join('.')} build/airdash.dmg build/airdash.apk --notes "See what\'s new in the [release notes](https://github.com/simonbengtsson/airdash/blob/master/CHANGELOG.md). Some distribution files are included as assets in this release, but the update will soon be available in all supported app stores."');
   // runLocalCommand(
-  //     'gh release create v${version.join('.')} build/AirDash.snap build/AirDash.msix build/AirDash.apk --notes "See what\'s new in the [release notes](https://github.com/simonbengtsson/airdash/blob/master/CHANGELOG.md). Some distribution files are included as assets in this release, but the update will soon be available in all supported app stores."');
+  //     'gh release create v${version.join('.')} build/airdash.snap build/airdash.msix build/airdash.apk --notes "See what\'s new in the [release notes](https://github.com/simonbengtsson/airdash/blob/master/CHANGELOG.md). Some distribution files are included as assets in this release, but the update will soon be available in all supported app stores."');
 
   var endedAt = DateTime.now();
   var endedAtTimeStr = endedAt.toIso8601String().substring(11, 19);

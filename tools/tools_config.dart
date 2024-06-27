@@ -29,7 +29,7 @@ class Config {
   static final windowsVmRepoPath = _env('WINDOWS_VM_REPO_PATH');
   static final windowsVmOutputPath = '$windowsVmRepoPath\\build\\stdout.txt';
   static final windowsVmMsixPath =
-      '$windowsVmRepoPath\\build\\windows\\runner\\Release\\AirDash.msix';
+      '$windowsVmRepoPath\\build\\windows\\runner\\Release\\airdash.msix';
 
   static final localWindowsVmPath = _env('WINDOWS_VM_PATH');
   static final localStdoutPath = '$localRepoPath/build/stdout.txt';
