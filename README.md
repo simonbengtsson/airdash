@@ -5,6 +5,7 @@ Transfer photos and files to any device.
 ### Get the app
 
 - [Apple App Store (iOS & macOS)](https://apps.apple.com/se/app/airdash-file-sharing/id1596599922)
+- [Homebrew (macOS)](https://formulae.brew.sh/cask/airdash)
 - [Google Play (Android)](https://play.google.com/store/apps/details?id=io.flown.airdash)
 - [Microsoft Store (Windows)](https://apps.microsoft.com/store/detail/airdash/9NL9K7CSG30T)
 - [Snap Store (Linux)](https://snapcraft.io/airdash)
