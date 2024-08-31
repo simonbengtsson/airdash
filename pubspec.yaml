@@ -16,7 +16,7 @@ dependencies:
   http: ^1.2.1
   file_picker: ^8.0.3
   path_provider: ^2.0.12
-  share_plus: ^9.0.0
+  share_plus: ^10.0.0
   shared_preferences: ^2.0.15
   receive_sharing_intent: ^1.6.0
   firedart: ^0.9.4
@@ -26,7 +26,7 @@ dependencies:
   desktop_drop: ^0.4.4
   quick_look: ^0.1.0
   tray_manager: ^0.2.0
-  window_manager: ^0.3.0
+  window_manager: ^0.4.0
   mime: ^1.0.4
   sentry_flutter: ^8.1.0
   grpc: ^3.0.2
