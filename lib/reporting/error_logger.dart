@@ -1,5 +1,5 @@
+import 'package:firedart/firedart.dart';
 import 'package:flutter/foundation.dart';
-import 'package:grpc/grpc.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 
 import '../helpers.dart';
@@ -55,7 +55,7 @@ class ErrorLogger {
       scope.setTag('action', 'logged');
       scope.setTag('type', error.type);
       for (var key in (error.context ?? <String, String>{}).keys) {
-        scope.setExtra(key, error.context?[key] ?? '(null)');
+        scope.setContexts(key, error.context?[key] ?? '(null)');
       }
       var actual = error.error;
       if (actual != null) {
@@ -66,19 +66,20 @@ class ErrorLogger {
           FlutterError.presentError(details);
         }
 
-        scope.setExtra('wrappedException', error.error?.toString() ?? 'none');
-        scope.setExtra('wrappedExceptionType',
+        scope.setContexts(
+            'wrappedException', error.error?.toString() ?? 'none');
+        scope.setContexts('wrappedExceptionType',
             error.error?.runtimeType.toString() ?? 'none');
-        scope.setExtra('isGrpc', actual is GrpcError);
+        scope.setContexts('isGrpc', actual is GrpcError);
         if (actual is GrpcError) {
-          scope.setExtra('code', actual.code);
-          scope.setExtra('message', actual.message ?? '');
-          scope.setExtra('codeName', actual.codeName);
+          scope.setContexts('code', actual.code);
+          scope.setContexts('message', actual.message ?? '');
+          scope.setContexts('codeName', actual.codeName);
         } else if (actual is LogError) {
-          scope.setExtra('subType', actual.type);
-          scope.setExtra('subError', actual.error?.toString() ?? '');
+          scope.setContexts('subType', actual.type);
+          scope.setContexts('subError', actual.error?.toString() ?? '');
           for (var key in (actual.context ?? <String, String>{}).keys) {
-            scope.setExtra('subContext_$key', actual.context![key]);
+            scope.setContexts('subContext_$key', actual.context![key]);
           }
         }
       }
