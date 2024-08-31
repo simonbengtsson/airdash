@@ -1,7 +1,7 @@
 import Cocoa
 import FlutterMacOS
 
-@NSApplicationMain
+@main
 class AppDelegate: FlutterAppDelegate {
     
     //let bluetoothService = BluetoothService()

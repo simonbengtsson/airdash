@@ -10,8 +10,8 @@ class VersionEditor {
     var oldVersion = readCurrentVersion();
     var newVersion = [oldVersion[0], oldVersion[1], oldVersion[2] + 1];
 
-    _replaceLine(snapcraftFile, "version: '${oldVersion.join('.')}'",
-        "version: '${newVersion.join('.')}'");
+    _replaceLine(snapcraftFile, "version: \"${oldVersion.join('.')}\"",
+        "version: \"${newVersion.join('.')}\"");
     _replaceLine(
         pubspecFile,
         'version: ${oldVersion.join('.')}+${oldVersion[2]}',
@@ -48,7 +48,7 @@ class VersionEditor {
     var indexes = lines.where((element) => element.startsWith(lineMatch));
     if (indexes.length != 1) {
       throw Exception(
-          'Not matching 1 line. Matches: ${indexes.length} Wanted: $lineMatch');
+          'Not matching 1 line. Matches: ${indexes.length} Wanted: $lineMatch File: ${file.path}');
     }
     var index = lines.indexWhere((element) => element.startsWith(lineMatch));
     lines[index] = newLine;

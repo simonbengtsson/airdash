@@ -50,3 +50,8 @@ By default a google stun server is used to connect peers. The simplest way to en
 Contributions are very much welcome on everything from bug reports to feature development. If you
 want to change something major write an issue about it first to ensure it will be considered for
 merge.
+
+### Publish guide (for contributors)
+
+`dart tools/scripts.dart bump`
+`dart tools/scripts.dart release`

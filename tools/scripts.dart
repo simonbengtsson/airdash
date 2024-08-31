@@ -51,7 +51,7 @@ release() async {
   print('$startedTimeStr Starting build...');
   var version = VersionEditor().readCurrentVersion();
 
-  version = VersionEditor().bumpPatchVersion();
+  //version = VersionEditor().bumpPatchVersion();
   print('Building $version');
 
   runLocalCommand('flutter build macos');
@@ -74,12 +74,12 @@ release() async {
   //await WindowsAppBuilder().build();
 
   await AppStoreVersionSubmitter().submit();
-  await MicrosoftStoreSubmitter().submit();
+  //await MicrosoftStoreSubmitter().submit();
 
   //await SnapStoreSubmitter().buildAndSubmit();
-  runLocalCommand('npx appdmg appdmg.json ./build/airdash.dmg');
-  runLocalCommand(
-      'gh release create v${version.join('.')} build/airdash.dmg build/airdash.apk --notes "See what\'s new in the [release notes](https://github.com/simonbengtsson/airdash/blob/master/CHANGELOG.md). Some distribution files are included as assets in this release, but the update will soon be available in all supported app stores."');
+  //runLocalCommand('npx appdmg appdmg.json ./build/airdash.dmg');
+  // runLocalCommand(
+  //     'gh release create v${version.join('.')} build/airdash.dmg build/airdash.apk --notes "See what\'s new in the [release notes](https://github.com/simonbengtsson/airdash/blob/master/CHANGELOG.md). Some distribution files are included as assets in this release, but the update will soon be available in all supported app stores."');
   // runLocalCommand(
   //     'gh release create v${version.join('.')} build/airdash.snap build/airdash.msix build/airdash.apk --notes "See what\'s new in the [release notes](https://github.com/simonbengtsson/airdash/blob/master/CHANGELOG.md). Some distribution files are included as assets in this release, but the update will soon be available in all supported app stores."');
 
