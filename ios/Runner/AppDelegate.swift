@@ -2,7 +2,7 @@ import UIKit
 import Flutter
 import QuickLook
 
-@UIApplicationMain
+@main
 @objc class AppDelegate: FlutterAppDelegate {
     
     var pendingFileUrls = [String]()

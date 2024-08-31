@@ -1,8 +1,8 @@
-import admin from "firebase-admin";
+import { initializeApp } from "firebase-admin/app";
+import { getFirestore } from "firebase-admin/firestore";
 import functions from "firebase-functions";
-import fetch from "node-fetch";
 
-admin.initializeApp();
+initializeApp();
 
 class ServerError extends Error {
   constructor(type, statusCode, message = "Server error") {
@@ -22,7 +22,7 @@ export const playground = functions.https.onRequest(async (req, res) => {
     iceServers: JSON.stringify(servers),
     provider: `cloudflare`,
   };
-  await admin.firestore().doc("appInfo/appInfo").update({ connectionConfig });
+  await getFirestore().doc("appInfo/appInfo").update({ connectionConfig });
   functions.logger.log("Updated connection config", { connectionConfig });
 
   res.send("Hello CF!");
@@ -53,8 +53,10 @@ async function getFreshCloudflareIceServers() {
   }
   const data = await response.json();
   functions.logger.log("Cloudflare response", data);
-  const serverUrls = data.iceServers.urls;
-  return serverUrls;
+
+  // Cloudflare only returns one server
+  const iceServer = data.iceServers;
+  return [iceServer];
 }
 
 // async function getFreshTwilioIceServers() {
@@ -92,7 +94,7 @@ export const updateIceServers = functions
       iceServers: JSON.stringify(iceServers),
       provider: `cloudflare`,
     };
-    await admin.firestore().doc("appInfo/appInfo").update({ connectionConfig });
+    await getFirestore().doc("appInfo/appInfo").update({ connectionConfig });
     functions.logger.log("Updated connection config", { connectionConfig });
   });
 
@@ -130,7 +132,7 @@ async function pairingFunction(body) {
     devicePlatform: devicePlatform || null,
     meta: meta || {},
   };
-  await admin.firestore().collection("connections").add(localConnection);
+  await getFirestore().collection("connections").add(localConnection);
   functions.logger.log("Added local connection", localConnection);
 
   const remoteConnection = await new Promise((resolve, reject) => {
@@ -163,8 +165,7 @@ async function pairingFunction(body) {
       }
     }
 
-    unsubscribe = admin
-      .firestore()
+    unsubscribe = getFirestore()
       .collection("connections")
       .where("remoteCode", "==", localCode)
       .onSnapshot(
