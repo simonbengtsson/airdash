@@ -99,10 +99,11 @@ Linux
 - Open Ubuntu in VMWare
 - Open ~\Documents\airdash in vs code
 - git pull -r && flutter pub get
-- /home/simon/tools/flutter/bin/flutter build linux --release
-- snapcraft snap --output build/app.snap --use-lxd
-- export SNAPCRAFT_STORE_CREDENTIALS=${Config.snapcraftLoginCredentials} && snapcraft upload --release=stable build/app.snap
-- Copy snap to build/airdash.snap
+- flutter build linux --release
+- flutter clean --use-lxd # required
+- snapcraft --output build/airdash.snap --use-lxd
+- snapcraft upload --release=stable build/airdash.snap
+- Copy to mac ./build/airdash.snap
 
 Create Github release
 
@@ -112,3 +113,5 @@ Create Github release
 - Attach
   - build/airdash.apk
   - build/airdash.dmg
+  - build/airdash.msix
+  - build/airdash.snap
