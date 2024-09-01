@@ -4,6 +4,7 @@ import 'dart:io';
 
 import 'package:desktop_drop/desktop_drop.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:file_selector/file_selector.dart';
 import 'package:firedart/firedart.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -560,17 +561,20 @@ class HomeScreenState extends ConsumerState<HomeScreen>
 
   Future<void> openFilePicker(FileType type) async {
     isPickingFile = true;
-    var result = await FilePicker.platform.pickFiles(
-      dialogTitle: 'Pick File',
-      type: type,
-      lockParentWindow: true,
-      withData: false,
-      allowCompression: false,
-      withReadStream: true,
-      allowMultiple: true,
-    );
-    if (result != null && result.files.isNotEmpty) {
-      var files = result.files.map((it) => File(it.path!)).toList();
+    var result = await openFiles();
+
+    // Required zenity on linux which was complicated to use with snaps
+    // var result = await FilePicker.platform.pickFiles(
+    //   dialogTitle: 'Pick File',
+    //   type: type,
+    //   lockParentWindow: true,
+    //   withData: false,
+    //   allowCompression: false,
+    //   withReadStream: true,
+    //   allowMultiple: true,
+    // );
+    if (result.isNotEmpty) {
+      var files = result.map((it) => File(it.path!)).toList();
       var param = type == FileType.media ? 'media' : 'fileManager';
       await setPayload(FilePayload(files), param);
       logger('HOME: File selected ${files.length}');
