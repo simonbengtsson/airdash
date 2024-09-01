@@ -1,5 +1,9 @@
 # Changelog
 
+### v2.0.156 31 Aug 2024
+
+- Update libraries and Android target version
+
 ### v2.0.152 22 June 2023
 
 - [new] Add ability to change save location on mac

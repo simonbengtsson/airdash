@@ -53,5 +53,62 @@ merge.
 
 ### Publish guide (for contributors)
 
-`dart tools/scripts.dart bump`
-`dart tools/scripts.dart release`
+Prepare
+
+- Update libraries
+- flutter pub get
+- cd ios && pod update
+- cd macos && pod update
+
+Update version
+
+- Update changelog.md and version in pubspec.yaml and snapcraft.yaml
+- git commit -am vX.X.X
+- git tag "vX.X.X"
+- git push && git push -f --tags
+
+macOS
+
+- flutter build macos
+- Archive, Distribute -> Export to App store AND Distribute -> Direct Distribution (~/Downloads/airdash.app)
+- npx appdmg appdmg.json ./build/airdash.dmg
+
+iOS
+
+- flutter build ipa
+- Distribute with Transporter or Xcode (open build/ios/archive/MyApp.xcarchive)
+
+Android
+
+- flutter build appbundle
+- cp build/app/outputs/bundle/release/app-release.aab build/airdash.aab
+- open https://play.google.com/console/u/0/developers/6822011924129869646/app/4975414306006741094/tracks/production
+- App Bundle Explorer -> Download signed apk -> build/airdash.apk
+
+Windows
+
+- Open Windows in VMWare
+- Open ~\Documents\airdash in vs code
+- git pull -r && flutter pub get
+- dart run msix:create
+- Copy msix file to build/airdash.msix
+- Create new update -> open https://partner.microsoft.com/en-us/dashboard/products/9NL9K7CSG30T
+
+Linux
+
+- Open Ubuntu in VMWare
+- Open ~\Documents\airdash in vs code
+- git pull -r && flutter pub get
+- /home/simon/tools/flutter/bin/flutter build linux --release
+- snapcraft snap --output build/app.snap --use-lxd
+- export SNAPCRAFT_STORE_CREDENTIALS=${Config.snapcraftLoginCredentials} && snapcraft upload --release=stable build/app.snap
+- Copy snap to build/airdash.snap
+
+Create Github release
+
+- Download macOS app file
+- npx appdmg appdmg.json ./build/airdash.dmg
+- open https://github.com/simonbengtsson/airdash/releases/new
+- Attach
+  - build/airdash.apk
+  - build/airdash.dmg
