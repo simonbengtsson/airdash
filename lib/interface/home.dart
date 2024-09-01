@@ -3,7 +3,6 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:desktop_drop/desktop_drop.dart';
-import 'package:file_picker/file_picker.dart';
 import 'package:file_selector/file_selector.dart';
 import 'package:firedart/firedart.dart';
 import 'package:flutter/foundation.dart';
@@ -542,7 +541,7 @@ class HomeScreenState extends ConsumerState<HomeScreen>
                   title: const Text('Media'),
                   onTap: () async {
                     Navigator.of(context).pop();
-                    openFilePicker(FileType.media);
+                    openFilePicker(true);
                   },
                 ),
                 ListTile(
@@ -550,7 +549,7 @@ class HomeScreenState extends ConsumerState<HomeScreen>
                   title: const Text('Files'),
                   onTap: () async {
                     Navigator.of(context).pop();
-                    openFilePicker(FileType.any);
+                    openFilePicker(false);
                   },
                 ),
               ],
@@ -559,23 +558,13 @@ class HomeScreenState extends ConsumerState<HomeScreen>
         });
   }
 
-  Future<void> openFilePicker(FileType type) async {
+  Future<void> openFilePicker(bool mediaOnly) async {
     isPickingFile = true;
     var result = await openFiles();
 
-    // Required zenity on linux which was complicated to use with snaps
-    // var result = await FilePicker.platform.pickFiles(
-    //   dialogTitle: 'Pick File',
-    //   type: type,
-    //   lockParentWindow: true,
-    //   withData: false,
-    //   allowCompression: false,
-    //   withReadStream: true,
-    //   allowMultiple: true,
-    // );
     if (result.isNotEmpty) {
       var files = result.map((it) => File(it.path!)).toList();
-      var param = type == FileType.media ? 'media' : 'fileManager';
+      var param = mediaOnly ? 'media' : 'fileManager';
       await setPayload(FilePayload(files), param);
       logger('HOME: File selected ${files.length}');
     }
@@ -767,7 +756,7 @@ class HomeScreenState extends ConsumerState<HomeScreen>
     if (Platform.isIOS) {
       openPhotoAndFileBottomSheet();
     } else {
-      openFilePicker(FileType.any);
+      openFilePicker(false);
     }
   }
 

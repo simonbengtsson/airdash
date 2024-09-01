@@ -1,7 +1,7 @@
 import 'dart:io';
 
 import 'package:airdash/model/value_store.dart';
-import 'package:file_picker/file_picker.dart';
+import 'package:file_selector/file_selector.dart';
 import 'package:flutter/material.dart';
 
 import '../helpers.dart';
@@ -53,11 +53,8 @@ class _FileLocationDialogState extends State<FileLocationDialog> {
                 const SizedBox(width: 10),
                 IconButton(
                   onPressed: () async {
-                    var directoryPath =
-                        await FilePicker.platform.getDirectoryPath(
-                      lockParentWindow: true,
-                      initialDirectory: widget.fileLocationPath,
-                    );
+                    var directoryPath = await getDirectoryPath(
+                        initialDirectory: widget.fileLocationPath);
                     if (directoryPath != null) {
                       await widget.valueStore.setFileLocation(directoryPath);
                       print('Selected $directoryPath');
