@@ -7,6 +7,8 @@ PODS:
   - flutter_webrtc (0.11.3):
     - Flutter
     - WebRTC-SDK (= 125.6422.04)
+  - in_app_review (0.2.0):
+    - Flutter
   - integration_test (0.0.1):
     - Flutter
   - package_info_plus (0.4.5):
@@ -41,6 +43,7 @@ DEPENDENCIES:
   - file_selector_ios (from `.symlinks/plugins/file_selector_ios/ios`)
   - Flutter (from `Flutter`)
   - flutter_webrtc (from `.symlinks/plugins/flutter_webrtc/ios`)
+  - in_app_review (from `.symlinks/plugins/in_app_review/ios`)
   - integration_test (from `.symlinks/plugins/integration_test/ios`)
   - package_info_plus (from `.symlinks/plugins/package_info_plus/ios`)
   - pasteboard (from `.symlinks/plugins/pasteboard/ios`)
@@ -67,6 +70,8 @@ EXTERNAL SOURCES:
     :path: Flutter
   flutter_webrtc:
     :path: ".symlinks/plugins/flutter_webrtc/ios"
+  in_app_review:
+    :path: ".symlinks/plugins/in_app_review/ios"
   integration_test:
     :path: ".symlinks/plugins/integration_test/ios"
   package_info_plus:
@@ -95,6 +100,7 @@ SPEC CHECKSUMS:
   file_selector_ios: f0670c1064a8c8450e38145d8043160105d0b97c
   Flutter: e0871f40cf51350855a761d2e70bf5af5b9b5de7
   flutter_webrtc: 75b868e4f9e817c7a9a42ca4b6169063de4eec9f
+  in_app_review: 318597b3a06c22bb46dc454d56828c85f444f99d
   integration_test: 252f60fa39af5e17c3aa9899d35d908a0721b573
   package_info_plus: 58f0028419748fad15bf008b270aaa8e54380b1c
   pasteboard: 982969ebaa7c78af3e6cc7761e8f5e77565d9ce0
