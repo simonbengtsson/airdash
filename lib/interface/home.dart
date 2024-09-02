@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:desktop_drop/desktop_drop.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:file_selector/file_selector.dart';
 import 'package:firedart/firedart.dart';
 import 'package:flutter/foundation.dart';
@@ -541,7 +542,7 @@ class HomeScreenState extends ConsumerState<HomeScreen>
                   title: const Text('Media'),
                   onTap: () async {
                     Navigator.of(context).pop();
-                    openFilePicker(true);
+                    openFilePicker(FileType.media);
                   },
                 ),
                 ListTile(
@@ -549,7 +550,7 @@ class HomeScreenState extends ConsumerState<HomeScreen>
                   title: const Text('Files'),
                   onTap: () async {
                     Navigator.of(context).pop();
-                    openFilePicker(false);
+                    openFilePicker(FileType.any);
                   },
                 ),
               ],
@@ -558,13 +559,37 @@ class HomeScreenState extends ConsumerState<HomeScreen>
         });
   }
 
-  Future<void> openFilePicker(bool mediaOnly) async {
+  Future<void> openFilePicker(FileType type) async {
     isPickingFile = true;
-    var result = await openFiles();
+    List<File> files = [];
+    if (type == FileType.media) {
+      // Only use file_picker on mobile iOS to picker media.
+      // file_picker was not working without hacks on linux
+      var result = await FilePicker.platform.pickFiles(
+        dialogTitle: 'Image or Video',
+        type: FileType.media,
+        lockParentWindow: true,
+        withData: false,
+        allowCompression: false,
+        withReadStream: true,
+        allowMultiple: true,
+      );
+      if (result != null) {
+        for (var file in result.files) {
+          String? filePath = file.path;
+          if (filePath == null) {
+            continue;
+          }
+          files.add(File(filePath));
+        }
+      }
+    } else {
+      var xfiles = await openFiles();
+      files = xfiles.map((it) => File(it.path)).toList();
+    }
 
-    if (result.isNotEmpty) {
-      var files = result.map((it) => File(it.path!)).toList();
-      var param = mediaOnly ? 'media' : 'fileManager';
+    if (files.isNotEmpty) {
+      var param = type == FileType.media ? 'media' : 'fileManager';
       await setPayload(FilePayload(files), param);
       logger('HOME: File selected ${files.length}');
     }
@@ -756,7 +781,7 @@ class HomeScreenState extends ConsumerState<HomeScreen>
     if (Platform.isIOS) {
       openPhotoAndFileBottomSheet();
     } else {
-      openFilePicker(false);
+      openFilePicker(FileType.any);
     }
   }
 
