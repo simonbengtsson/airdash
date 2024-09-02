@@ -70,13 +70,14 @@ Update version
 macOS
 
 - flutter build macos
-- Archive, Distribute -> Export to App store AND Distribute -> Direct Distribution (~/Downloads/airdash.app)
+- Archive -> Distribute -> Direct Distribution
 - npx appdmg appdmg.json ./build/airdash.dmg
+- Distribute with transporter
 
 iOS
 
 - flutter build ipa
-- Distribute with Transporter or Xcode (open build/ios/archive/MyApp.xcarchive)
+- Distribute with Transporter
 
 Android
 
@@ -100,10 +101,10 @@ Linux
 - Open ~\Documents\airdash in vs code
 - git pull -r && flutter pub get
 - flutter build linux --release
-- flutter clean --use-lxd # required
+- snapcraft clean --use-lxd # required
 - snapcraft --output build/airdash.snap --use-lxd
 - snapcraft upload --release=stable build/airdash.snap
-- Copy to mac ./build/airdash.snap
+- Copy to mac ./build/airdash.snap (send.vis.ee for example)
 
 Create Github release
 
