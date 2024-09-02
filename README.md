@@ -59,9 +59,6 @@ Prepare
 - flutter pub get
 - cd ios && pod update
 - cd macos && pod update
-
-Update version
-
 - Update changelog.md and version in pubspec.yaml and snapcraft.yaml
 - git commit -am vX.X.X
 - git tag "vX.X.X"
@@ -100,7 +97,6 @@ Linux
 - Open Ubuntu in VMWare
 - Open ~\Documents\airdash in vs code
 - git pull -r && flutter pub get
-- flutter build linux --release
 - snapcraft clean --use-lxd # required
 - snapcraft --output build/airdash.snap --use-lxd
 - snapcraft upload --release=stable build/airdash.snap
@@ -108,8 +104,6 @@ Linux
 
 Create Github release
 
-- Download macOS app file
-- npx appdmg appdmg.json ./build/airdash.dmg
 - open https://github.com/simonbengtsson/airdash/releases/new
 - Attach
   - build/airdash.apk
