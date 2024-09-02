@@ -4,6 +4,7 @@ import 'dart:io';
 
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:http/http.dart' as http;
+import 'package:in_app_review/in_app_review.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:simple_peer/simple_peer.dart';
 import 'package:wakelock/wakelock.dart';
@@ -143,6 +144,13 @@ class Connector {
         ...remoteDeviceProperties(receiver),
         ...payloadProps,
       });
+
+      if (sendError == null) {
+        await Future.delayed(const Duration(seconds: 2));
+        if (await InAppReview.instance.isAvailable()) {
+          InAppReview.instance.requestReview();
+        }
+      }
     }
   }
 
