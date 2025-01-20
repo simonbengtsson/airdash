@@ -7,7 +7,7 @@ import 'package:http/http.dart' as http;
 import 'package:in_app_review/in_app_review.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:simple_peer/simple_peer.dart';
-import 'package:wakelock/wakelock.dart';
+import 'package:wakelock_plus/wakelock_plus.dart';
 
 import '../helpers.dart';
 import '../model/device.dart';
@@ -75,7 +75,7 @@ class Connector {
     });
     try {
       if (!Platform.isLinux && !Platform.isWindows) {
-        await Wakelock.enable();
+        await WakelockPlus.enable();
       }
       logger('SENDER: Start transfer $transferId');
       await googlePing();
@@ -118,7 +118,7 @@ class Connector {
       rethrow;
     } finally {
       if (!Platform.isLinux && !Platform.isWindows) {
-        await Wakelock.disable();
+        await WakelockPlus.disable();
       }
       List<String> connectionTypes = [];
       if (sender != null) {
@@ -251,7 +251,7 @@ class Connector {
           config: config, dataChannelConfig: dcConfig, verbose: true);
       signal = peer.signal;
       if (!Platform.isLinux && !Platform.isWindows) {
-        await Wakelock.enable();
+        await WakelockPlus.enable();
       }
       var messageSender =
           MessageSender(localDevice, remoteId, transferId, signaling);
@@ -292,7 +292,7 @@ class Connector {
         //await receiver.peer.connection.close();
       }
       if (!Platform.isLinux && !Platform.isWindows) {
-        await Wakelock.disable();
+        await WakelockPlus.disable();
       }
       activeTransferId = null;
       signaling.receivedMessages = <String, dynamic>{};

@@ -17,7 +17,10 @@ dependencies:
   path_provider: ^2.0.12
   share_plus: ^10.0.0
   shared_preferences: ^2.0.15
-  receive_sharing_intent: ^1.6.0
+  receive_sharing_intent:
+    git:
+      url: https://github.com/KasemJaffer/receive_sharing_intent.git
+      ref: master
   firedart: ^0.9.4
   url_launcher: ^6.1.8
   package_info_plus: ^8.0.0
@@ -28,7 +31,6 @@ dependencies:
   window_manager: ^0.4.0
   mime: ^1.0.4
   sentry_flutter: ^8.1.0
-  wakelock: ^0.6.1+2
   simple_peer:
     ^1.0.0
     #path: ./libs/simple_peer
@@ -39,6 +41,7 @@ dependencies:
   file_selector: ^1.0.3
   in_app_review: ^2.0.9
   file_picker: ^8.1.2
+  wakelock_plus: ^1.2.10
 
 dev_dependencies:
   integration_test:
