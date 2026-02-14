@@ -61,8 +61,7 @@ class PairingDialogState extends State<PairingDialog> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text('Pairing Code',
-                      style: TextStyle(color: Color.fromRGBO(0, 0, 0, 0.7))),
+                  const Text('Pairing Code'),
                   Padding(
                     padding: const EdgeInsets.only(top: 8, bottom: 8),
                     child: Container(
@@ -108,13 +107,11 @@ class PairingDialogState extends State<PairingDialog> {
                   ),
                 ],
               ),
-              const Divider(color: Colors.grey),
+              const Divider(),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text('Your Pairing Code',
-                      style: TextStyle(
-                          color: Color.fromRGBO(0, 0, 0, 0.7), height: 2)),
+                  const Text('Your Pairing Code', style: TextStyle(height: 2)),
                   Padding(
                     padding: const EdgeInsets.only(top: 16.0, bottom: 8.0),
                     child: Text(localPairingCode,
@@ -127,14 +124,19 @@ class PairingDialogState extends State<PairingDialog> {
               ),
               if (errorMessage != null)
                 Padding(
-                  padding: const EdgeInsets.only(top: 16.0),
+                  padding: const EdgeInsets.symmetric(vertical: 16.0),
                   child: Container(
                     padding: const EdgeInsets.only(
                         top: 8, bottom: 8, right: 15, left: 15),
                     decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(100),
-                        color: const Color.fromRGBO(0, 0, 0, 0.1)),
-                    child: Text(errorMessage ?? ''),
+                      borderRadius: BorderRadius.circular(100),
+                      color: Theme.of(context).colorScheme.error,
+                    ),
+                    child: Text(
+                      errorMessage ?? '',
+                      style: TextStyle(
+                          color: Theme.of(context).colorScheme.onError),
+                    ),
                   ),
                 ),
             ],

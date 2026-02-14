@@ -956,8 +956,10 @@ class HomeScreenState extends ConsumerState<HomeScreen>
   Widget buildSectionTitle(String text) {
     return Padding(
       padding: const EdgeInsets.only(left: 16, right: 16),
-      child: Text(text.toUpperCase(),
-          style: const TextStyle(color: Colors.black54, fontSize: 13)),
+      child: Text(
+        text.toUpperCase(),
+        style: Theme.of(context).textTheme.titleSmall,
+      ),
     );
   }
 
@@ -1006,7 +1008,6 @@ class HomeScreenState extends ConsumerState<HomeScreen>
             },
             selected: selected,
             trailing: selected ? const Icon(Icons.check) : null,
-            selectedTileColor: Colors.grey[100],
             leading: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -1049,17 +1050,11 @@ class HomeScreenState extends ConsumerState<HomeScreen>
   }
 
   Widget buildOwnDeviceView(Device device) {
-    return Container(
-      decoration: const BoxDecoration(
-        color: Colors.white,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black12,
-            offset: Offset(0, 0),
-            blurRadius: 10.0,
-          ),
-        ],
-      ),
+    print(Theme.of(context).brightness);
+    print(MediaQuery.platformBrightnessOf(context));
+
+    return Material(
+      elevation: 2,
       child: SafeArea(
         bottom: false,
         child: Column(
